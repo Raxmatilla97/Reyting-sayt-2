@@ -11,6 +11,7 @@
         "laravel/passport": "^11.10",
         "laravel/sanctum": "^3.3",
         "laravel/tinker": "^2.8",
+        "league/oauth2-client": "^2.7",
         "livewire/livewire": "^3.0",
         "livewire/volt": "^1.0"
     },

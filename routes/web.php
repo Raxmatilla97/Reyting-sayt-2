@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\Auth2Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,6 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 
+Route::get('/developers', ['API\UserController@developers']);
+
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
@@ -22,5 +25,9 @@ Route::view('dashboard', 'dashboard')
 Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
+
+    Route::get("/oauth", [Auth2Controller::class, 'redirectToAuthorization'])->name("redirectToAuthorization");
+Route::get("/oauth/callback", [Auth2Controller::class, 'handleAuthorizationCallback'])->name("handleAuthorizationCallback");
+
 
 require __DIR__.'/auth.php';

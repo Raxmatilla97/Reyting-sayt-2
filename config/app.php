@@ -4,6 +4,22 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\ServiceProvider;
 
 return [
+        /*
+       |--------------------------------------------------------------------------
+       | Hemisga api orqali bog'lanib loginga kirish 
+       |--------------------------------------------------------------------------      
+       |
+       */
+
+    'employee_oauth' => [
+        'CLIENT_ID' => '4',
+        'CLIENT_SECRET' => 'ZYBhkgZ0lzUoviv0VYZiLiQqf90lpfeXTq6r7pMM',
+        'REDIRECT_URI' => 'http://127.0.0.1:8000/oauth/callback',
+        'URL_AUTHORIZE' => 'https://hemis.cspi.uz/oauth/authorize',
+        'URL_ACCESS_TOKEN' => 'https://hemis.cspi.uz/oauth/access-token',
+        'URL_RESOURCE_OWNER_DETAILS' => 'https://hemis.cspi.uz/oauth/api/user?fields=id,uuid,type,name,login,picture,email,university_id,phone,specialty'
+    ],
+
 
     /*
     |--------------------------------------------------------------------------
@@ -156,16 +172,16 @@ return [
     */
 
     'providers' => ServiceProvider::defaultProviders()->merge([
-        /*
-         * Package Service Providers...
-         */
+            /*
+             * Package Service Providers...
+             */
 
-        /*
-         * Application Service Providers...
-         */
+            /*
+             * Application Service Providers...
+             */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
+            // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         App\Providers\VoltServiceProvider::class,
