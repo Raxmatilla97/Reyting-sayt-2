@@ -14,7 +14,7 @@ use App\Http\Controllers\API\Auth2Controller;
 |
 */
 
-Route::view('/', 'welcome');
+// Route::view('/', 'welcome');
 
 Route::get('/developers', ['API\UserController@developers']);
 
@@ -27,7 +27,7 @@ Route::view('profile', 'profile')
     ->name('profile');
 
     Route::get("/oauth", [Auth2Controller::class, 'redirectToAuthorization'])->name("redirectToAuthorization");
-Route::get("/oauth/callback", [Auth2Controller::class, 'handleAuthorizationCallback'])->name("handleAuthorizationCallback");
+Route::get("/", [Auth2Controller::class, 'handleAuthorizationCallback'])->name("handleAuthorizationCallback");
 
 
 require __DIR__.'/auth.php';

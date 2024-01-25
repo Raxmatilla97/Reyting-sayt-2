@@ -30,7 +30,7 @@ class Auth2Controller extends Controller
         $urlAuthorize = Config::get('app.employee_oauth.URL_AUTHORIZE');
         $urlAccessToken = Config::get('app.employee_oauth.URL_ACCESS_TOKEN');
         $urlResourceOwnerDetails = Config::get('app.employee_oauth.URL_RESOURCE_OWNER_DETAILS');
-       
+        
         $employeeProvider = new GenericProvider([
             'clientId'                => $clientId,
             'clientSecret'            => $clientSecret,
@@ -39,8 +39,8 @@ class Auth2Controller extends Controller
             'urlAccessToken'          => $urlAccessToken,
             'urlResourceOwnerDetails' => $urlResourceOwnerDetails
         ]);
+        // dd($employeeProvider);
 
-   
         // Редирект на страницу авторизации OAuth2
         $authorizationUrl = $employeeProvider->getAuthorizationUrl();
         return redirect()->away($authorizationUrl);
@@ -67,8 +67,8 @@ public function handleAuthorizationCallback(Request $request)
             'urlResourceOwnerDetails' => $urlResourceOwnerDetails
         ]);
 
-        dd($employeeProvider);
-        
+       
+
         if ($request->has('code')) {
             try {
                 $accessToken = $employeeProvider->getAccessToken('authorization_code', [
