@@ -1,7 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\Auth2Controller;
+use App\Http\Controllers\Auth\ApiHemisController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -14,9 +15,7 @@ use App\Http\Controllers\API\Auth2Controller;
 |
 */
 
-// Route::view('/', 'welcome');
-
-Route::get('/developers', ['API\UserController@developers']);
+Route::view('/', 'welcome');
 
 Route::view('dashboard', 'dashboard')
     ->middleware(['auth', 'verified'])
@@ -26,8 +25,7 @@ Route::view('profile', 'profile')
     ->middleware(['auth'])
     ->name('profile');
 
-    Route::get("/oauth", [Auth2Controller::class, 'redirectToAuthorization'])->name("redirectToAuthorization");
-Route::get("/", [Auth2Controller::class, 'handleAuthorizationCallback'])->name("handleAuthorizationCallback");
 
-
+    Route::get("/oauth", [ApiHemisController::class, 'redirectToAuthorization'])->name("redirectToAuthorization");
+    Route::get("/oauth/callback", [ApiHemisController::class, 'handleAuthorizationCallback'])->name("handleAuthorizationCallback");
 require __DIR__.'/auth.php';
