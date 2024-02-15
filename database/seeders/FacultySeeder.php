@@ -14,8 +14,8 @@ class FacultySeeder extends Seeder
      */
     public function run()
     {
-        $token = env('API_TOKEN');
-        $apiUrl = 'https://student.cspi.uz/rest/v1/data/department-list?limit=200&active=1&_structure_type=11&localityType.name=Mahalliy&structureType.name=Fakultet';
+        $token = env('API_HEMIS_TOKEN');
+        $apiUrl = env('API_HEMIS_URL').'/rest/v1/data/department-list?limit=200&active=1&_structure_type=11&localityType.name=Mahalliy&structureType.name=Fakultet';
 
         // API dan ma'lumotlarni olish
         $faculties = json_decode(file_get_contents($apiUrl, false, stream_context_create([
