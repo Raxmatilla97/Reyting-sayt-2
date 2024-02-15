@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\TemporaryFile;
 
 class User extends Authenticatable
 {
@@ -17,6 +18,8 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+
+    // Ruxsat berilgan ustunlar ro'yxati
     protected $fillable = [
         'name',
         'email',
@@ -37,9 +40,10 @@ class User extends Authenticatable
         'login',
         'uuid',
         'employee_id',
-        'user_type',     
+        'user_type',
         'phone',
-        'employee_id_number'
+        'employee_id_number',
+        'department_id'
     ];
 
     /**
@@ -61,4 +65,10 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    // Relation orqali bog'lanish
+    public function file()
+    {
+        return $this->hasMany(TemporaryFile::class);
+    }
 }

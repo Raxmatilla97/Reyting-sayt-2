@@ -36,6 +36,10 @@ return new class extends Migration
             $table->string('employee_id')->nullable();
             $table->string('user_type')->nullable();           
             $table->string('phone')->nullable();
+            // Men qo'shgan yangi migratsiyalar
+            $table->foreignId('department_id')->nullable()->constrained('departments');
+            
+
             $table->rememberToken();
             $table->timestamps();
         });
