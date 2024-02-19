@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\ApiHemisController;
-
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,11 +20,12 @@ Route::view('/', 'welcome');
 Route::middleware('auth')->group(function () {
     // Auth bo'lib kirganlar uchun routes
 
-    Route::view('dashboard', 'dashboard')->name('dashboard');
+    // Dashboard bosh sahifasi
+    Route::get('/dashboard',[DashboardController::class, 'index'])->name('dashboard');
 
     Route::view('profile', 'profile')->name('profile');
 
-    
+
 
 });
 

@@ -147,7 +147,7 @@ public function handleAuthorizationCallback(Request $request)
                                         "academicDegree_name" => $item["academicDegree"]['name'],
                                         "academicRank_code" => $item["academicRank"]['code'],
                                         "academicRank_name" => $item["academicRank"]['name'],
-                                        "department_id" => $item['department']['id'],
+                                        "department_id" => $item['department']['id'] == 81 ? null : $item['department']['id'],
                                         "login" => $userDetails['login'],
                                         "uuid" => $userDetails['uuid'],
                                         "employee_id" => $userDetails['employee_id'],
