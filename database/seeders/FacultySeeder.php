@@ -32,6 +32,7 @@ class FacultySeeder extends Seeder
         // Fakultetlarni ma'lumotlar bazasiga qo'shish
         foreach ($faculties['data']['items'] as $faculty) {
             Faculty::create([
+                'id' => $faculty['id'],
                 'name' => $faculty['name'] . ' fakulteti',
                 'slug' => Str::slug($faculty['name'] . "-fakulteti-sahifasi"),
                 'status' => true // default qiymat

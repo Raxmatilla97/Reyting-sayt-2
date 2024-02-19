@@ -17,15 +17,18 @@ use App\Http\Controllers\Auth\ApiHemisController;
 
 Route::view('/', 'welcome');
 
-Route::view('dashboard', 'dashboard')
-    ->middleware(['auth', 'verified'])
-    ->name('dashboard');
+Route::middleware('auth')->group(function () {
+    // Auth bo'lib kirganlar uchun routes
 
-Route::view('profile', 'profile')
-    ->middleware(['auth'])
-    ->name('profile');
+    Route::view('dashboard', 'dashboard')->name('dashboard');
+
+    Route::view('profile', 'profile')->name('profile');
+
+    
+
+});
 
 
-    Route::get("/oauth", [ApiHemisController::class, 'redirectToAuthorization'])->name("redirectToAuthorization");
-    Route::get("/oauth/callback", [ApiHemisController::class, 'handleAuthorizationCallback'])->name("handleAuthorizationCallback");
-require __DIR__.'/auth.php';
+Route::get("/oauth", [ApiHemisController::class, 'redirectToAuthorization'])->name("redirectToAuthorization");
+Route::get("/oauth/callback", [ApiHemisController::class, 'handleAuthorizationCallback'])->name("handleAuthorizationCallback");
+require __DIR__ . '/auth.php';

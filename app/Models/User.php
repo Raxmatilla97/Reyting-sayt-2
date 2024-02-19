@@ -42,8 +42,8 @@ class User extends Authenticatable
         'employee_id',
         'user_type',
         'phone',
-        'employee_id_number',
-        'department_id'
+        'employee_id_number'
+       
     ];
 
     /**

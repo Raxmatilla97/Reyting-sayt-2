@@ -18,6 +18,7 @@ class Faculty extends Model
         'description',
         'status',
         'custom_points'
+      
     ];
 
     // Relation orqali bog'lanish

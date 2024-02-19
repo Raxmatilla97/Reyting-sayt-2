@@ -24,12 +24,12 @@ class ApiHemisController extends Controller
 
         $redirectUrl = route("handleAuthorizationCallback");
 
-        $clientId = Config::get('app.employee_oauth.CLIENT_ID');
-        $clientSecret = Config::get('app.employee_oauth.CLIENT_SECRET');
-        $redirectUri = Config::get('app.employee_oauth.REDIRECT_URI');
-        $urlAuthorize = Config::get('app.employee_oauth.URL_AUTHORIZE');
-        $urlAccessToken = Config::get('app.employee_oauth.URL_ACCESS_TOKEN');
-        $urlResourceOwnerDetails = Config::get('app.employee_oauth.URL_RESOURCE_OWNER_DETAILS');
+        $clientId = env('EMPLOYEE_CLIENT_ID');
+        $clientSecret = env('EMPLOYEE_CLIENT_SECRET');
+        $redirectUri = env('EMPLOYEE_REDIRECT_URI');
+        $urlAuthorize = env('EMPLOYEE_URL_AUTHORIZE');
+        $urlAccessToken = env('EMPLOYEE_URL_ACCESS_TOKEN');
+        $urlResourceOwnerDetails = env('EMPLOYEE_URL_RESOURCE_OWNER_DETAILS');
         
         $employeeProvider = new GenericProvider([
             'clientId'                => $clientId,
@@ -41,7 +41,7 @@ class ApiHemisController extends Controller
         ]);
         // dd($employeeProvider);
 
-        // Редирект на страницу авторизации OAuth2
+        // OAuth2 sahifssiga redirect qilish
         $authorizationUrl = $employeeProvider->getAuthorizationUrl();
         return redirect()->away($authorizationUrl);
     }
@@ -58,15 +58,15 @@ public function handleAuthorizationCallback(Request $request)
       
       
         if (Auth::check()) {
-            return redirect('/dashboard');
+            return redirect('/dashboard');  
         }
         
-        $clientId = Config::get('app.employee_oauth.CLIENT_ID');
-        $clientSecret = Config::get('app.employee_oauth.CLIENT_SECRET');
-        $redirectUri = Config::get('app.employee_oauth.REDIRECT_URI');
-        $urlAuthorize = Config::get('app.employee_oauth.URL_AUTHORIZE');
-        $urlAccessToken = Config::get('app.employee_oauth.URL_ACCESS_TOKEN');
-        $urlResourceOwnerDetails = Config::get('app.employee_oauth.URL_RESOURCE_OWNER_DETAILS');
+        $clientId = env('EMPLOYEE_CLIENT_ID');
+        $clientSecret = env('EMPLOYEE_CLIENT_SECRET');
+        $redirectUri = env('EMPLOYEE_REDIRECT_URI');
+        $urlAuthorize = env('EMPLOYEE_URL_AUTHORIZE');
+        $urlAccessToken = env('EMPLOYEE_URL_ACCESS_TOKEN');
+        $urlResourceOwnerDetails = env('EMPLOYEE_URL_RESOURCE_OWNER_DETAILS');
 
         $employeeProvider = new GenericProvider([
             'clientId'                => $clientId,
@@ -75,11 +75,9 @@ public function handleAuthorizationCallback(Request $request)
             'urlAuthorize'            => $urlAuthorize,
             'urlAccessToken'          => $urlAccessToken,
             'urlResourceOwnerDetails' => $urlResourceOwnerDetails
-        ]);
-     
+        ]);     
                
-        if ($code) {
-     
+        if ($code) {     
           
             try {
                   
@@ -88,28 +86,25 @@ public function handleAuthorizationCallback(Request $request)
                 ]);
                
              
-                // Получение информации о пользователе с помощью полученного токена
+                // Token yordamida foydalanuvchi ma'lumotlarini olish
                 $resourceOwner = $employeeProvider->getResourceOwner($accessToken);
 
-                // Данные пользователя из OAuth2
+                // OAuth2 dan foydalanuvchi ma'lumotlari
                 $userDetails = $resourceOwner->toArray();
                 
-
-	            
-
                
-                // Пример проверки наличия идентификатора пользователя
+                // Foydalanuvchi id raqami yordamida uni tekshirish
                 if (isset($userDetails['employee_id_number'])) {
-                    // dd($userDetails['employee_id_number']);
-                    // Ваша логика проверки или создания пользователя в системе Laravel
+                   
+                    // Tekshirish yoki yaratish logikasi kodlari bu yerdan boshlanadi
                     $user = User::where('employee_id_number', $userDetails['employee_id_number'])->first();
                   
                     if (!$user) {
                        
                         $employee_id_number = $userDetails['employee_id_number'];
                     
-                        $url = "https://student.cspi.uz/rest/v1/data/employee-list?type=all&search=$employee_id_number";
-                        $response = Http::withToken("7WTnWmvTyIJL6Jd-ONDlKVUd_huYe8rr")->get($url)->json();
+                        $url = env('API_HEMIS_URL')."/rest/v1/data/employee-list?type=all&search=$employee_id_number";
+                        $response = Http::withToken(env('API_HEMIS_TOKEN'))->get($url)->json();
                            
                        
                         if ($response['data']['pagination']['totalCount'] > 0){
@@ -122,21 +117,18 @@ public function handleAuthorizationCallback(Request $request)
                            
                                 $fileName = '';
 
+                               
+
                                 if ($userDetails["picture"]) {
                                  
                                     $imageContent = file_get_contents($userDetails["picture"]);
-
-                                    // Generate a unique file name or use some logic to create a unique name
-                                    $fileName = 'image_' . time() . '_' . uniqid() . '.jpg';
+                                    $fileName = 'image_' . time() . '_' . uniqid() . '.jpg'; 
+                                    $storagePath = storage_path('app/public/users/image/') . $fileName;                                  
                                    
-                                    // Specify the storage path where you want to save the image
-                                    $storagePath = storage_path('app/public/users/image/') . $fileName;
-                                  
-                                    // Save the downloaded image to the storage path
                                     file_put_contents($storagePath, $imageContent);
                                 
                                 }
-                              
+                          
                           
                                 $user_save = User::updateOrCreate(
                                     ['employee_id_number' => $userDetails["employee_id_number"]],
@@ -155,7 +147,7 @@ public function handleAuthorizationCallback(Request $request)
                                         "academicDegree_name" => $item["academicDegree"]['name'],
                                         "academicRank_code" => $item["academicRank"]['code'],
                                         "academicRank_name" => $item["academicRank"]['name'],
-                                        // "department_id" => $item["department"]['id'],
+                                        "department_id" => $item['department']['id'],
                                         "login" => $userDetails['login'],
                                         "uuid" => $userDetails['uuid'],
                                         "employee_id" => $userDetails['employee_id'],
@@ -175,14 +167,14 @@ public function handleAuthorizationCallback(Request $request)
                     Auth::login($user);
                     return redirect(route('admin.dashboard'));
                 } else {
-                    return redirect('/login')->withErrors(['oauth_error' => 'Ошибка аутентификации 1']);
+                    return redirect('/login')->withErrors(['oauth_error' => 'Xatolik 1']);
                 }
             } catch (\Exception $e) {
                 \Log::error('There was an error: ' . $e->getMessage());
-                return redirect('/login')->withErrors(['oauth_error' => 'Ошибка аутентификации 2']);
+                return redirect('/login')->withErrors(['oauth_error' => 'Xatolik 2']);
             }
         } else {
-            // Если нет кода, возможно это попытка доступа без авторизации
+            // Agar kod kelmasa bu avtarizatsiya qilinmaganini bildiradi
             return redirect('/login')->withErrors(['oauth_error' => "Kod yo'q!"]);
         }
     }
