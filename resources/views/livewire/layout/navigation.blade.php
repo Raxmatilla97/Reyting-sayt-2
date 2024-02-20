@@ -40,6 +40,18 @@ new class extends Component
                         {{ __('Fakultetlar') }}
                     </x-nav-link>
                 </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('dashboard.departments')" :active="request()->routeIs('dashboard.departments')" wire:navigate>
+                        {{ __('Kafedralar') }}
+                    </x-nav-link>
+                </div>
+
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('dashboard.employees')" :active="request()->routeIs('dashboard.employees')" wire:navigate>
+                        {{ __('O\'qituvchilar') }}
+                    </x-nav-link>
+                </div>
             </div>
 
             <!-- Settings Dropdown -->
@@ -93,6 +105,14 @@ new class extends Component
 
             <x-responsive-nav-link :href="route('dashboard.faculties')" :active="request()->routeIs('dashboard.faculties')" wire:navigate>
                 {{ __('Fakultetlar') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('dashboard.departments')" :active="request()->routeIs('dashboard.departments')" wire:navigate>
+                {{ __('Kafedralar') }}
+            </x-responsive-nav-link>
+
+            <x-responsive-nav-link :href="route('dashboard.employees')" :active="request()->routeIs('dashboard.employees')" wire:navigate>
+                {{ __('O\'qituvchilar') }}
             </x-responsive-nav-link>
         </div>
 

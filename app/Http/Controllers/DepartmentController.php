@@ -12,7 +12,9 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        //
+        $departments = Department::paginate(15);       
+
+        return view('livewire.pages.dashboard.department.index', compact('departments'));
     }
 
     /**

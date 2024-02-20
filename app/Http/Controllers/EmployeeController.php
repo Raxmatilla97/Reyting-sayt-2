@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Faculty;
+use App\Models\Employee;
 use Illuminate\Http\Request;
 
-class FacultyController extends Controller
+
+class EmployeeController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $faculties = Faculty::paginate(15);
-       
+        $employee = Employee::paginate(15);
 
-        return view('livewire.pages.dashboard.faculty.index', compact('faculties'));
+        return view('livewire.pages.dashboard.employee.index', compact('employee'));
     }
 
     /**
@@ -37,7 +37,7 @@ class FacultyController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Faculty $faculty)
+    public function show(string $id)
     {
         //
     }
@@ -45,7 +45,7 @@ class FacultyController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Faculty $faculty)
+    public function edit(string $id)
     {
         //
     }
@@ -53,7 +53,7 @@ class FacultyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Faculty $faculty)
+    public function update(Request $request, string $id)
     {
         //
     }
@@ -61,7 +61,7 @@ class FacultyController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Faculty $faculty)
+    public function destroy(string $id)
     {
         //
     }

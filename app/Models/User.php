@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use App\Models\TemporaryFile;
+
 
 class User extends Authenticatable
 {
@@ -42,7 +42,8 @@ class User extends Authenticatable
         'employee_id',
         'user_type',
         'phone',
-        'employee_id_number'
+        'employee_id_number',
+        'status'
        
     ];
 
@@ -67,8 +68,5 @@ class User extends Authenticatable
     ];
 
     // Relation orqali bog'lanish
-    public function file()
-    {
-        return $this->hasMany(TemporaryFile::class);
-    }
+   
 }

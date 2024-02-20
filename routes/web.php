@@ -4,6 +4,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\ApiHemisController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FacultyController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\EmployeeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,8 +27,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard',[DashboardController::class, 'index'])->name('dashboard');
 
     // Fakultetlar uchun CRUD Routerlari
-    Route::get('/faculties',[FacultyController::class, 'index'])->name('dashboard.faculties');
-   
+    Route::get('/faculties',[FacultyController::class, 'index'])->name('dashboard.faculties');   
+
+    // Kafedralar uchun CRUD Routerlari
+    Route::get('/departments',[DepartmentController::class, 'index'])->name('dashboard.departments');
+    
+    // O'qituvchilar uchun CRUD Routerlari
+    Route::get('/employees',[EmployeeController::class, 'index'])->name('dashboard.employees');
 
 
     Route::view('profile', 'profile')->name('profile');
