@@ -76,7 +76,7 @@ public function handleAuthorizationCallback(Request $request)
             'urlAccessToken'          => $urlAccessToken,
             'urlResourceOwnerDetails' => $urlResourceOwnerDetails
         ]);     
-               
+          
         if ($code) {     
           
             try {
@@ -84,20 +84,19 @@ public function handleAuthorizationCallback(Request $request)
                 $accessToken = $employeeProvider->getAccessToken('authorization_code', [
                     'code' => $code
                 ]);
-               
+              
              
                 // Token yordamida foydalanuvchi ma'lumotlarini olish
                 $resourceOwner = $employeeProvider->getResourceOwner($accessToken);
-
+              
                 // OAuth2 dan foydalanuvchi ma'lumotlari
-                $userDetails = $resourceOwner->toArray();
-                
-               
+                $userDetails = $resourceOwner->toArray();               
+              
                 // Foydalanuvchi id raqami yordamida uni tekshirish
                 if (isset($userDetails['employee_id_number'])) {
-                   
+                  
                     // Tekshirish yoki yaratish logikasi kodlari bu yerdan boshlanadi
-                    $user = User::where('employee_id_number', $userDetails['employee_id_number'])->first();
+                    $user = User::where('employee_id_number', $userDetails['employee_id_number'])->first();       
                   
                     if (!$user) {
                        
@@ -106,7 +105,7 @@ public function handleAuthorizationCallback(Request $request)
                         $url = env('API_HEMIS_URL')."/rest/v1/data/employee-list?type=all&search=$employee_id_number";
                         $response = Http::withToken(env('API_HEMIS_TOKEN'))->get($url)->json();
                            
-                       
+                      
                         if ($response['data']['pagination']['totalCount'] > 0){
                         
                             foreach ($response['data']['items'] as $item){
@@ -115,21 +114,20 @@ public function handleAuthorizationCallback(Request $request)
                                 $contract_date = Date::parse($item["contract_date"])->format('Y-m-d');
                                 $decree_date = Date::parse($item["decree_date"])->format('Y-m-d');
                            
-                                $fileName = '';
-
+                                $fileName = '';                               
                                
-
                                 if ($userDetails["picture"]) {
                                  
                                     $imageContent = file_get_contents($userDetails["picture"]);
                                     $fileName = 'image_' . time() . '_' . uniqid() . '.jpg'; 
                                     $storagePath = storage_path('app/public/users/image/') . $fileName;                                  
-                                   
+                                 
+                                    // Agarda 'Xatolik 2' chiqsa Storage da users/image/ papkasi bo'lmagan bo'lishi mumkin yoki chmod 755-777 bo'lmagan bo'ladi.
                                     file_put_contents($storagePath, $imageContent);
-                                
+                                   
                                 }
                           
-                          
+                               
                                 $user_save = User::updateOrCreate(
                                     ['employee_id_number' => $userDetails["employee_id_number"]],
                                     [
@@ -164,6 +162,7 @@ public function handleAuthorizationCallback(Request $request)
                         Auth::login($user_save);
                         return redirect(route('admin.dashboard'));
                     }
+                    
                     Auth::login($user);
                     return redirect(route('admin.dashboard'));
                 } else {
@@ -175,7 +174,7 @@ public function handleAuthorizationCallback(Request $request)
             }
         } else {
             // Agar kod kelmasa bu avtarizatsiya qilinmaganini bildiradi
-            return redirect('/login')->withErrors(['oauth_error' => "Kod yo'q!"]);
+            return redirect('/login')->withErrors(['oauth_error' => "HEMIS API dan code qabul qilinmadi!"]);
         }
     }
 }

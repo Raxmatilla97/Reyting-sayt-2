@@ -25,10 +25,10 @@
 
                                 <div class="flex-auto w-full mb-4 text-xs space-y-2">
                                     <label for="countries"
-                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Yo'nalishni
+                                        class="block mb-2 text-sm font-medium text-gray-900">Yo'nalishni
                                         tanlang</label>
                                     <select id="countries" name="category_name"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-700 focus:border-blue-700 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-700 focus:border-blue-700 block w-full p-2.5">
                                         <option value="" selected>Tanlang...</option>
                                         @foreach ($categoryes as $value)
                                         <option class="w-1/2" value="{{ $value->id }}">{{ $value->name }}</option>
@@ -40,14 +40,14 @@
                                 <div class="flex-auto w-full mb-4 text-xs space-y-4">
 
                                     <label for="helper-text"
-                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Sahifa
+                                        class="block mb-2 text-sm font-medium text-gray-900">Sahifa
                                         manzilini joylang</label>
                                     <input type="text" id="helper-text" name="site_url"
                                         aria-describedby="helper-text-explanation"
-                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
                                         placeholder="https://site.uz/manzil">
                                     <p id="helper-text-explanation "
-                                        class="mt-2 text-sm text-gray-500 dark:text-gray-400">Sahifa manzilini
+                                        class="mt-2 text-sm text-gray-500">Sahifa manzilini
                                         qo'yishdan oldin o'sha sahifa ishlayotganligiga amin bo'ling! <br>
                                         <b>Sayt manzilini https:// bilan yozing!</b> <b
                                             class="text-blue-600 text-sm font-medium inline-block"> masalan:
@@ -59,16 +59,16 @@
                                 <div class="flex-auto w-full mb-4 mt-4 text-xs space-y-4">
 
                                     <label for="message"
-                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Muommolar
+                                        class="block mb-2 text-sm font-medium text-gray-900">Muommolar
                                         haqida yozing</label>
                                     <textarea id="message" name="duch_kelingan_muommo" rows="4"
-                                        class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                        class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500"
                                         placeholder="Ilmiy izlanishignizda siz duch kelgan muommolar haqida yozishingiz mumkin..." ></textarea>
                                 </div>
 
                                 <div class="flex-auto w-full mb-1 mt-4 text-xs space-y-2">
                                     <label for="filepond"
-                                        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fayl
+                                        class="block mb-2 text-sm font-medium text-gray-900">Fayl
                                         yuklash</label>
                                     <input type="file" name="document" id="filepond">
                                 </div>
@@ -81,12 +81,9 @@
                     </div>
 
                     <div class="mt-8 text-right md:space-x-3 md:block flex flex-col-reverse">
-                        <a href="{{ '/' }}"><button
-                                class="mb-2 md:mb-0 bg-white px-5 py-2 text-sm shadow-sm font-medium tracking-wider border text-gray-600 rounded-full hover:shadow-lg hover:bg-gray-100">
-                                Orqaga qaytish </button></a>
+                      
                         <button type="submit"
-                            class="mb-2 md:mb-0 bg-green-400 px-5 py-2 text-sm shadow-sm font-medium tracking-wider text-white rounded-full hover:shadow-lg hover:bg-green-500">Davom
-                            etish</button>
+                            class="mb-2 md:mb-0 bg-green-400 px-5 py-2 text-sm shadow-sm font-medium tracking-wider text-white rounded-full hover:shadow-lg hover:bg-green-500">Yuborish</button>
                     </div>
                     </form>
                 </div>

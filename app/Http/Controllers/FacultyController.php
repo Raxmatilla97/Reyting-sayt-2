@@ -12,7 +12,10 @@ class FacultyController extends Controller
      */
     public function index()
     {
-        //
+        $faculties = Faculty::where('status', true)->get();
+       
+
+        return view('livewire.pages.dashboard.faculty.index', compact('faculties'));
     }
 
     /**

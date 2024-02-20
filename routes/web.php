@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\ApiHemisController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FacultyController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,6 +23,11 @@ Route::middleware('auth')->group(function () {
 
     // Dashboard bosh sahifasi
     Route::get('/dashboard',[DashboardController::class, 'index'])->name('dashboard');
+
+    // Fakultetlar uchun CRUD Routerlari
+    Route::get('/faculties',[FacultyController::class, 'index'])->name('dashboard.faculties');
+   
+
 
     Route::view('profile', 'profile')->name('profile');
 
