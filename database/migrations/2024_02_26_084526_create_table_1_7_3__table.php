@@ -13,6 +13,11 @@ return new class extends Migration
     {
         Schema::create('table_1_7_3_', function (Blueprint $table) {
             $table->id();
+            $table->string('davlat_grant_mavzusi')->nullable();
+            $table->string('davlat_grant_summasi')->nullable();
+            $table->string('jami_summa')->nullable();
+            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->foreignId('departament_id')->constrained('departments')->onDelete('cascade'); 
             $table->timestamps();
         });
     }
