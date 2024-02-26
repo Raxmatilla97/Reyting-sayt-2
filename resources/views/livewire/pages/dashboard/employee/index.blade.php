@@ -109,7 +109,7 @@
                                                                         </svg>
                                                                      
                                                                         </span>
-                                                                    
+                                                                  
                                                                     {{$item->department->name}}</span>
 
                                                         </div>                                                            

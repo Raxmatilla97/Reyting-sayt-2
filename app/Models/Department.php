@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Faculty;
 use App\Models\User;
+use App\Models\Employee;
 
 
 class Department extends Model
@@ -32,6 +33,11 @@ class Department extends Model
     public function user()
     {
         return $this->hasMany(User::class);
+    }
+
+    public function employee()
+    {
+        return $this->hasMany(Employee::class);
     }
 
 }
