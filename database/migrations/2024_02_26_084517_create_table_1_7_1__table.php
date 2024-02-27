@@ -15,9 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('xorijiy_granti_buyurtma_nomi')->nullable();
             $table->string('xorijiy_granti_buyurtma_summasi')->nullable();
-            $table->string('jami_summa')->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
-            $table->foreignId('departament_id')->constrained('departments')->onDelete('cascade'); 
+            $table->string('jami_summa')->nullable();          
             $table->timestamps();
         });
     }

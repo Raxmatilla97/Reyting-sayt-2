@@ -17,8 +17,7 @@ return new class extends Migration
             $table->string('olingan_guvohnoma')->nullable();
             $table->string('mualliflar_soni')->nullable();
             $table->string('berilgan_sana')->nullable();
-            $table->string('qayd_raqami')->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->string('qayd_raqami')->nullable();          
             $table->timestamps();
         });
     }

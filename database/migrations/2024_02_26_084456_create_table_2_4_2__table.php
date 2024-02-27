@@ -17,8 +17,7 @@ return new class extends Migration
             $table->string('xorijiy_davlat_nomi')->nullable();
             $table->string('talim_yonalishi')->nullable();
             $table->string('Xorijiy_va_hamkorlik_loyhasi')->nullable();
-            $table->string('seminar_knfrensiya_nomi')->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->string('seminar_knfrensiya_nomi')->nullable();            
             $table->timestamps();
         });
     }

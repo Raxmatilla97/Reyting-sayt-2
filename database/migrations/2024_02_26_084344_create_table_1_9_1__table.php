@@ -19,8 +19,7 @@ return new class extends Migration
             $table->string('monograf_nomi')->nullable();
             $table->string('monograf_kengash_bayoni')->nullable();
             $table->string('nashryot_nomi')->nullable();
-            $table->string('natlib_isbn_raqami')->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->string('natlib_isbn_raqami')->nullable();           
             $table->timestamps();
         });
     }

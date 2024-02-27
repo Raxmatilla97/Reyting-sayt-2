@@ -16,8 +16,7 @@ return new class extends Migration
             $table->string('otmlar_nomi')->nullable();            
             $table->string('namuna_seksiya_yorligi')->nullable();
             $table->string('berilgan_sanasi')->nullable();
-            $table->string('qayd_raqami')->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->string('qayd_raqami')->nullable();         
             $table->timestamps();
         });
     }

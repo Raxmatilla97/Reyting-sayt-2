@@ -17,8 +17,7 @@ return new class extends Migration
             $table->string('qollanma_mualliflar_soni')->nullable();
             $table->string('qollanma_nomi')->nullable();
             $table->string('qollanma_guvohnomasi')->nullable();
-            $table->string('qollanma_reestr_raqami')->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->string('qollanma_reestr_raqami')->nullable();         
             $table->timestamps();
         });
     }

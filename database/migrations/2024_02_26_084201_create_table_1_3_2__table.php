@@ -18,8 +18,7 @@ return new class extends Migration
             $table->string('ilmiy_unvon_seryasi')->nullable();
             $table->string('ilmiy_unvon_raqami')->nullable();
             $table->string('mutaxasisligi_nomi')->nullable();          
-            $table->string('ishga_buyrug_rqami_seryasi')->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->string('ishga_buyrug_rqami_seryasi')->nullable();           
             $table->timestamps();
         });
     }

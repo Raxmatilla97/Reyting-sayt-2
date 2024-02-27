@@ -18,8 +18,7 @@ return new class extends Migration
             $table->string('maqolaning_nomi')->nullable();
             $table->string('maqola_tili')->nullable();
             $table->string('google_schoolar_url')->nullable();
-            $table->string('google_schoolar_iqtiboslar')->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->string('google_schoolar_iqtiboslar')->nullable();          
             $table->timestamps();
         });
     }

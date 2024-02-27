@@ -19,8 +19,7 @@ return new class extends Migration
             $table->string('disertatsiya_mavzusi')->nullable();
             $table->string('maxsus_kengash_shifri')->nullable();
             $table->string('ilmiy_unvon_olganlar')->nullable();
-            $table->string('ilmiy_unvon_tasdiqlangan_sana')->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->string('ilmiy_unvon_tasdiqlangan_sana')->nullable();          
             $table->timestamps();
         });
     }

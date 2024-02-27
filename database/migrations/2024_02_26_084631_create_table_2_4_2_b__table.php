@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('table_2_4_2_b_', function (Blueprint $table) {
             $table->id();
+            $table->string('hujjat_nomi_sanasi')->nullable();
+            $table->string('ism_sharifi')->nullable();
+            $table->string('xorijiy_davlat_otm_nomi')->nullable();
+            $table->string('mutaxasislik_nomi')->nullable();
+            $table->string('loyha_nomi')->nullable();
+            $table->string('seminar_nomi')->nullable(); 
             $table->timestamps();
         });
     }

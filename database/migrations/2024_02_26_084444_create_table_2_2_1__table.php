@@ -17,8 +17,7 @@ return new class extends Migration
             $table->string('darslik_mualliflar_soni')->nullable();
             $table->string('darslik_nomi')->nullable();
             $table->string('darslik_guvohnomasi')->nullable();
-            $table->string('darslik_reestr_raqami')->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->string('darslik_reestr_raqami')->nullable();          
             $table->timestamps();
         });
     }

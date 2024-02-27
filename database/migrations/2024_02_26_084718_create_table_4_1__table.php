@@ -13,6 +13,13 @@ return new class extends Migration
     {
         Schema::create('table_4_1_', function (Blueprint $table) {
             $table->id();
+            $table->string('talaba_fish')->nullable();
+            $table->string('talim_yonalishi')->nullable();
+            $table->string('oqish_bosqichi')->nullable();
+            $table->string('sport_klubi_nomi')->nullable();
+            $table->string('sport_turi')->nullable();
+            $table->string('sport_klubiga_azolik_sanasi')->nullable();
+            $table->string('nechanchi_razryad')->nullable();
             $table->timestamps();
         });
     }

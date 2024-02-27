@@ -18,8 +18,7 @@ return new class extends Migration
             $table->string('mutaxasisligi')->nullable();
             $table->string('faoliyat_nomi')->nullable();
             $table->string('muddati')->nullable();
-            $table->string('asos_file')->nullable();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');        
+            $table->string('asos_file')->nullable();              
             $table->timestamps();
         });
     }
