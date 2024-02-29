@@ -19,8 +19,7 @@ return new class extends Migration
             $table->foreignId('table_1_3_1_id')->constrained('table_1_3_1_')->onDelete('cascade');  
             $table->foreignId('table_1_3_2_id')->constrained('table_1_3_2_')->onDelete('cascade');  
             $table->foreignId('table_1_4_id')->constrained('table_1_4_')->onDelete('cascade');  
-            $table->foreignId('table_1_5_id')->constrained('table_1_5_')->onDelete('cascade');  
-            $table->foreignId('table_1_6_1_id')->constrained('table_1_6_1_')->onDelete('cascade');  
+            $table->foreignId('table_1_5_id')->constrained('table_1_5_')->onDelete('cascade');            
             $table->foreignId('table_1_6_1_id')->constrained('table_1_6_1_')->onDelete('cascade');  
             $table->foreignId('table_1_6_2_id')->constrained('table_1_6_2_')->onDelete('cascade');  
             $table->foreignId('table_1_9_1_id')->constrained('table_1_9_1_')->onDelete('cascade');  
@@ -44,8 +43,8 @@ return new class extends Migration
             // end
             $table->boolean('departament_info')->default(false);
             $table->boolean('status')->default(false);
-            $table->string('status')->default(false);
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade'); 
+            $table->foreignId('temporary_files_id')->nullable()->constrained('temporary_files'); 
             $table->foreignId('departament_id')->constrained('departments')->onDelete('cascade'); 
             $table->timestamps();
         });

@@ -15,6 +15,7 @@ class DashboardController extends Controller
     {
         $auth = Auth::user();
         $categoryes = Category::all();
+       
         return view('dashboard', compact('auth', 'categoryes'));
     }
 
