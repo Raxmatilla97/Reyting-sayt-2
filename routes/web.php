@@ -36,6 +36,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/employees',[EmployeeController::class, 'index'])->name('dashboard.employees');
 
 
+    Route::get('/employee_form_chose',[EmployeeController::class, 'employeeFormChose'])->name('dashboard.employee_form_chose');
+
+
+
     Route::view('profile', 'profile')->name('profile');
 
 
