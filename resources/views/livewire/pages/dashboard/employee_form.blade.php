@@ -5,50 +5,61 @@
         </h2>
     </x-slot>
 
+
+
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 col columns-1 text-center">
-                    @foreach ($jadvallar_codlari as $key => $volume)
-                    <button type="button" class="py-2.5 px-5 me-2 mb-4 text-md font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">{{$volume}}</button>
-                        
-                    @endforeach
-                  
+                <div class="p-6 text-gray-900">
+
+                    <div class="relative overflow-x-auto">
+                        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+                            <thead
+                                class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-center hide-on-mobile">
+                                       Yo'nalish KODI
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-center">
+                                        Yo'nalish nomi
+                                    </th>
+
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($jadvallar_codlari as $key => $volume)
+                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                    <th scope="row"
+                                        class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white hide-on-mobile">
+                                        <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"> {{$key}}</span>
+                                      
+                                    </th>
+                                    <td class="px-6 py-4 text-center">
+                                        <a href="{{route('show.form', $key)}}">
+                                        <button type="button"
+                                            class="py-3 px-5  me-2 mb-4 text-md font-medium text-gray-900 focus:outline-none bg-white rounded-lg     border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">{{$volume}}</button>
+                                        </a>
+                                        </td>
+
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 ">
-                   
-<div id="detailed-pricing" class="w-full overflow-x-auto">
-    <div class="overflow-hidden min-w-max">
-        <div class="grid grid-cols-2 p-4 text-sm font-medium text-gray-900 bg-gray-100 border-t border-b border-gray-200 gap-x-16 dark:bg-gray-800 dark:border-gray-700 dark:text-white">
-            <div class="flex items-start">CODE</div>
-            <div>Yo'nalish nomi</div>
-            
-        </div>
-        @foreach ($jadvallar_codlari as $key => $volume)
-        <div class="grid grid-cols-2 px-4 py-5 text-sm text-gray-700 border-b border-gray-200 gap-x-16 dark:border-gray-700">
-            <div class="text-gray-500 dark:text-gray-400">{{$key}}</div>
-            <div>
-                <button type="button" class="py-2.5 px-5 me-2 mb-4 text-md font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">{{$volume}}</button>
+    <style>
+        /* Mobil qurilmalar uchun max-width: 768px dan kichik bo'lganda ko'rinmaydigan qoida */
+        @media (max-width: 768px) {
+            .hide-on-mobile {
+                display: none;
+            }
+        }
+    </style>
 
-            </div>
-          
-        </div>
-        @endforeach
-      
-    </div>
-</div>
-
-                  
-                </div>
-            </div>
-        </div>
-    </div>
 
 </x-app-layout>

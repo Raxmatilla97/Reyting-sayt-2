@@ -14,7 +14,8 @@ return new class extends Migration
         Schema::create('table_1_9_3_', function (Blueprint $table) {
             $table->id();
             $table->string('otm_nomi')->nullable();
-            $table->string('olingan_guvohnoma')->nullable();
+            $table->string('asosiy_shtatdagi_prof_oqituv')->nullable();
+            $table->string('olingan_guvohnomalar')->nullable();         
             $table->string('mualliflar_soni')->nullable();
             $table->string('berilgan_sana')->nullable();
             $table->string('qayd_raqami')->nullable();          

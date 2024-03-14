@@ -6,6 +6,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\FormsController;
+use App\Http\Controllers\Table11Controller;
+use App\Http\Controllers\Table12Controller;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,21 +27,28 @@ Route::middleware('auth')->group(function () {
     // Auth bo'lib kirganlar uchun routes
 
     // Dashboard bosh sahifasi
-    Route::get('/dashboard',[DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Fakultetlar uchun CRUD Routerlari
-    Route::get('/faculties',[FacultyController::class, 'index'])->name('dashboard.faculties');   
+    Route::get('/faculties', [FacultyController::class, 'index'])->name('dashboard.faculties');
 
     // Kafedralar uchun CRUD Routerlari
-    Route::get('/departments',[DepartmentController::class, 'index'])->name('dashboard.departments');
-    
+    Route::get('/departments', [DepartmentController::class, 'index'])->name('dashboard.departments');
+
     // O'qituvchilar uchun CRUD Routerlari
-    Route::get('/employees',[EmployeeController::class, 'index'])->name('dashboard.employees');
+    Route::get('/employees', [EmployeeController::class, 'index'])->name('dashboard.employees');
 
 
-    Route::get('/employee_form_chose',[EmployeeController::class, 'employeeFormChose'])->name('dashboard.employee_form_chose');
+    Route::get('/employee_form_chose', [EmployeeController::class, 'employeeFormChose'])->name('dashboard.employee_form_chose');
+
+    // Forma sahifasini ko'rsatish uchun Route
+    Route::get('/show-form/{type}', [FormsController::class, 'showForm'])->name('show.form');
 
 
+    // Jadvallar kontrollerlari routi
+
+    Route::post('/data/store', [Table11Controller::class, 'store'])->name('data.store');
+    Route::post('/table12/store', [Table12Controller::class, 'store'])->name('table12.store');
 
     Route::view('profile', 'profile')->name('profile');
 
