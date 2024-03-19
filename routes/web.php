@@ -45,10 +45,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/show-form/{type}', [FormsController::class, 'showForm'])->name('show.form');
 
 
-    // Jadvallar kontrollerlari routi
-
-    Route::post('/data/store', [Table11Controller::class, 'store'])->name('data.store');
-    Route::post('/table12/store', [Table12Controller::class, 'store'])->name('table12.store');
+    // Formadagi malumotlarni umumiy routerga yuborish
+    Route::post('/send-form/{tableName}', [FormsController::class, 'storeForm'])->name('store.form');
 
     Route::view('profile', 'profile')->name('profile');
 

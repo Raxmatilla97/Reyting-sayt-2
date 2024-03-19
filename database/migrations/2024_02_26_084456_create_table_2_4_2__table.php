@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('hujjat_nomi_sanasi')->nullable();
             $table->string('xorijiy_davlat_nomi')->nullable();
             $table->string('talim_yonalishi')->nullable();
-            $table->string('Xorijiy_va_hamkorlik_loyhasi')->nullable();
+            $table->string('xorijiy_va_hamkorlik_loyhasi')->nullable();
             $table->string('seminar_knfrensiya_nomi')->nullable();            
             $table->timestamps();
         });

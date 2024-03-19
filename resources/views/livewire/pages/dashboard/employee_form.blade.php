@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-
+    
 
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -18,7 +18,7 @@
                                 class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
                                     <th scope="col" class="px-6 py-3 text-center hide-on-mobile">
-                                       Yo'nalish KODI
+                                        Yo'nalish KODI
                                     </th>
                                     <th scope="col" class="px-6 py-3 text-center">
                                         Yo'nalish nomi
@@ -28,20 +28,22 @@
                             </thead>
                             <tbody>
                                 @foreach ($jadvallar_codlari as $key => $volume)
-                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-                                    <th scope="row"
-                                        class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white hide-on-mobile">
-                                        <span class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300"> {{$key}}</span>
-                                      
-                                    </th>
-                                    <td class="px-6 py-4 text-center">
-                                        <a href="{{route('show.form', $key)}}">
-                                        <button type="button"
-                                            class="py-3 px-5  me-2 mb-4 text-md font-medium text-gray-900 focus:outline-none bg-white rounded-lg     border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">{{$volume}}</button>
-                                        </a>
+                                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+                                        <th scope="row"
+                                            class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white hide-on-mobile">
+                                            <span
+                                                class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                                {{ $key }}</span>
+
+                                        </th>
+                                        <td class="px-6 py-4 text-center">
+                                            <a href="{{ route('show.form', $key) }}">
+                                                <button type="button"
+                                                    class="text-gray-900 bg-gray-100 py-3 px-5  me-2 mb-4 text-md font-medium text-gray-900 focus:outline-none rounded-lg     border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">{{ $volume }}</button>
+                                            </a>
                                         </td>
 
-                                </tr>
+                                    </tr>
                                 @endforeach
                             </tbody>
                         </table>
