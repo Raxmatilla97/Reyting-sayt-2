@@ -37,7 +37,7 @@ class DepartmentController extends Controller
           
         ];
 
-        return view('livewire.pages.dashboard.department_form', compact('jadvallar_codlari'));
+        return view('livewire.pages.dashboard.department_category_choose', compact('jadvallar_codlari'));
     }
 
 

@@ -3,8 +3,7 @@
 <div class="w-full max-w-md bg-white border border-gray-200 rounded-lg shadow ">
     <div class="flex justify-end px-4 pt-8">
      
-      
-        
+    
     </div>
     <div class="flex flex-col items-center pb-3">
         <img class="w-34 h-34 mb-3 rounded-full shadow-lg" src="{{'/storage/users/image'}}/{{$auth->image}}" alt="Bonnie image"/>
@@ -97,5 +96,6 @@ if (document.getElementById("pie-chart") && typeof ApexCharts !== 'undefined') {
   const chart = new ApexCharts(document.getElementById("pie-chart"), getChartOptions());
   chart.render();
 }
+
 
   </script>
