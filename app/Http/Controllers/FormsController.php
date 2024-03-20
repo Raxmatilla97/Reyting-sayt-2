@@ -8,9 +8,10 @@ use Carbon\Carbon;
 
 class FormsController extends Controller
 {
-    public function showForm($tableName)
+    public function employeeShowForm($tableName)
     {
-        $fields = config("forms.{$tableName}");
+        // Formani shakillantirdigan ma'lumotlarni config papkasi ichidan employee_form_fields.php olib beradi 
+        $fields = config("employee_form_fields.{$tableName}");
 
         if (!$fields) {
             abort(404, 'Jadval topilmadi.');
@@ -19,7 +20,19 @@ class FormsController extends Controller
         return view('livewire.pages.frontend.forms', compact('fields', 'tableName'));
     }
 
-    public function storeForm(Request $request, $tableName)
+    public function departmentShowForm($tableName)
+    {
+        // Formani shakillantirdigan ma'lumotlarni config papkasi ichidan employee_form_fields.php olib beradi 
+        $fields = config("department_forms_fields.{$tableName}");
+
+        if (!$fields) {
+            abort(404, 'Jadval topilmadi.');
+        }
+
+        return view('livewire.pages.frontend.forms', compact('fields', 'tableName'));
+    }
+
+    public function employeeStoreForm(Request $request, $tableName)
     {
 
         // Foydalanuvchini aniqlash

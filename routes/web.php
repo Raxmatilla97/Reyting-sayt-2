@@ -38,15 +38,20 @@ Route::middleware('auth')->group(function () {
     // O'qituvchilar uchun CRUD Routerlari
     Route::get('/employees', [EmployeeController::class, 'index'])->name('dashboard.employees');
 
-
-    Route::get('/employee_form_chose', [EmployeeController::class, 'employeeFormChose'])->name('dashboard.employee_form_chose');
+    // O'qituvchilar malumotini bolimini tanlash sahifasi
+    Route::get('/employee-form-chose', [EmployeeController::class, 'employeeFormChose'])->name('dashboard.employee_form_chose');
 
     // Forma sahifasini ko'rsatish uchun Route
-    Route::get('/show-form/{type}', [FormsController::class, 'showForm'])->name('show.form');
-
+    Route::get('/show-employee-form/{type}', [FormsController::class, 'employeeShowForm'])->name('dashboard.show_employee_form');
 
     // Formadagi malumotlarni umumiy routerga yuborish
-    Route::post('/send-form/{tableName}', [FormsController::class, 'storeForm'])->name('store.form');
+    Route::post('/send-form/{tableName}', [FormsController::class, 'employeeStoreForm'])->name('dashboard.store_form');
+
+    // Kafedra malumotini bolimini tanlash sahifasi
+    Route::get('/department_form_chose', [DepartmentController::class, 'departmentFormChose'])->name('dashboard.department_form_chose');
+
+    // Forma sahifasini ko'rsatish uchun Route
+    Route::get('/show-department-form/{type}', [FormsController::class, 'departmentShowForm'])->name('dashboard.show_department_form');
 
     Route::view('profile', 'profile')->name('profile');
 

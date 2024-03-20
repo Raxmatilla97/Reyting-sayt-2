@@ -1,5 +1,7 @@
 <?php 
 
+// O'qituvchilar uchun mo'ljallangan forma name, type, label malumotlari yozilgan
+
 return [
     'table_1_1_' => [
         [

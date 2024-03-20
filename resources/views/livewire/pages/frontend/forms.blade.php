@@ -67,7 +67,7 @@
                     </div>
 
                     <form class="max-w-3xl mx-auto" method="POST"
-                        action="{{ route('store.form', ['tableName' => $tableName]) }}" enctype="multipart/form-data"
+                        action="{{ route('dashboard.store_form', ['tableName' => $tableName]) }}" enctype="multipart/form-data"
                         class="mt-5">
                         @csrf
                         @foreach ($fields as $field)
