@@ -25,17 +25,17 @@ return [
         [
             'name' => 'sohalar_buyurtma_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Sohalar buyurtmalari asosida o‘tkazilgan ilmiy (ilmiy-ijodiy) tadqiqotlar buyurtma nomi",
         ],
         [
             'name' => 'sohalar_buyurtma_summasi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Sohalar buyurtmalari asosida o‘tkazilgan ilmiy (ilmiy-ijodiy) tadqiqotlar buyurtma summasi",
         ],
         [
             'name' => 'jami_summa',
             'type' => 'text',
-            'label' => "",
+            'label' => "Jami summasi",
         ]
 
 
@@ -44,17 +44,17 @@ return [
         [
             'name' => 'davlat_grant_mavzusi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Davlat grantlari asosida o‘tkazilgan tadqiqotlar mavzusi nomi",
         ],
         [
             'name' => 'davlat_grant_summasi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Davlat grantlari asosida o‘tkazilgan tadqiqotlar summasi (so'm)",
         ],
         [
             'name' => 'jami_summa',
             'type' => 'text',
-            'label' => "",
+            'label' => "Jami summasi",
         ]
 
 
@@ -63,27 +63,27 @@ return [
         [
             'name' => 'xorijiy_oqituvchi_ismi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Xorijiy o‘qituvchining F.I.Sh",
         ],
         [
             'name' => 'davlati_ish_joyi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Davlati va ish joyi",
         ],
         [
             'name' => 'mutaxasisligi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Mutaxassisligi",
         ],
         [
             'name' => 'dars_beradigan_fani',
             'type' => 'text',
-            'label' => "",
+            'label' => "O‘zbekiston OTMida dars beradigan fani",
         ],
         [
             'name' => 'asos_file',
             'type' => 'file',
-            'label' => "",
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
         ]
 
     ],
@@ -91,27 +91,27 @@ return [
         [
             'name' => 'xorijiy_talaba_ismi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Xorijiy talabaning F.I.Sh",
         ],
         [
             'name' => 'davlati',
             'type' => 'text',
-            'label' => "",
+            'label' => "Davlati ",
         ],
         [
             'name' => 'talim_yonalishi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Ta’lim yo‘nalishi shifri va nomi",
         ],
         [
             'name' => 'magister_shifri_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Magistratura mutaxassisligi shifri va nomi",
         ],
         [
             'name' => 'asos_file',
             'type' => 'file',
-            'label' => "",
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
         ]
 
     ],
@@ -119,37 +119,37 @@ return [
         [
             'name' => 'hujjat_nomi_sanasi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Almashuv dasturiga asos bo‘luvchi hujjat nomi va imzolangan sanasi*",
         ],
         [
             'name' => 'otm_talaba_fish',
             'type' => 'text',
-            'label' => "",
+            'label' => "Almashuv dasturlari asosida xorijiy OTMlarida ta’lim olayotgan talabaning F.I.Sh (alfavit tartibida to‘liq yoziladi)",
         ],
         [
             'name' => 'davlat_otm_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Davlat va OTM nomi",
         ],
         [
             'name' => 'mutaxasislik_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Ta’lim yo‘nalishi (mutaxassislik) nomi",
         ],
         [
             'name' => 'xorijiy_talaba_fish',
             'type' => 'text',
-            'label' => "",
+            'label' => "Almashuv dasturlari asosida OTMda ta’lim olayotgan xorijlik talabaning F.I.Sh",
         ],
         [
             'name' => 'davlat_otm_nomi2',
             'type' => 'text',
-            'label' => "",
+            'label' => "Davlat va OTM nomi",
         ],
         [
             'name' => 'mutaxasislik_nomi2',
             'type' => 'text',
-            'label' => "",
+            'label' => "Ta’lim yo‘nalishi (mutaxassislik) nomi",
         ],
 
 
@@ -158,32 +158,32 @@ return [
         [
             'name' => 'hujjat_nomi_sanasi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Xamkorlik dasturiga asos bo‘luvchi hujjat nomi va imzolangan sanasi*",
         ],
         [
             'name' => 'ism_sharifi',
             'type' => 'text',
-            'label' => "",
+            'label' => "F.I.Sh. (alfavit tartibida to‘liq yoziladi).",
         ],
         [
             'name' => 'xorijiy_davlat_otm_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Xorijiy davlat va OTM nomi",
         ],
         [
             'name' => 'mutaxasislik_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Ta’lim yo‘nalishi (mutaxassislik) nomi",
         ],
         [
             'name' => 'loyha_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Xorijiy va xamkorlikda bajarilayotgan loyixalar nomi",
         ],
         [
             'name' => 'seminar_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Xalqaro xorijiy konferensiya va seminarlar nomi",
         ],
 
        
@@ -192,47 +192,47 @@ return [
         [
             'name' => 'fish',
             'type' => 'text',
-            'label' => "",
+            'label' => "F.I.Sh. (alfavit tartibida to‘liq yoziladi).",
         ],
         [
             'name' => 'talim_kodi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Chet tilda ta’lim beriladigan ta’lim yo‘nalishlari (mutaxassisliklar) kodi",
         ],
         [
             'name' => 'talim_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Chet tilda ta’lim beriladigan ta’lim yo‘nalishlari (mutaxassisliklar) nomi",
         ],
         [
             'name' => 'hujjat_nomi_imzosi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Chet tilda ta’lim berishga asos bo‘luvchi hujjat nomi va imzolangan sanasi*",
         ],
         [
-            'name' => 'fanlar_soni',
+            'name' => 'fanlar_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Chet tilda dars berilayotgan fanlar nomi*",
         ],
         [
             'name' => 'chet_tili_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Chet til nomi",
         ],
         [
             'name' => 'talim_bosqichi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Ta’lim bosqichi",
         ],
         [
             'name' => 'talabalar_soni',
             'type' => 'text',
-            'label' => "",
+            'label' => "Ta’lim olayotgan talabalar soni",
         ],
         [
             'name' => 'elekron_manzil',
             'type' => 'text',
-            'label' => "",
+            'label' => "Fan resurslari(O'UM)ning elektron manzili (giper xavola**)",
         ],
 
 
@@ -243,37 +243,42 @@ return [
         [
             'name' => 'talaba_fish',
             'type' => 'text',
-            'label' => "",
+            'label' => "Talabaning F.I.Sh",
         ],
         [
-            'name' => 'talim_yonalishi',
+            'name' => 'tanlov_musoboqa_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Xalqaro olimpiadalar, nufuzli tanlov va sport musobaqalar nomi",
         ],
         [
-            'name' => 'oqish_bosqichi',
+            'name' => 'otkazilgan_joy_sana',
             'type' => 'text',
-            'label' => "",
+            'label' => "O‘tkazilgan joy va sanasi",
         ],
         [
-            'name' => 'sport_klubi_nomi',
+            'name' => 'fanlari_tanlov_musoqoqa',
             'type' => 'text',
-            'label' => "",
+            'label' => "Olimpiada fanlari, tanlov va musobaqalar nomi  ",
         ],
         [
-            'name' => 'sport_turi',
+            'name' => 'egallagan_orni',
             'type' => 'text',
-            'label' => "",
+            'label' => "Egallagan o‘rni",
         ],
         [
-            'name' => 'azolik_vaqti',
+            'name' => 'diplom_serya',
             'type' => 'text',
-            'label' => "",
+            'label' => "Diplom seriyasi",
         ],
         [
-            'name' => 'nechanchi_razryad',
+            'name' => 'diplom_raqam',
             'type' => 'text',
-            'label' => "",
+            'label' => "Diplom raqami",
+        ], 
+        [
+            'name' => 'izoh',
+            'type' => 'text',
+            'label' => "Izoh",
         ],       
 
 
@@ -282,42 +287,42 @@ return [
         [
             'name' => 'talaba_fish',
             'type' => 'text',
-            'label' => "",
+            'label' => "Talabaning F.I.Sh",
         ],
         [
             'name' => 'respublika_tanlov_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Respublika olimpiadalar, nufuzli tanlov va sport musobaqalar nomi",
         ],
         [
             'name' => 'otkazilgan_joy_sana',
             'type' => 'text',
-            'label' => "",
+            'label' => "O‘tkazilgan joy va sanasi",
         ],
         [
             'name' => 'musobaqalar_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Olimpiada fanlari, tanlov va musobaqalar nomi  ",
         ],
         [
             'name' => 'egallagan_orni',
             'type' => 'text',
-            'label' => "",
+            'label' => "Egallagan o‘rni",
         ],
         [
             'name' => 'diplom_seryasi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Diplom seriyasi",
         ],
         [
             'name' => 'diplom_raqami',
             'type' => 'text',
-            'label' => "",
+            'label' => "Diplom raqami",
         ],  
         [
             'name' => 'izoh',
             'type' => 'text',
-            'label' => "",
+            'label' => "Izoh",
         ],       
      
 
@@ -327,37 +332,37 @@ return [
         [
             'name' => 'talaba_fish',
             'type' => 'text',
-            'label' => "",
+            'label' => "Talabaning F.I.O.",
         ],
         [
             'name' => 'talim_yonalishi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Ta’lim yo‘nalishi",
         ],
         [
             'name' => 'oqish_bosqichi',
             'type' => 'text',
-            'label' => "",
+            'label' => "O‘qish bosqichi (kurs)",
         ],
         [
             'name' => 'sport_klubi_nomi',
             'type' => 'text',
-            'label' => "",
+            'label' => "OTM qoshida ochilgan sport klubining nomi",
         ],
         [
             'name' => 'sport_turi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Sport turi",
         ],
         [
             'name' => 'sport_klubiga_azolik_sanasi',
             'type' => 'text',
-            'label' => "",
+            'label' => "Shu klubga qachondan a’zo (sanasi)",
         ],
         [
             'name' => 'nechanchi_razryad',
             'type' => 'text',
-            'label' => "",
+            'label' => "Nechanchi razryad",
         ],  
            
      

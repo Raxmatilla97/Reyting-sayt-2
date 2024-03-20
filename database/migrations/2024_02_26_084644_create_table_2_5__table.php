@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('talim_kodi')->nullable();           
             $table->string('talim_nomi')->nullable();           
             $table->string('hujjat_nomi_imzosi')->nullable();           
-            $table->string('fanlar_soni')->nullable();           
+            $table->string('fanlar_nomi')->nullable();           
             $table->string('chet_tili_nomi')->nullable();           
             $table->string('talim_bosqichi')->nullable();           
             $table->string('talabalar_soni')->nullable();           

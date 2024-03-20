@@ -14,12 +14,13 @@ return new class extends Migration
         Schema::create('table_3_4_1_', function (Blueprint $table) {
             $table->id();
             $table->string('talaba_fish')->nullable();           
-            $table->string('talim_yonalishi')->nullable();           
-            $table->string('oqish_bosqichi')->nullable();           
-            $table->string('sport_klubi_nomi')->nullable();           
-            $table->string('sport_turi')->nullable();           
-            $table->string('azolik_vaqti')->nullable();           
-            $table->string('nechanchi_razryad')->nullable();       
+            $table->string('tanlov_musoboqa_nomi')->nullable();           
+            $table->string('otkazilgan_joy_sana')->nullable();           
+            $table->string('fanlari_tanlov_musoqoqa')->nullable();           
+            $table->string('egallagan_orni')->nullable();           
+            $table->string('diplom_serya')->nullable();           
+            $table->string('diplom_raqam')->nullable();       
+            $table->text('izoh')->nullable();       
             $table->timestamps();
         });
     }
