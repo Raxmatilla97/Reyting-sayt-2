@@ -52,6 +52,12 @@ new class extends Component
                         {{ __('O\'qituvchilar') }}
                     </x-nav-link>
                 </div>
+                
+                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                    <x-nav-link :href="route('dashboard.my_submitted_information')" :active="request()->routeIs('dashboard.my_submitted_information')" wire:navigate>
+                        {{ __("Men yuborgan ma'lumotlar") }}
+                    </x-nav-link>
+                </div>
             </div>
 
             <!-- Settings Dropdown -->

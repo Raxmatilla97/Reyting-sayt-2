@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 
@@ -89,4 +90,11 @@ class EmployeeController extends Controller
     {
         //
     }
+
+
+    // public function mySubmittedInformation(){
+    //     $user = Auth::user();
+    //     $myInformations = 
+       
+    // }
 }

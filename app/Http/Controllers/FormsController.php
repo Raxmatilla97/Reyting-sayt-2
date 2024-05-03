@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use App\Models\PointUserDeportament;
 
 class FormsController extends Controller
 {
@@ -108,6 +110,14 @@ class FormsController extends Controller
 
             // Ma'lumotlarni bazaga yuklash
             DB::table($tableName)->insert($filteredData);
+
+            // Malumotni pointer tablitsiyasiga saqlash
+            $userAuth = Auth::user()->id;
+            $pointer['user_id'] = $userAuth;
+            $pointer["$tableName".'id'] = 1;
+            
+            // Model orqali malumotni qo'shish
+            PointUserDeportament::create($pointer);
 
             return redirect()->back()->with('success', "Ma'lumotlar muvaffaqiyatli saqlandi");
 

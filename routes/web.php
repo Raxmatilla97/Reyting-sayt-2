@@ -55,6 +55,9 @@ Route::middleware('auth')->group(function () {
 
     Route::view('profile', 'profile')->name('profile');
 
+    // O'qituvchi yuborgan ma'lumotlarni o'ziga tegishlisini ko'rish        
+    Route::get('/my-submitted-information', [EmployeeController::class, 'mySubmittedInformation'])->name('dashboard.my_submitted_information');
+
 
 
 });
