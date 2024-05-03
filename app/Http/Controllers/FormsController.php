@@ -19,7 +19,7 @@ class FormsController extends Controller
             abort(404, 'Jadval topilmadi.');
         }
 
-        return view('livewire.pages.frontend.forms', compact('fields', 'tableName'));
+        return view('livewire.pages.form_themplates.employee_form', compact('fields', 'tableName'));
     }
 
     public function departmentShowForm($tableName)
@@ -31,7 +31,7 @@ class FormsController extends Controller
             abort(404, 'Jadval topilmadi.');
         }
 
-        return view('livewire.pages.frontend.forms', compact('fields', 'tableName'));
+        return view('livewire.pages.form_themplates.department_form', compact('fields', 'tableName'));
     }
 
     public function employeeStoreForm(Request $request, $tableName)
@@ -90,18 +90,90 @@ class FormsController extends Controller
                 $file = $request->file('asos_file');
 
                 // Fayl uchun saqlash yo'lini yaratish va uni saqlash
-                $path = $file->store('/public/documents');
+                $path = $file->store('documents', 'public');
 
                 // Fayl yo'lini ma'lumotlar bazasiga qo'shish
                 $filteredData['asos_file'] = $path;
             }
 
+            // Joriy sana/vaqt qiymatlarini qo'shish
+            $now = Carbon::now();
+            $filteredData['created_at'] = $now;
 
-            // $filteredData'dan tashqari, fayl yo'lini ham qo'shamiz
+
+            // Ma'lumotlarni bazaga yuklash
+            DB::table($tableName)->insert($filteredData);
+
+            return redirect()->back()->with('success', "Ma'lumotlar muvaffaqiyatli saqlandi");
+
+        } else {
+            // Agar foydalanuvchi tizimga kirmagan bo'lsa, xabar qaytarish
+            return "Foydalanuvchi tizimga kirmagan.";
+        }
+
+    }
+
+
+    public function departmentStoreForm(Request $request, $tableName)
+    {
+
+        // Foydalanuvchini aniqlash
+        $user = auth()->user();
+
+        // Agar foydalanuvchi autentifikatsiyadan o'tgan bo'lsa, uning ma'lumotlarini ko'rsatish
+        if ($user) {
+
+            // Ruxsat etilgan maydonlarni aniqlash
+            $allowedFields = [
+                'table_1_7_1_' => ['xorijiy_granti_buyurtma_nomi', 'xorijiy_granti_buyurtma_summasi', 'jami_summa'],
+                'table_1_7_2_' => ['sohalar_buyurtma_nomi', 'sohalar_buyurtma_summasi', 'jami_summa'],
+                'table_1_7_3_' => ['davlat_grant_mavzusi', 'davlat_grant_summasi', 'jami_summa'],
+                'table_2_3_1_' => ['xorijiy_oqituvchi_ismi', 'davlati_ish_joyi', 'mutaxasisligi', 'dars_beradigan_fani', 'asos_file'],
+                'table_2_3_2_' => ['xorijiy_talaba_ismi', 'davlati', 'talim_yonalishi', 'magister_shifri_nomi', 'asos_file'],
+                'table_2_4_1_' => ['hujjat_nomi_sanasi', 'otm_talaba_fish', 'davlat_otm_nomi', 'mutaxasislik_nomi', 'xorijiy_talaba_fish', 'davlat_otm_nomi2', 'mutaxasislik_nomi2'],
+                'table_2_4_2_b_' => ['hujjat_nomi_sanasi', 'ism_sharifi', 'xorijiy_davlat_otm_nomi', 'mutaxasislik_nomi', 'loyha_nomi', 'seminar_nomi'],
+                'table_2_5_' => ['fish', 'talim_kodi', 'talim_nomi', 'hujjat_nomi_imzosi', 'fanlar_nomi', 'chet_tili_nomi', 'talim_bosqichi', 'talabalar_soni', 'elekron_manzil'],
+                'table_3_4_1_' => ['talaba_fish', 'tanlov_musoboqa_nomi', 'otkazilgan_joy_sana', 'fanlari_tanlov_musoqoqa', 'egallagan_orni', 'diplom_serya', 'diplom_raqam', 'izoh'],
+                'table_3_4_2_' => ['talaba_fish', 'respublika_tanlov_nomi', 'otkazilgan_joy_sana', 'musobaqalar_nomi', 'egallagan_orni', 'diplom_seryasi', 'diplom_raqami', 'izoh'],
+                'table_4_1_' => ['talaba_fish', 'talim_yonalishi', 'oqish_bosqichi', 'sport_klubi_nomi', 'sport_turi', 'sport_klubiga_azolik_sanasi', 'nechanchi_razryad'],
+
+            ];
+
+            if (!array_key_exists($tableName, $allowedFields)) {
+                return redirect()->back()->with('error', "Noma'lum yoki ruxsat etilmagan jadval!");
+            }
+
+            // So'rov ma'lumotlarini filtrlash
             $filteredData = array_intersect_key(
-                $request->except(['asos_file']), // "asos_file"ni olib tashlaymiz, chunki bu fayl emas, ma'lumotlarni o'z ichiga oladi
+                $request->all(),
                 array_flip($allowedFields[$tableName])
             );
+
+            if ($request->file('asos_file')) {
+
+                // Fayl uchun validatsiya qoidalarini belgilash
+                $validatedData = $request->validate(
+                    [
+                        'asos_file' => 'required|file|mimes:pdf,docx,jpeg,png|max:2048', // 2MB dan kichik fayllar
+                    ],
+                    [
+                        'asos_file.required' => 'Fayl yuklash majburiy.',
+                        'asos_file.file' => 'Yuklangan fayl haqiqiy fayl bo\'lishi kerak.',
+                        'asos_file.mimes' => 'Faqat PDF, DOCX, JPEG va PNG formatidagi fayllar ruxsat etiladi.',
+                        'asos_file.max' => 'Fayl hajmi 2MB dan katta bo\'lmasligi kerak.',
+                    ]
+                );
+
+                // Validatsiyadan o'tgan faylni olish
+                $file = $request->file('asos_file');
+
+                // Fayl uchun saqlash yo'lini yaratish va uni saqlash
+                $path = $file->store('documents', 'public');
+
+                // Fayl yo'lini ma'lumotlar bazasiga qo'shish
+                $filteredData['asos_file'] = $path;    
+ 
+            }
 
             // Joriy sana/vaqt qiymatlarini qo'shish
             $now = Carbon::now();
@@ -128,3 +200,4 @@ class FormsController extends Controller
 
     }
 }
+

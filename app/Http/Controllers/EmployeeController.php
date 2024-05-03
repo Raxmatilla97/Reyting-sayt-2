@@ -40,7 +40,7 @@ class EmployeeController extends Controller
           
         ];
 
-        return view('livewire.pages.dashboard.employee_form', compact('jadvallar_codlari'));
+        return view('livewire.pages.dashboard.employee_category_choose', compact('jadvallar_codlari'));
     }
 
     /**
