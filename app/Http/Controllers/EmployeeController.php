@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
+use App\Models\PointUserDeportament;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
@@ -40,7 +41,7 @@ class EmployeeController extends Controller
           
         ];
 
-        return view('livewire.pages.dashboard.employee_category_choose', compact('jadvallar_codlari'));
+        return view('livewire.pages.dashboard.employee_form', compact('jadvallar_codlari'));
     }
 
     /**
@@ -92,9 +93,46 @@ class EmployeeController extends Controller
     }
 
 
-    // public function mySubmittedInformation(){
-    //     $user = Auth::user();
-    //     $myInformations = 
-       
-    // }
+    public function mySubmittedInformation(){
+        // Massivdagi barcha maydon nomlari
+        $tableFields = [
+            'table_1_1_id',
+            'table_1_2_id',
+            'table_1_3_1_id',
+            'table_1_3_2_id',
+            'table_1_4_id',
+            'table_1_5_id',
+            'table_1_6_1_id',
+            'table_1_6_2_id',
+            'table_1_9_1_id',
+            'table_1_9_2_id',
+            'table_1_9_3_id',
+            'table_2_2_1_id',
+            'table_2_2_2_id',
+            'table_2_4_2_id',
+            'table_1_7_1_id',
+            'table_1_7_2_id',
+            'table_1_7_3_id',
+            'table_2_3_1_id',
+            'table_2_3_2_id',
+            'table_2_4_1_id',
+            'table_2_4_2_b_id',
+            'table_2_5_id',
+            'table_3_4_1_id',
+            'table_3_4_2_id',
+            'table_4_1_id',
+        ];
+
+        // Foydalanuvchi ma'lumotlarini olish
+        $user = auth()->user();
+
+        // Massivni yaratish
+        $pointer = [];
+        foreach ($tableFields as $field) {
+            //$pointer[$field] = $user->id;
+            // Model orqali ma'lumot olish
+            $pointUserInformations = PointUserDeportament::where('user_id', $user->id)->first();
+        }
+            
+    }
 }
