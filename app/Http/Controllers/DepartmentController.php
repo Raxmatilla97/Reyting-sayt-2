@@ -12,13 +12,13 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        $departments = Department::paginate(15);       
+        $departments = Department::paginate(15);
 
         return view('livewire.pages.dashboard.department.index', compact('departments'));
     }
 
     public function departmentFormChose(){
-        
+
         // Kafedra ma'lumotlarini yuklash uchun uni bo'limlari ro'yxati
         $jadvallar_codlari = [
             'table_1_7_1_' => "Chirchiq davlat pedagogika universitetida xorijiy ilmiy tadqiqot markazlari grantlari va xorijiy ilmiy fondlari buyurtmalari hisobiga 2023 yilda olingan mablag‘lar bo‘yicha",
@@ -32,9 +32,9 @@ class DepartmentController extends Controller
             'table_3_4_1_' => "Chirchiq davlat pedagogika universitetida reyting yilida xalqaro olimpiadalarida, nufuzli tanlovlar sovrinli o‘rinlarni qo‘lga kiritgan hamda mukofot (diplom)larga sazovor bo‘lgan talabalar salmog‘i haqida  ",
             'table_3_4_2_' => "Chirchiq davlat pedagogika universitetida reyting yilida respublika olimpiadalarida, nufuzli tanlovlar sovrinli o‘rinlarni qo‘lga kiritgan hamda mukofot (diplom)larga sazovor bo‘lgan talabalar salmog‘i haqida  ",
             'table_4_1_' => "Chirchiq davlat pedagogika universitetida sport klubiga a’zo bo‘lib, tashkil etilgan sport seksiyalarida jismoniy tarbiya va sport bilan muntazam shug‘ullanuvchi sport tasnifiga (sportchi razryadlari) ega bo‘lgan talabalar*",
-         
-           
-          
+
+
+
         ];
 
         return view('livewire.pages.dashboard.department_category_choose', compact('jadvallar_codlari'));

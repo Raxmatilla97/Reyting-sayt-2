@@ -8,7 +8,21 @@ use Illuminate\Database\Eloquent\Model;
 class PointUserDeportament extends Model
 {
     use HasFactory;
-    protected $fillable = 
+
+      // Barcha bog'lanishlar uchun dinamik metod
+      public function __call($method, $parameters)
+      {
+          if (preg_match('/^table_\d+_\d+(_[a-zA-Z0-9]+)?$/', $method)) {
+              $modelName = 'App\\Models\\Tables\\' . str_replace('table_', 'Table_', ucwords($method, '_'));
+              if (class_exists($modelName)) {
+                  return $this->belongsTo($modelName, "{$method}_id");
+              }
+          }
+  
+          return parent::__call($method, $parameters);
+      }
+      
+    protected $fillable =
     [
         'user_id',
         'table_1_1_id',
@@ -40,7 +54,10 @@ class PointUserDeportament extends Model
         'status',
         'temporary_files_id',
         'departament_id'
-        
+
 
     ];
+
+    
+  
 }

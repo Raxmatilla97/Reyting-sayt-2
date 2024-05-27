@@ -104,6 +104,15 @@ class FormsController extends Controller
             // Ma'lumotlarni bazaga yuklash
             DB::table($tableName)->insert($filteredData);
 
+            
+            // Malumotni pointer tablitsiyasiga saqlash
+            $userAuth = Auth::user()->id;
+            $pointer['user_id'] = $userAuth;
+            $pointer["$tableName".'id'] = 1;
+            
+            // Model orqali malumotni qo'shish
+            PointUserDeportament::create($pointer);
+
             return redirect()->back()->with('success', "Ma'lumotlar muvaffaqiyatli saqlandi");
 
         } else {
