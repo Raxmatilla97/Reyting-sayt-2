@@ -108,6 +108,7 @@ class FormsController extends Controller
             // Malumotni pointer tablitsiyasiga saqlash
             $userAuth = Auth::user()->id;
             $pointer['user_id'] = $userAuth;
+            $pointer['status'] = 3;
             $pointer["$tableName".'id'] = 1;
             
             // Model orqali malumotni qo'shish
@@ -195,6 +196,7 @@ class FormsController extends Controller
             // Malumotni pointer tablitsiyasiga saqlash
             $userAuth = Auth::user()->id;
             $pointer['user_id'] = $userAuth;
+            $pointer['status'] = 3;
             $pointer["$tableName".'id'] = 1;
             
             // Model orqali malumotni qo'shish

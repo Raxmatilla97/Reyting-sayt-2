@@ -6,7 +6,7 @@ use App\Models\Employee;
 use App\Models\PointUserDeportament;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-
+use Illuminate\Support\Facades\Config;
 
 class EmployeeController extends Controller
 {
@@ -24,23 +24,7 @@ class EmployeeController extends Controller
     {
 
 
-        $jadvallar_codlari = [
-            'table_1_1_' => "Chirchiq davlat pedagogika universitetida dunyoning nufuzli 1000 taligiga kiruvchi oliy ta’lim muassasalarida PhD (falsafa doktori yoki fan nomzodi) yoki DSc (fan doktori) kabi ilmiy darajalarni olgan professor-o‘qituvchilar ulushi haqidag ",
-            'table_1_2_' => "Chirchiq davlat pedagogika universitetida reytingni aniqlash yilida dunyoning nufuzli 1000 taligiga kiruvchi oliy ta’lim muassasalarida o‘quv mashg‘ulotlar (ma’ruzalar, amaliy mashg‘ulotlar, seminar-treninglar) o‘tkazgan professor-o‘qituvchilar haqidagi",
-            'table_1_3_1_' => "Chirchiq davlat pedagogika universitetida fan doktori (DSc-fan doktori) ilmiy darajasiga ega (shuningdek, ilmiy darajaga ega bo‘lmay professor ilmiy unvonini olgan yoki unga tenglashtirilgan) professor-o‘qituvchilar haqida",
-            'table_1_3_2_' => "Chirchiq davlat pedagogika universitetida fan nomzodi (PhD) ilmiy darajasiga ega (shuningdek, ilmiy darajaga ega bo‘lmay dotsent ilmiy unvonini olgan) professor-o‘qituvchilar ulushi haqida",
-            'table_1_4_' => "Chirchiq davlat pedagogika universitetida hisob yilida ilmiy daraja yoki ilmiy unvon olgan professor-o‘qituvchilar haqida",
-            'table_1_5_' => "Chirchiq davlat pedagogika universitetida halqaro ko‘rsatkichlarga ko‘ra professor-o‘qituvchilarning ilmiy maqolalariga («Web of Science», «Scopus», «Google Scholar» yoki boshqa xalqaro e’tirof etilgan bazalarda mavjud bo‘lgan jurnallar bo‘yicha) iqtiboslar haqida  ",
-            'table_1_6_1_' => "Chirchiq davlat pedagogika universitetida reytingni aniqlash yilida xalqaro ilmiy jurnallarda («Web of Science», «Scopus» va Vazirlar Mahkamasi huzuridagi Oliy attestatsiya komissiyasi ro‘yxatiga kiritilgan jurnallarda) chop etilgan ilmiy maqolalar haqida",
-            'table_1_6_2_' => "Chirchiq davlat pedagogika universitetida reytingni aniqlash yilida Respublika ilmiy jurnallaridagi (OAK ro‘yxatidagi) ilmiy maqolalar haqida ",
-            'table_1_9_1_' => "Chirchiq davlat pedagogika universiteti Boshlang'ich ta'lim fakulteti Boshlang'ich ta'lim metodikasi kafedrasida reytingi aniqlanayotgan yilda bajarilgan ilmiy-tadqiqot ishlarining samaradorligi haqida",
-            'table_1_9_2_' => "Chirchiq davlat pedagogika universitetida reytingi aniqlanayotgan yilda professor-o‘qituvchilari tomonidan ixtiro, foydali model, sanoat namunalari va seleksiya yutuqlari uchun olingan patentlar (tegishli tashkilotlar tomonidan tasdiqlangan normativ hujjatlar asosida) haqida",
-            'table_1_9_3_' => "Chirchiq davlat pedagogika universitetida reytingi aniqlanayotgan yilda professor-o‘qituvchilari tomonidan axborot-kommunikatsiya texnologiyalariga oid dasturlar va elektron ma’lumotlar bazalari uchun olingan guvohnomalar, mualliflik huquqi bilan himoya qilinadigan turli materiallar haqida",
-            'table_2_2_1_' => "Chirchiq davlat pedagogika universiteti Boshlang'ich ta'lim fakulteti Boshlang'ich ta'lim metodikasi kafedrasida hisob yilida oliy ta’lim muassasasi professor-o‘qituvchilari tomonidan yozib tayyorlangan va belgilangan tartibda ro‘yxatdan o‘tkazilgan darsliklar haqida",
-            'table_2_2_2_' => "Chirchiq davlat pedagogika universiteti Boshlang'ich ta'lim fakulteti Boshlang'ich ta'lim metodikasi kafedrasida hisob yilida oliy ta’lim muassasasi professor-o‘qituvchilari tomonidan yozib tayyorlangan va belgilangan tartibda ro‘yxatdan o‘tkazilgan o‘quv qo‘llanmalar haqida",
-            'table_2_4_2_' => "Chirchiq davlat pedagogika universitetida hisob yilida xorijiy oliy ta’lim muassasalari bilan xalqaro konferensiyalar, seminarlar, ilmiy yoki o‘quv loyihalarda talabalar va o‘qituvchilar ishtirok etishi xaqidagi",
-
-        ];
+        $jadvallar_codlari = Config::get('dep_emp_tables.employee');;
 
         return view('livewire.pages.dashboard.employee_category_choose', compact('jadvallar_codlari'));
     }
@@ -96,71 +80,47 @@ class EmployeeController extends Controller
 
     public function mySubmittedInformation()
     {
-        // Massivdagi barcha maydon nomlari
-        $tableFields = [
-            'table_1_1_id',
-            'table_1_2_id',
-            'table_1_3_1_id',
-            'table_1_3_2_id',
-            'table_1_4_id',
-            'table_1_5_id',
-            'table_1_6_1_id',
-            'table_1_6_2_id',
-            'table_1_9_1_id',
-            'table_1_9_2_id',
-            'table_1_9_3_id',
-            'table_2_2_1_id',
-            'table_2_2_2_id',
-            'table_2_4_2_id',
-            'table_1_7_1_id',
-            'table_1_7_2_id',
-            'table_1_7_3_id',
-            'table_2_3_1_id',
-            'table_2_3_2_id',
-            'table_2_4_1_id',
-            'table_2_4_2_b_id',
-            'table_2_5_id',
-            'table_3_4_1_id',
-            'table_3_4_2_id',
-            'table_4_1_id',
-        ];
-
-        // Foydalanuvchi ma'lumotlarini olish     
         $user = auth()->user();
-
-        // user_id bo'yicha va kerakli maydonlar bo'yicha filtrlangan barcha yozuvlarni olish
-        $pointUserInformations = PointUserDeportament::where('user_id', $user->id)
-            ->where(function ($query) use ($tableFields) {
-                foreach ($tableFields as $field) {
-                    $query->orWhereNotNull($field);
-                }
-            })
-            ->get();
-        
-        $relatedData = [];
-        
+        $pointUserInformations = PointUserDeportament::where('user_id', $user->id)->get();
+    
+        // Department va Employee konfiguratsiyalarini olish
+        $departmentCodlari = Config::get('dep_emp_tables.department');
+        $employeeCodlari = Config::get('dep_emp_tables.employee');
+    
+        // Ikkala massivni birlashtirish
+        $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
+    
+        // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
+        $arrayKey = [];
+        foreach ($jadvallarCodlari as $key => $value) {
+            $arrayKey[$key . 'id'] = $key; // $key . 'id' qiymatini o'rnating
+        }
+    
+        // Umumiy ballar yig'indisini saqlash uchun o'zgaruvchi
+        $totalPoints = 0;
+    
+        // Ma'lumotlar massivini tekshirish
         foreach ($pointUserInformations as $pointUserInformation) {
-            foreach ($tableFields as $field) {
-                // Bog'lanish nomini aniqlash
-                $relation = str_replace('_id', '', $field);
-        
-                // Agar metod mavjud bo'lsa, ma'lumotlarni oling
-                if (method_exists($pointUserInformation, $relation)) {
-                    $relatedData[$pointUserInformation->id][$field] = $pointUserInformation->$relation;
+            foreach ($arrayKey as $column => $originalKey) {
+                // column tekshiriladi
+                if (isset($pointUserInformation->$column)) {
+                    // $murojaat_nomi o'rnatiladi
+                    $pointUserInformation->murojaat_nomi = $jadvallarCodlari[$originalKey];
+                    $pointUserInformation->murojaat_codi = $originalKey;
+                    break;
                 }
             }
+    
+            // Foydalanuvchining har bir itemidagi ballarni yig'indiga qo'shish
+            if (isset($pointUserInformation->point)) {
+                $totalPoints += $pointUserInformation->point;
+            }
         }
-        
-        // Yozuvlarni tekshirish va chiqarish
-        dd($relatedData);
 
+        // $totalPoints;
 
-    // $info = PointUserDeportament::find(1);
-    // $relatedData = $info->table_1_7_1_id; // table_1_2_id orqali bog'langan modeldagi ma'lumotlar
-    // dd($relatedData);
-
-        dd($pointUserInformation);
-
-        return view('livewire.pages.dashboard.my_submited_info', compact('murojatlar'));
+        return view('livewire.pages.dashboard.my_submited_info', compact('pointUserInformations', 'totalPoints'));
     }
+    
+    
 }

@@ -4,24 +4,13 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class PointUserDeportament extends Model
 {
     use HasFactory;
-
-      // Barcha bog'lanishlar uchun dinamik metod
-      public function __call($method, $parameters)
-      {
-          if (preg_match('/^table_\d+_\d+(_[a-zA-Z0-9]+)?$/', $method)) {
-              $modelName = 'App\\Models\\Tables\\' . str_replace('table_', 'Table_', ucwords($method, '_'));
-              if (class_exists($modelName)) {
-                  return $this->belongsTo($modelName, "{$method}_id");
-              }
-          }
-  
-          return parent::__call($method, $parameters);
-      }
-      
+     
     protected $fillable =
     [
         'user_id',
@@ -58,6 +47,146 @@ class PointUserDeportament extends Model
 
     ];
 
-    
-  
+    public function table_1_1()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_1_::class, 'id');
+    }
+
+    public function table_1_2()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_2_::class, 'id');
+    }
+
+
+    public function table_1_3_1()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_3_1_::class, 'id');
+    }
+
+
+    public function table_1_3_2()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_3_2_::class, 'id');
+    }
+
+
+    public function table_1_4()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_4_::class, 'id');
+    }
+
+
+    public function table_1_5()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_5_::class, 'id');
+    }
+
+
+    public function table_1_6_1()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_6_1_::class, 'id');
+    }
+
+    public function table_1_6_1_a()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_6_1_a_::class, 'id');
+    }
+
+    public function table_1_6_2()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_6_2_::class, 'id');
+    }
+
+
+    public function table_1_7_1()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_7_1_::class, 'id');
+    }
+
+
+    public function table_1_7_2()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_7_2_::class, 'id');
+    }
+
+
+    public function table_1_7_3()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_7_3_::class, 'id');
+    }
+
+
+    public function table_1_9_1()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_9_1_::class, 'id');
+    }
+
+
+    public function table_1_9_2()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_9_2_::class, 'id');
+    }
+
+    public function table_1_9_3()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_9_3_::class, 'id');
+    }
+
+    public function table_2_2_1()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_2_2_1_::class, 'id');
+    }
+
+    public function table_2_2_2()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_2_2_2_::class, 'id');
+    }
+
+    public function table_2_3_1()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_2_3_1_::class, 'id');
+    }
+
+    public function table_2_3_2()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_2_3_2_::class, 'id');
+    }
+
+    public function table_2_4_1()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_2_4_1_::class, 'id');
+    }
+
+    public function table_2_4_2()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_2_4_2_::class, 'id');
+    }
+
+    public function table_2_4_2_b()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_2_4_2_b_::class, 'id');
+    }
+
+    public function table_2_5()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_2_5_::class, 'id');
+    }
+
+    public function table_3_4_1()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_3_4_1_::class, 'id');
+    }
+
+    public function table_3_4_2()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_3_4_2_::class, 'id');
+    }
+
+    public function table_4_1()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_4_1_::class, 'id');
+    }
+
+
+   
 }
