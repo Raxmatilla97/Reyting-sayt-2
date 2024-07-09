@@ -1,3 +1,8 @@
+<h3 align="left">Qisqacha!</h3>
+<p align="left">
+Proyekt hali ohiriga yetmagan afsuski uni ohiriga yetkazishga juda erinyapman va ancha vaqt bo'lgani uchunham uje qandayligini eslay olmayman, shunga agarda kim tugatmoqchi bo'lsa bemalol ishlataversin. Proyekt shaxsiy opitni oshirish uchun yaratilgan edi va kerakli maqsadlarda ishlatish uchun mo'ljallanib yaratilgan.
+</p>
+
 <h1 align="center">Hi 👋, I'm Raxmatilla</h1>
 <h3 align="center">I am a simple web developer from Uzbekistan</h3>
 
