@@ -12,9 +12,16 @@ class FacultyController extends Controller
      */
     public function index()
     {
-        $faculties = Faculty::paginate(15);
-       
+        $faculties = Faculty::with('departments.point_user_deportaments')->paginate(15);
 
+        foreach ($faculties as $faculty) {
+            $faculty->totalPoints = 0;
+            foreach ($faculty->departments as $department) {
+                foreach ($department->point_user_deportaments as $test) {
+                    $faculty->totalPoints += $test->point;
+                }
+            }
+        }
         return view('livewire.pages.dashboard.faculty.index', compact('faculties'));
     }
 

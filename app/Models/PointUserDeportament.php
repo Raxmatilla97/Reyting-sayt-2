@@ -10,7 +10,9 @@ use Illuminate\Support\Str;
 class PointUserDeportament extends Model
 {
     use HasFactory;
-     
+
+
+
     protected $fillable =
     [
         'user_id',
@@ -46,6 +48,11 @@ class PointUserDeportament extends Model
 
 
     ];
+
+    public function user_ponts()
+    {
+        return $this->belongsTo(\App\Models\Department::class);
+    }
 
     public function table_1_1()
     {
@@ -188,5 +195,5 @@ class PointUserDeportament extends Model
     }
 
 
-   
+
 }

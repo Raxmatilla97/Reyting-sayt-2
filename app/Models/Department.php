@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Faculty;
 use App\Models\User;
 use App\Models\Employee;
+use App\Models\PointUserDeportament;
 
 
 class Department extends Model
@@ -38,6 +39,11 @@ class Department extends Model
     public function employee()
     {
         return $this->hasMany(Employee::class);
+    }
+
+    public function point_user_deportaments()
+    {
+        return $this->hasMany(PointUserDeportament::class, 'departament_id');
     }
 
 }

@@ -12,7 +12,7 @@ class FormsController extends Controller
 {
     public function employeeShowForm($tableName)
     {
-        // Formani shakillantirdigan ma'lumotlarni config papkasi ichidan employee_form_fields.php olib beradi 
+        // Formani shakillantirdigan ma'lumotlarni config papkasi ichidan employee_form_fields.php olib beradi
         $fields = config("employee_form_fields.{$tableName}");
 
         if (!$fields) {
@@ -24,7 +24,7 @@ class FormsController extends Controller
 
     public function departmentShowForm($tableName)
     {
-        // Formani shakillantirdigan ma'lumotlarni config papkasi ichidan employee_form_fields.php olib beradi 
+        // Formani shakillantirdigan ma'lumotlarni config papkasi ichidan employee_form_fields.php olib beradi
         $fields = config("department_forms_fields.{$tableName}");
 
         if (!$fields) {
@@ -104,13 +104,14 @@ class FormsController extends Controller
             // Ma'lumotlarni bazaga yuklash
             DB::table($tableName)->insert($filteredData);
 
-            
+
             // Malumotni pointer tablitsiyasiga saqlash
             $userAuth = Auth::user()->id;
             $pointer['user_id'] = $userAuth;
             $pointer['status'] = 3;
+            $pointer['departament_id'] = Auth::user()->department_id;
             $pointer["$tableName".'id'] = 1;
-            
+
             // Model orqali malumotni qo'shish
             PointUserDeportament::create($pointer);
 
@@ -181,8 +182,8 @@ class FormsController extends Controller
                 $path = $file->store('documents', 'public');
 
                 // Fayl yo'lini ma'lumotlar bazasiga qo'shish
-                $filteredData['asos_file'] = $path;    
- 
+                $filteredData['asos_file'] = $path;
+
             }
 
             // Joriy sana/vaqt qiymatlarini qo'shish
@@ -198,7 +199,7 @@ class FormsController extends Controller
             $pointer['user_id'] = $userAuth;
             $pointer['status'] = 3;
             $pointer["$tableName".'id'] = 1;
-            
+
             // Model orqali malumotni qo'shish
             PointUserDeportament::create($pointer);
 

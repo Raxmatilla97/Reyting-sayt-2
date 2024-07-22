@@ -18,11 +18,11 @@ class Faculty extends Model
         'description',
         'status',
         'custom_points'
-      
+
     ];
 
     // Relation orqali bog'lanish
-    public function department()
+    public function departments()
     {
         return $this->hasMany(Department::class);
     }
