@@ -12,12 +12,12 @@
 
 
     <div class="py-1 mt-6">
-       
+
         <div class="max-w-8xl mx-auto sm:px-1 lg:px-1">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-1 bg-white border-b border-gray-200">
 
-                   
+
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
 
                         <div class="p-6 text-gray-900 mb-8">
@@ -58,8 +58,8 @@
                                                 <th scope="col" class="px-6 py-3">
                                                    Kafedra nomi
                                                 </th>
-                                               
-                                               
+
+
                                                 <th scope="col" class="px-6 py-3">
                                                    Holati
                                                 </th>
@@ -94,8 +94,8 @@
                                                             </div>
                                                         </div>
                                                     </th>
-                                                    
-                                                 
+
+
 
                                                     <td class="px-6 py-4">
                                                         <div class="flex items-center">
@@ -103,7 +103,7 @@
                                                                 <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2">
                                                                 </div>
                                                                Aktive
-                                                        
+
                                                             @else
                                                                 <div class="h-2.5 w-2.5 rounded-full bg-red-500 me-2">
                                                                 </div>
@@ -111,9 +111,9 @@
                                                             @endif
                                                         </div>
                                                     </td>
-                                                   
+
                                                     <td class="px-6 py-4">
-                                                        213 ball
+                                                        {{$item->totalPoints}}
                                                     </td>
                                                     <td class="px-6 py-4">
                                                         <a href=""

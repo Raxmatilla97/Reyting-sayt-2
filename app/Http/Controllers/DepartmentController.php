@@ -13,12 +13,21 @@ class DepartmentController extends Controller
      */
     public function index()
     {
-        $departments = Department::paginate(15);
+        $departments = Department::with('point_user_deportaments')->paginate(15);
+
+        foreach ($departments as $department) {
+            $department->totalPoints = 0; // Yangi xususiyat yaratish
+            foreach ($department->point_user_deportaments as $test) {
+                $department->totalPoints += $test->point; // Har bir `point_user_deportament` uchun `point` qiymatini qo'shish
+
+            }
+        }
 
         return view('livewire.pages.dashboard.department.index', compact('departments'));
     }
 
-    public function departmentFormChose(){
+    public function departmentFormChose()
+    {
 
         // Kafedra ma'lumotlarini yuklash uchun uni bo'limlari ro'yxati
         $jadvallar_codlari = Config::get('dep_emp_tables.department');;;

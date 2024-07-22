@@ -25,6 +25,13 @@ class FacultyController extends Controller
         return view('livewire.pages.dashboard.faculty.index', compact('faculties'));
     }
 
+    public function facultyShow($slug)
+    {
+        $faculty = Faculty::where('slug', $slug)->firstOrFail();
+
+        return view('livewire.pages.dashboard.faculty.show', compact('faculty'));
+    }
+
     /**
      * Show the form for creating a new resource.
      */
