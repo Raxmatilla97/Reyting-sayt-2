@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Faculty;
+use App\Models\PointUserDeportament;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Config;
 
 class FacultyController extends Controller
 {
@@ -29,7 +31,36 @@ class FacultyController extends Controller
     {
         $faculty = Faculty::where('slug', $slug)->firstOrFail();
 
-        return view('livewire.pages.dashboard.faculty.show', compact('faculty'));
+        $faculty_items = PointUserDeportament::whereIn('departament_id', $faculty->departments->pluck('id'))->paginate('15');
+
+          // Department va Employee konfiguratsiyalarini olish
+          $departmentCodlari = Config::get('dep_emp_tables.department');
+          $employeeCodlari = Config::get('dep_emp_tables.employee');
+
+         // Ikkala massivni birlashtirish
+         $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
+
+         // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
+         $arrayKey = [];
+         foreach ($jadvallarCodlari as $key => $value) {
+             $arrayKey[$key . 'id'] = $key; // $key . 'id' qiymatini o'rnating
+         }
+
+          // Ma'lumotlar massivini tekshirish
+          foreach ($faculty_items as $faculty_item) {
+            foreach ($arrayKey as $column => $originalKey) {
+                // column tekshiriladi
+                if (isset($faculty_item->$column)) {
+                    // $murojaat_nomi o'rnatiladi
+                    $faculty_item->murojaat_nomi = $jadvallarCodlari[$originalKey];
+                    $faculty_item->murojaat_codi = $originalKey;
+                    break;
+                }
+            }
+
+        }
+
+        return view('livewire.pages.dashboard.faculty.show', compact('faculty', 'faculty_items'));
     }
 
     /**
