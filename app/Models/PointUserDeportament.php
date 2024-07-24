@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 
+
 class PointUserDeportament extends Model
 {
     use HasFactory;
@@ -48,6 +49,43 @@ class PointUserDeportament extends Model
 
 
     ];
+
+
+
+
+    protected $relationships = [
+        'table_1_1',
+        'table_1_2',
+        'table_1_3_1',
+        'table_1_3_2',
+        'table_1_4',
+        'table_1_5',
+        'table_1_6_1',
+        'table_1_6_2',
+        'table_1_7_1',
+        'table_1_7_2',
+        'table_1_7_3',
+        'table_1_9_1',
+        'table_1_9_2',
+        'table_1_9_3',
+        'table_2_2_1',
+        'table_2_2_2',
+        'table_2_3_1',
+        'table_2_3_2',
+        'table_2_4_1',
+        'table_2_4_2',
+        'table_2_4_2_b',
+        'table_2_5',
+        'table_3_4_1',
+        'table_3_4_2',
+        'table_4_1',
+    ];
+
+    public function getRelationships()
+    {
+        return $this->relationships;
+    }
+
 
     public function user_ponts()
     {

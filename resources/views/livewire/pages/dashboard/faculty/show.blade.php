@@ -507,8 +507,18 @@
                                                                             {{ $item->created_at }}
                                                                         </td>
                                                                         <td class="px-6 py-4">
-                                                                            <a href=""
-                                                                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Ko'rish</a>
+                                                                            <div class="mr-3 flex-shrink-0 item">
+                                                                                <button
+                                                                                    data-modal-target="default-modal-{{ $item->id }}"
+                                                                                    data-modal-toggle="default-modal-{{ $item->id }}"
+                                                                                    class="view-details-btn block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
+                                                                                    type="button"
+                                                                                    data-id="{{ $item->id }}">
+                                                                                    KO'RISH
+                                                                                </button>
+
+
+                                                                            </div>
                                                                         </td>
                                                                     </tr>
                                                                 @endforeach
@@ -532,6 +542,95 @@
                                     </div>
 
                                 </div>
+
+                                <!-- Modal HTML, bitta modal -->
+                                <div id="default-modal" tabindex="-1" aria-hidden="true"
+                                    class="hidden overflow-y-auto fixed inset-0 z-50 flex items-center justify-center">
+                                    <div class="relative p-4 w-full max-w-2xl">
+                                        <!-- Modal content -->
+                                        <div class="relative bg-white rounded-lg shadow">
+                                            <!-- Modal header -->
+                                            <div class="flex items-center justify-between p-4 border-b rounded-t">
+                                                <h3 class="text-xl font-semibold text-gray-900">
+                                                    Item Details
+                                                </h3>
+                                                <button type="button"
+                                                    class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 flex justify-center items-center"
+                                                    data-modal-hide="default-modal">
+                                                    <svg class="w-3 h-3" aria-hidden="true"
+                                                        xmlns="http://www.w3.org/2000/svg" fill="none"
+                                                        viewBox="0 0 14 14">
+                                                        <path stroke="currentColor" stroke-linecap="round"
+                                                            stroke-linejoin="round" stroke-width="2"
+                                                            d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+                                                    </svg>
+                                                    <span class="sr-only">Close modal</span>
+                                                </button>
+                                            </div>
+                                            <!-- Modal body -->
+                                            <div class="modal-body p-4">
+                                                <!-- AJAX bilan yangilanadi -->
+                                            </div>
+                                            <!-- Modal footer -->
+                                            <div class="flex items-center p-4 border-t rounded-b">
+                                                <button data-modal-hide="default-modal" type="button"
+                                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">I
+                                                    accept</button>
+                                                <button data-modal-hide="default-modal" type="button"
+                                                    class="text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:ring-4 focus:ring-gray-100 rounded-lg text-sm px-5 py-2.5 ms-3">Decline</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+
+                                {{-- Ko'rish tugmasi bosilganda AJAX so'rovi yuboriladigan js kodi --}}
+                                <script>
+                                    document.addEventListener('DOMContentLoaded', function() {
+                                        const viewButtons = document.querySelectorAll('.view-details-btn');
+
+                                        viewButtons.forEach(button => {
+                                            button.addEventListener('click', function() {
+                                                const id = button.getAttribute('data-id');
+                                                const modalId = 'default-modal'; // Faqat bitta modal mavjud
+
+                                                // AJAX so'rovini yuborish
+                                                fetch(`/getItemDetails/${id}`)
+                                                    .then(response => response.json())
+                                                    .then(data => {
+                                                        // Modalni yangilash
+                                                        const modal = document.querySelector(`#${modalId}`);
+                                                        if (modal) {
+                                                            console.log(`Updating modal with id ${modalId}`); // Debug log
+                                                            modal.querySelector('.modal-body').innerHTML = data.html;
+                                                            modal.classList.remove('hidden');
+                                                        } else {
+                                                            console.error(`Modal with id ${modalId} does not exist.`);
+                                                        }
+                                                    })
+                                                    .catch(error => console.error('Error:', error));
+                                            });
+                                        });
+
+                                        // Modalni yopish uchun kod
+                                        document.querySelectorAll('[data-modal-hide]').forEach(button => {
+                                            button.addEventListener('click', function() {
+                                                const modalId = button.getAttribute('data-modal-hide');
+                                                const modal = document.querySelector(`#${modalId}`);
+                                                if (modal) {
+                                                    console.log(`Hiding modal with id ${modalId}`); // Debug log
+                                                    modal.classList.add('hidden');
+                                                } else {
+                                                    console.error(`Modal with id ${modalId} does not exist.`);
+                                                }
+                                            });
+                                        });
+                                    });
+                                </script>
+
+
+
+
 
                                 {{-- Tab funksiyasini ishga tushurish kodi --}}
                                 <script>
@@ -568,7 +667,7 @@
                                 {{-- Paginatsiya bo'lganda active tabni saqlaydigan js codi --}}
 
                                 <script>
-                                    document.addEventListener('DOMContentLoaded', function () {
+                                    document.addEventListener('DOMContentLoaded', function() {
                                         const tabs = document.querySelectorAll('.tab');
                                         const tabContents = document.querySelectorAll('.tab-content');
 
@@ -580,7 +679,7 @@
                                         }
 
                                         tabs.forEach(tab => {
-                                            tab.addEventListener('click', function (event) {
+                                            tab.addEventListener('click', function(event) {
                                                 event.preventDefault();
                                                 const tabId = this.getAttribute('data-tab');
                                                 localStorage.setItem('activeTab', tabId);
