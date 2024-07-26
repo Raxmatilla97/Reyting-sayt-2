@@ -543,16 +543,15 @@
 
                                 </div>
 
-                                <!-- Modal HTML, bitta modal -->
                                 <div id="default-modal" tabindex="-1" aria-hidden="true"
-                                    class="hidden overflow-y-auto fixed inset-0 z-50 flex items-center justify-center">
-                                    <div class="relative p-4 w-full max-w-2xl">
+                                    class="hidden overflow-y-auto fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+                                    <div class="relative p-4 w-full max-w-3xl h-full md:h-auto">
                                         <!-- Modal content -->
-                                        <div class="relative bg-white rounded-lg shadow">
+                                        <div class=" bg-white rounded-lg shadow overflow-y-auto">
                                             <!-- Modal header -->
                                             <div class="flex items-center justify-between p-4 border-b rounded-t">
                                                 <h3 class="text-xl font-semibold text-gray-900">
-                                                    Item Details
+                                                    To'liq ma'lumot
                                                 </h3>
                                                 <button type="button"
                                                     class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 flex justify-center items-center"
@@ -568,21 +567,18 @@
                                                 </button>
                                             </div>
                                             <!-- Modal body -->
-                                            <div class="modal-body p-4">
+                                            <div class="modal-body pb-4 pl-4 pr-4 pt-2">
                                                 <!-- AJAX bilan yangilanadi -->
                                             </div>
                                             <!-- Modal footer -->
-                                            <div class="flex items-center p-4 border-t rounded-b">
+                                            {{-- <div class="flex items-center p-4 border-t rounded-b">
+
                                                 <button data-modal-hide="default-modal" type="button"
-                                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">I
-                                                    accept</button>
-                                                <button data-modal-hide="default-modal" type="button"
-                                                    class="text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:ring-4 focus:ring-gray-100 rounded-lg text-sm px-5 py-2.5 ms-3">Decline</button>
-                                            </div>
+                                                    class="text-gray-900 bg-white border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:ring-4 focus:ring-gray-100 rounded-lg text-sm px-5 py-2.5 ms-3">Yopish</button>
+                                            </div> --}}
                                         </div>
                                     </div>
                                 </div>
-
 
                                 {{-- Ko'rish tugmasi bosilganda AJAX so'rovi yuboriladigan js kodi --}}
                                 <script>
@@ -625,8 +621,19 @@
                                                 }
                                             });
                                         });
+
+                                        // Modal tashqarisiga bosilganda yopish uchun kod
+                                        const modal = document.querySelector('#default-modal');
+                                        if (modal) {
+                                            modal.addEventListener('click', function(event) {
+                                                if (event.target === modal) {
+                                                    modal.classList.add('hidden');
+                                                }
+                                            });
+                                        }
                                     });
                                 </script>
+
 
 
 

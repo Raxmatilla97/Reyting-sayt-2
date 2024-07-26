@@ -101,27 +101,25 @@ class FormsController extends Controller
             $filteredData['created_at'] = $now;
 
 
-            // Ma'lumotlarni bazaga yuklash
-            DB::table($tableName)->insert($filteredData);
-
+            // Ma'lumotlarni bazaga yuklash va insert qilingan yozuvning ID sini olish
+            $insertedId = DB::table($tableName)->insertGetId($filteredData);
 
             // Malumotni pointer tablitsiyasiga saqlash
             $userAuth = Auth::user()->id;
             $pointer['user_id'] = $userAuth;
             $pointer['status'] = 3;
             $pointer['departament_id'] = Auth::user()->department_id;
-            $pointer["$tableName".'id'] = 1;
+            $pointer["{$tableName}id"] = $insertedId;
+
 
             // Model orqali malumotni qo'shish
             PointUserDeportament::create($pointer);
 
             return redirect()->back()->with('success', "Ma'lumotlar muvaffaqiyatli saqlandi");
-
         } else {
             // Agar foydalanuvchi tizimga kirmagan bo'lsa, xabar qaytarish
             return "Foydalanuvchi tizimga kirmagan.";
         }
-
     }
 
 
@@ -183,7 +181,6 @@ class FormsController extends Controller
 
                 // Fayl yo'lini ma'lumotlar bazasiga qo'shish
                 $filteredData['asos_file'] = $path;
-
             }
 
             // Joriy sana/vaqt qiymatlarini qo'shish
@@ -198,18 +195,15 @@ class FormsController extends Controller
             $userAuth = Auth::user()->id;
             $pointer['user_id'] = $userAuth;
             $pointer['status'] = 3;
-            $pointer["$tableName".'id'] = 1;
+            $pointer["$tableName" . 'id'] = 1;
 
             // Model orqali malumotni qo'shish
             PointUserDeportament::create($pointer);
 
             return redirect()->back()->with('success', "Ma'lumotlar muvaffaqiyatli saqlandi");
-
         } else {
             // Agar foydalanuvchi tizimga kirmagan bo'lsa, xabar qaytarish
             return "Foydalanuvchi tizimga kirmagan.";
         }
-
     }
 }
-
