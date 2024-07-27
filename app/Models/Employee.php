@@ -37,7 +37,7 @@ class Employee extends Model
         'phone',
         'employee_id_number',
         'status'
-       
+
     ];
 
 
@@ -51,5 +51,8 @@ class Employee extends Model
         return $this->belongsTo(Department::class);
     }
 
-
+    public function getFullNameAttribute()
+    {
+        return "{$this->first_name} {$this->second_name} {$this->third_name}";
+    }
 }

@@ -298,13 +298,12 @@
                                                     keyinchalik to'ldirilib boyitilib borilishi mumkin!
                                                 </p>
                                                 <ul class="list-disc list-inside text-gray-700">
-                                                    <li class="mb-2">Fakultet o'qituvchilar soni: NaN nafar</li>
-                                                    <li class="mb-2">Fakultet to'plangan umumiy ballar: NaN</li>
+                                                    <li class="mb-2">Fakultet o'qituvchilar soni: {{$totalEmployees}} nafar</li>
+                                                    <li class="mb-2">Fakultet to'plangan umumiy ballar: {{$totalPoints}}</li>
                                                     <li class="mb-2">Fakultet hisobidagi yuborilgan ma'lumotlar
-                                                        soni: NaN ta</li>
-                                                    <li class="mb-2">Oxirgi yuborilgan ma'lumot vaqti: NaN soat
-                                                        oldin</li>
-                                                    <li class="mb-2">Oxirgi yuborgan ma'lumot egasi nomi: NaN</li>
+                                                        soni: {{$totalInfos}} ta</li>
+                                                    <li class="mb-2">Oxirgi yuborilgan ma'lumot vaqti: {{$timeAgo}}</li>
+                                                    <li class="mb-2">Oxirgi yuborgan ma'lumot egasi nomi: {{$fullName}}</li>
                                                 </ul>
                                             </div>
                                         </div>

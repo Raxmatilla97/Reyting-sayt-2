@@ -86,6 +86,10 @@ class PointUserDeportament extends Model
         return $this->relationships;
     }
 
+    public function employee()
+{
+    return $this->belongsTo(\App\Models\Employee::class, 'user_id');
+}
 
     public function user_ponts()
     {

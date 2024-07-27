@@ -116,8 +116,10 @@
                                                         {{$item->totalPoints}}
                                                     </td>
                                                     <td class="px-6 py-4">
-                                                        <a href=""
-                                                            class="font-medium text-blue-600  hover:underline">Ko'rish</a>
+                                                        <a href="{{ route('dashboard.departmentShow', ['slug' => $item->slug]) }}"
+                                                            class="font-medium text-blue-600 hover:underline">
+                                                            Ko'rish
+                                                         </a>
                                                     </td>
                                                 </tr>
                                             @endforeach

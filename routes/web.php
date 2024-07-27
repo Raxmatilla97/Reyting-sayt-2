@@ -67,6 +67,10 @@ Route::middleware('auth')->group(function () {
     // Fakultet sahifasida Itemlarni Ko'rish tugmasini bosganda Ajax so'rov yuborish routeri
     Route::get('/getItemDetails/{id}', [FacultyController::class, 'getItemDetails'])->name('dashboard.getItemDetails');
 
+
+     // Kafedra ma'lumotlarini show qilish
+     Route::get('/department/{slug}', [DepartmentController::class, 'departmentShow'])->name('dashboard.departmentShow');
+
 });
 
 

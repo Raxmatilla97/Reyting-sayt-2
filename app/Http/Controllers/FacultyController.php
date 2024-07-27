@@ -6,6 +6,7 @@ use App\Models\Faculty;
 use App\Models\PointUserDeportament;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Carbon\Carbon;
 
 class FacultyController extends Controller
 {
@@ -59,7 +60,67 @@ class FacultyController extends Controller
             }
         }
 
-        return view('livewire.pages.dashboard.faculty.show', compact('faculty', 'faculty_items'));
+        // Fakultetda nechta o'qituvchi borligi
+        $totalEmployees = $faculty->departments->sum(function ($department) {
+            return $department->employee->count();
+        });
+
+        // Fakultet umumiy ballari soni
+        $totalPoints = $faculty->departments->sum(function ($department) {
+            return $department->point_user_deportaments->sum('point');
+        });
+
+        // Fakultet umumiy ma'lumotlar soni
+        $totalInfos = $faculty->departments->sum(function ($department) {
+            return $department->point_user_deportaments->count();
+        });
+
+        // Fakultet ma'lumoti eng ohirgi kelgan vaqti
+        $mostRecentTimestamp = $faculty->departments->flatMap(function ($department) {
+            return $department->point_user_deportaments;
+        })->max('created_at');
+
+        $mostRecentTime = Carbon::parse($mostRecentTimestamp);
+        $now = Carbon::now();
+        $diffInSeconds = $now->diffInSeconds($mostRecentTime);
+        $diffInMinutes = $now->diffInMinutes($mostRecentTime);
+        $diffInHours = $now->diffInHours($mostRecentTime);
+        $diffInDays = $now->diffInDays($mostRecentTime);
+
+        // Tarjima holati
+        if ($diffInSeconds < 60) {
+            $timeAgo = $diffInSeconds . ' soniya oldin';
+        } elseif ($diffInMinutes < 60) {
+            $timeAgo = $diffInMinutes . ' daqiqa oldin';
+        } elseif ($diffInHours < 24) {
+            $timeAgo = $diffInHours . ' soat oldin';
+        } else {
+            $timeAgo = $diffInDays . ' kun oldin';
+        }
+
+        // Eng ohirgi yuborgan malumotnign egasi nomi
+        $mostRecentEntry = $faculty->departments->flatMap(function ($department) {
+            return $department->point_user_deportaments;
+        })->sortByDesc('created_at')->first();
+
+        if ($mostRecentEntry) {
+             $fullName = $mostRecentEntry->employee->full_name;
+
+        } else {
+            $fullName = "Ma'lumot topilmadi!";
+        }
+
+        return view('livewire.pages.dashboard.faculty.show', compact(
+            'faculty',
+            'faculty_items',
+            'totalEmployees',
+            'totalPoints',
+            'totalInfos',
+            'timeAgo',
+            'fullName'
+
+
+        ));
     }
 
     public function getItemDetails($id)

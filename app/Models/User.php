@@ -44,7 +44,7 @@ class User extends Authenticatable
         'phone',
         'employee_id_number',
         'status'
-       
+
     ];
 
     /**
@@ -68,5 +68,10 @@ class User extends Authenticatable
     ];
 
     // Relation orqali bog'lanish
-   
+
+    public function getFullNameAttribute()
+    {
+        return "{$this->first_name} {$this->second_name} {$this->third_name}";
+    }
+
 }
