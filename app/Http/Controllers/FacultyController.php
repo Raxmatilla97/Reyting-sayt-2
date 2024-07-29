@@ -67,7 +67,7 @@ class FacultyController extends Controller
 
         // Fakultet umumiy ballari soni
         $totalPoints = $faculty->departments->sum(function ($department) {
-            return $department->point_user_deportaments->sum('point');
+            return round($department->point_user_deportaments()->sum('point'), 2);
         });
 
         // Fakultet umumiy ma'lumotlar soni

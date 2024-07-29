@@ -123,12 +123,12 @@
                                                     keyinchalik to'ldirilib boyitilib borilishi mumkin!
                                                 </p>
                                                 <ul class="list-disc list-inside text-gray-700">
-                                                    {{-- <li class="mb-2">Fakultet o'qituvchilar soni: {{$totalEmployees}} nafar</li>
+                                                    <li class="mb-2">Fakultet o'qituvchilar soni: {{$totalEmployees}} nafar</li>
                                                     <li class="mb-2">Fakultet to'plangan umumiy ballar: {{$totalPoints}}</li>
                                                     <li class="mb-2">Fakultet hisobidagi yuborilgan ma'lumotlar
                                                         soni: {{$totalInfos}} ta</li>
                                                     <li class="mb-2">Oxirgi yuborilgan ma'lumot vaqti: {{$timeAgo}}</li>
-                                                    <li class="mb-2">Oxirgi yuborgan ma'lumot egasi nomi: {{$fullName}}</li> --}}
+                                                    <li class="mb-2">Oxirgi yuborgan ma'lumot egasi nomi: {{$fullName}}</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -180,7 +180,7 @@
                                                             <td class="px-4 py-2 text-center">
 
                                                                 @php
-                                                                    $totalPoints = $employee->point_user_deportaments->count();
+                                                                    $totalPoints = $employee->department->point_user_deportaments->count();
                                                                 @endphp
 
                                                                 {{ $totalPoints }}
@@ -190,7 +190,7 @@
                                                                     $point_full = 0.0;
                                                                 @endphp
 
-                                                                @foreach ($employee->point_user_deportaments as $points)
+                                                                @foreach ($employee->department->point_user_deportaments as $points)
                                                                     @php
                                                                         $point_full += $points->point;
                                                                     @endphp
@@ -208,7 +208,7 @@
 
                                         </div>
                                     </div>
-                                  {{-- <div id="yuborilgan" class="p-4 tab-content hidden">
+                                  <div id="yuborilgan" class="p-4 tab-content hidden">
                                         <h3 class="text-2xl font-bold mb-5">Kafedra o'qituvchilari tomonidan yuborilgan
                                             ma'lumotlar</h3>
                                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -216,7 +216,7 @@
                                             <div class="text-gray-900 mb-8">
 
                                                 <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                                                    @if (count($faculty_items) > 0)
+                                                    @if (count($departament_items) > 0)
                                                         <table
                                                             class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                                                             <thead
@@ -252,7 +252,7 @@
                                                                 @endphp
 
 
-                                                                @foreach ($faculty_items as $item)
+                                                                @foreach ($departament_items as $item)
                                                                     <tr
                                                                         class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
                                                                         <td class="w-4 p-4">
@@ -350,14 +350,14 @@
 
                                                 </div>
                                                 <div class=" items-center justify-between mt-6">
-                                                    {{ $faculty_items->links() }}
+                                                    {{ $departament_items->links() }}
                                                 </div>
                                             </div>
 
                                         </div>
                                     </div>
 
-                                </div> --}}
+                                </div>
 
                                 <div id="default-modal" tabindex="-1" aria-hidden="true"
                                     class="hidden overflow-y-auto fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
