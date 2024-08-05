@@ -41,7 +41,10 @@ class DepartmentController extends Controller
     {
         $department = Department::where('slug', $slug)->firstOrFail();
 
-        $departament_items = PointUserDeportament::whereIn('departament_id', $department->pluck('id'))->paginate('15');
+
+
+        $departament_items = PointUserDeportament::where('departament_id', $department->id)->paginate(15);
+
 
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');

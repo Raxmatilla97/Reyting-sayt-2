@@ -53,8 +53,8 @@ Route::middleware('auth')->group(function () {
     // Forma sahifasini ko'rsatish uchun Route
     Route::get('/show-department-form/{type}', [FormsController::class, 'departmentShowForm'])->name('dashboard.show_department_form');
 
-     // Formadagi malumotlarni umumiy routerga yuborish
-     Route::post('/send-department-form/{tableName}', [FormsController::class, 'departmentStoreForm'])->name('dashboard.department_store_form');
+    // Formadagi malumotlarni umumiy routerga yuborish
+    Route::post('/send-department-form/{tableName}', [FormsController::class, 'departmentStoreForm'])->name('dashboard.department_store_form');
 
     Route::view('profile', 'profile')->name('profile');
 
@@ -67,10 +67,11 @@ Route::middleware('auth')->group(function () {
     // Fakultet sahifasida Itemlarni Ko'rish tugmasini bosganda Ajax so'rov yuborish routeri
     Route::get('/getItemDetails/{id}', [FacultyController::class, 'getItemDetails'])->name('dashboard.getItemDetails');
 
+    // Kafedra ma'lumotlarini show qilish
+    Route::get('/department/{slug}', [DepartmentController::class, 'departmentShow'])->name('dashboard.departmentShow');
 
-     // Kafedra ma'lumotlarini show qilish
-     Route::get('/department/{slug}', [DepartmentController::class, 'departmentShow'])->name('dashboard.departmentShow');
-
+    // O'qituvchi ma'lumotlarini show qilish
+    Route::get('/employee/{id_employee}', [EmployeeController::class, 'employeeShow'])->name('dashboard.employeeShow');
 });
 
 

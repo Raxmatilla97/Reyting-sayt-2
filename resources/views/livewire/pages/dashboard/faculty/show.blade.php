@@ -446,7 +446,7 @@
                                                                             class="flex items-center px-6 py-4 text-gray-900 whitespace-normal dark:text-white">
                                                                             <img class="hidden sm:block w-10 h-10 rounded-full"
                                                                                 style="object-fit: cover;"
-                                                                                src="{{ '/storage/users/image' }}/{{ auth()->user()->image }}"
+                                                                                src="{{ '/storage/users/image' }}/{{ $item->image }}"
                                                                                 alt="">
                                                                             <div class="ps-3">
                                                                                 <div class="text-base font-semibold"

@@ -7,6 +7,7 @@ use App\Models\PointUserDeportament;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Carbon\Carbon;
 
 class EmployeeController extends Controller
 {
@@ -16,6 +17,8 @@ class EmployeeController extends Controller
     public function index()
     {
         $employee = Employee::paginate(15);
+
+
 
         return view('livewire.pages.dashboard.employee.index', compact('employee'));
     }
@@ -27,6 +30,45 @@ class EmployeeController extends Controller
         $jadvallar_codlari = Config::get('dep_emp_tables.employee');;
 
         return view('livewire.pages.dashboard.employee_category_choose', compact('jadvallar_codlari'));
+    }
+
+
+    public function employeeShow($id_employee)
+    {
+        $employee = Employee::where('employee_id_number', $id_employee)->firstOrFail();
+
+        $pointUserInformations = PointUserDeportament::where('user_id', $employee->id)->paginate('15');
+
+         // Department va Employee konfiguratsiyalarini olish
+         $departmentCodlari = Config::get('dep_emp_tables.department');
+         $employeeCodlari = Config::get('dep_emp_tables.employee');
+
+         // Ikkala massivni birlashtirish
+         $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
+
+         // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
+         $arrayKey = [];
+         foreach ($jadvallarCodlari as $key => $value) {
+             $arrayKey[$key . 'id'] = $key; // $key . 'id' qiymatini o'rnating
+         }
+
+         // Ma'lumotlar massivini tekshirish
+         foreach ($pointUserInformations as $faculty_item) {
+             foreach ($arrayKey as $column => $originalKey) {
+                 // column tekshiriladi
+                 if (isset($faculty_item->$column)) {
+                     // $murojaat_nomi o'rnatiladi
+                     $faculty_item->murojaat_nomi = $jadvallarCodlari[$originalKey];
+                     $faculty_item->murojaat_codi = $originalKey;
+                     break;
+                 }
+             }
+         }
+
+
+    //    dd($pointUserInformations);
+
+        return view('livewire.pages.dashboard.employee.show', compact('employee', 'pointUserInformations'));
     }
 
     /**
@@ -82,23 +124,23 @@ class EmployeeController extends Controller
     {
         $user = auth()->user();
         $pointUserInformations = PointUserDeportament::where('user_id', $user->id)->get();
-    
+
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');
         $employeeCodlari = Config::get('dep_emp_tables.employee');
-    
+
         // Ikkala massivni birlashtirish
         $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
-    
+
         // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
         $arrayKey = [];
         foreach ($jadvallarCodlari as $key => $value) {
             $arrayKey[$key . 'id'] = $key; // $key . 'id' qiymatini o'rnating
         }
-    
+
         // Umumiy ballar yig'indisini saqlash uchun o'zgaruvchi
         $totalPoints = 0;
-    
+
         // Ma'lumotlar massivini tekshirish
         foreach ($pointUserInformations as $pointUserInformation) {
             foreach ($arrayKey as $column => $originalKey) {
@@ -110,7 +152,7 @@ class EmployeeController extends Controller
                     break;
                 }
             }
-    
+
             // Foydalanuvchining har bir itemidagi ballarni yig'indiga qo'shish
             if (isset($pointUserInformation->point)) {
                 $totalPoints += $pointUserInformation->point;
@@ -121,6 +163,6 @@ class EmployeeController extends Controller
 
         return view('livewire.pages.dashboard.my_submited_info', compact('pointUserInformations', 'totalPoints'));
     }
-    
-    
+
+
 }
