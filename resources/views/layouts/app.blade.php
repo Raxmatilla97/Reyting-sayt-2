@@ -19,6 +19,7 @@
     </head>
     <body class="font-sans antialiased">
         <div class="min-h-screen bg-gray-100">
+            @livewire('layout')
             <livewire:layout.navigation />
 
             <!-- Page Heading -->
@@ -37,7 +38,7 @@
         </div>
     </body>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-  
+
        <!-- Scripts -->
     @stack('scripts')
 </html>

@@ -43,7 +43,7 @@ class DepartmentController extends Controller
 
 
 
-        $departament_items = PointUserDeportament::where('departament_id', $department->id)->paginate(15);
+        $pointUserInformations = PointUserDeportament::where('departament_id', $department->id)->paginate(15);
 
 
         // Department va Employee konfiguratsiyalarini olish
@@ -60,7 +60,7 @@ class DepartmentController extends Controller
         }
 
         // Ma'lumotlar massivini tekshirish
-        foreach ($departament_items as $departament_item) {
+        foreach ($pointUserInformations as $departament_item) {
             foreach ($arrayKey as $column => $originalKey) {
                 // column tekshiriladi
                 if (isset($departament_item->$column)) {
@@ -114,7 +114,7 @@ class DepartmentController extends Controller
 
         return view('livewire.pages.dashboard.department.show', compact(
             'department',
-            'departament_items',
+            'pointUserInformations',
             'totalEmployees',
             'totalPoints',
             'totalInfos',

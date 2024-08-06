@@ -32,7 +32,7 @@ class FacultyController extends Controller
     {
         $faculty = Faculty::where('slug', $slug)->firstOrFail();
 
-        $faculty_items = PointUserDeportament::whereIn('departament_id', $faculty->departments->pluck('id'))->paginate('15');
+        $pointUserInformations = PointUserDeportament::whereIn('departament_id', $faculty->departments->pluck('id'))->paginate('15');
 
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');
@@ -48,7 +48,7 @@ class FacultyController extends Controller
         }
 
         // Ma'lumotlar massivini tekshirish
-        foreach ($faculty_items as $faculty_item) {
+        foreach ($pointUserInformations as $faculty_item) {
             foreach ($arrayKey as $column => $originalKey) {
                 // column tekshiriladi
                 if (isset($faculty_item->$column)) {
@@ -112,7 +112,7 @@ class FacultyController extends Controller
 
         return view('livewire.pages.dashboard.faculty.show', compact(
             'faculty',
-            'faculty_items',
+            'pointUserInformations',
             'totalEmployees',
             'totalPoints',
             'totalInfos',
