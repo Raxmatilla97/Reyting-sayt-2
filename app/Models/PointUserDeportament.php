@@ -45,7 +45,8 @@ class PointUserDeportament extends Model
         'departament_info',
         'status',
         'temporary_files_id',
-        'departament_id'
+        'departament_id',
+        'year'
 
 
     ];

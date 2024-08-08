@@ -40,6 +40,7 @@ return new class extends Migration
             $table->foreignId('table_3_4_1_id')->nullable()->constrained('table_3_4_1_')->onDelete('cascade');
             $table->foreignId('table_3_4_2_id')->nullable()->constrained('table_3_4_2_')->onDelete('cascade');
             $table->foreignId('table_4_1_id')->nullable()->constrained('table_4_1_')->onDelete('cascade');
+            $table->year('year')->nullable(); // Yil ustuni
             // end
             $table->float('point')->default(0);
             $table->boolean('departament_info')->default(false);

@@ -152,10 +152,15 @@ class FacultyController extends Controller
             return response()->json(['error' => 'No relationships defined'], 500);
         }
 
-        $view = view('dashboard.faculty.item-details', compact('item', 'relatedData'))->render();
+        // $item->year ni ko'rinishga uzatamiz
+        $year = $item->year;
+
+        $view = view('dashboard.faculty.item-details', compact('item', 'relatedData', 'year'))->render();
 
         return response()->json(['html' => $view]);
     }
+
+
 
     private function getModelClassForRelation($relation)
     {

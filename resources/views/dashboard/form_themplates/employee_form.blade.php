@@ -70,6 +70,7 @@
                         action="{{ route('dashboard.employee_store_form', ['tableName' => $tableName]) }}" enctype="multipart/form-data"
                         class="mt-5">
                         @csrf
+
                         @foreach ($fields as $field)
                             <div class="mb-5">
                                 <label for="{{ $field['name'] }}"
@@ -89,6 +90,15 @@
                                 @endif
                             </div>
                         @endforeach
+
+                        <div class="mt-3 mb-6">
+                            <label for="year" class="block text-gray-700 text-sm font-bold mb-2">Ushbu ma'lumotlar qaysi yilda yaratilgan yoki tegishli bo'lishi mumkin:</label>
+                            <select id="year" name="year" class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
+                                @for ($year = 2015; $year <= date('Y'); $year++)
+                                    <option value="{{ $year }}">{{ $year }} yil</option>
+                                @endfor
+                            </select>
+                        </div>
 
                         <div class="flex items-start mb-5">
                             <div class="flex items-center h-5">

@@ -108,6 +108,7 @@ class FormsController extends Controller
             $userAuth = Auth::user()->id;
             $pointer['user_id'] = $userAuth;
             $pointer['status'] = 3;
+            $pointer['year'] = $request->year;
             $pointer['departament_id'] = Auth::user()->department_id;
             $pointer["{$tableName}id"] = $insertedId;
 
@@ -194,6 +195,7 @@ class FormsController extends Controller
             // Malumotni pointer tablitsiyasiga saqlash
             $userAuth = Auth::user()->id;
             $pointer['user_id'] = $userAuth;
+            $pointer['year'] = $request->year;
             $pointer['status'] = 3;
             $pointer["$tableName" . 'id'] = 1;
 
