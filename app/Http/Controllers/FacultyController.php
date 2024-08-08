@@ -25,7 +25,7 @@ class FacultyController extends Controller
                 }
             }
         }
-        return view('livewire.pages.dashboard.faculty.index', compact('faculties'));
+        return view('dashboard.faculty.index', compact('faculties'));
     }
 
     public function facultyShow($slug)
@@ -110,7 +110,7 @@ class FacultyController extends Controller
             $fullName = "Ma'lumot topilmadi!";
         }
 
-        return view('livewire.pages.dashboard.faculty.show', compact(
+        return view('dashboard.faculty.show', compact(
             'faculty',
             'pointUserInformations',
             'totalEmployees',
@@ -152,7 +152,7 @@ class FacultyController extends Controller
             return response()->json(['error' => 'No relationships defined'], 500);
         }
 
-        $view = view('livewire.pages.dashboard.faculty.item-details', compact('item', 'relatedData'))->render();
+        $view = view('dashboard.faculty.item-details', compact('item', 'relatedData'))->render();
 
         return response()->json(['html' => $view]);
     }

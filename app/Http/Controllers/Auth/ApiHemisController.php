@@ -39,17 +39,18 @@ class ApiHemisController extends Controller
             'urlAccessToken'          => $urlAccessToken,
             'urlResourceOwnerDetails' => $urlResourceOwnerDetails
         ]);
-        // dd($employeeProvider);
+
 
         // OAuth2 sahifssiga redirect qilish
         $authorizationUrl = $employeeProvider->getAuthorizationUrl();
+
         return redirect()->away($authorizationUrl);
     }
 
-public function handleAuthorizationCallback(Request $request)
+    public function handleAuthorizationCallback(Request $request)
     {
 
-        $url_full = "http://127.0.0.1:8000/".$request->getRequestUri();
+        $url_full = "http://127.0.0.1:8000/" . $request->getRequestUri();
 
         $parsed_url = parse_url($url_full);
         parse_str($parsed_url['query'], $params);
@@ -104,14 +105,14 @@ public function handleAuthorizationCallback(Request $request)
 
                         $employee_id_number = $userDetails['employee_id_number'];
 
-                        $url = env('API_HEMIS_URL')."/rest/v1/data/employee-list?type=all&search=$employee_id_number";
+                        $url = env('API_HEMIS_URL') . "/rest/v1/data/employee-list?type=all&search=$employee_id_number";
                         $response = Http::withToken(env('API_HEMIS_TOKEN'))->get($url)->json();
 
                         // Code 200 bo'lgach
 
-                        if ($response['data']['pagination']['totalCount'] > 0){
+                        if ($response['data']['pagination']['totalCount'] > 0) {
 
-                            foreach ($response['data']['items'] as $item){
+                            foreach ($response['data']['items'] as $item) {
 
                                 $birth_date = Date::parse($item["birth_date"])->format('Y-m-d');
                                 $contract_date = Date::parse($item["contract_date"])->format('Y-m-d');
@@ -127,7 +128,6 @@ public function handleAuthorizationCallback(Request $request)
 
                                     // Agarda 'Xatolik 2' chiqsa Storage da users/image/ papkasi bo'lmagan bo'lishi mumkin yoki chmod 755-777 bo'lmagan bo'ladi.
                                     file_put_contents($storagePath, $imageContent);
-
                                 }
 
 
@@ -148,9 +148,9 @@ public function handleAuthorizationCallback(Request $request)
                                 }
 
                                 // Test uchun cod bu keyin o'chirib yuboriladi!
-                               if (isset($department_id) &&  $department_id === 81) {
+                                if (isset($department_id) &&  $department_id === 81) {
                                     $department_id = 54;
-                               }
+                                }
 
 
                                 $user_save = User::updateOrCreate(
@@ -181,10 +181,13 @@ public function handleAuthorizationCallback(Request $request)
                                         "status" => 1,
                                     ]
                                 );
+                                // dd($user_save);
+
 
 
                             }
                         }
+
                         Auth::login($user_save);
                         return redirect(route('admin.dashboard'));
                     }
@@ -196,7 +199,7 @@ public function handleAuthorizationCallback(Request $request)
                 }
             } catch (\Exception $e) {
                 \Log::error('There was an error: ' . $e->getMessage());
-                return redirect('/login')->withErrors(['oauth_error' => 'Xatolik 2']);
+                return redirect('/login')->withErrors(['oauth_error' => 'Xatolik: №2 "Yani Storage da kerakli papkalar yaratilmagan bo\'lishi mumkin!"']);
             }
         } else {
             // Agar kod kelmasa bu avtarizatsiya qilinmaganini bildiradi

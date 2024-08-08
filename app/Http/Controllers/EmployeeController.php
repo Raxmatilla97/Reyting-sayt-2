@@ -20,7 +20,7 @@ class EmployeeController extends Controller
 
 
 
-        return view('livewire.pages.dashboard.employee.index', compact('employee'));
+        return view('dashboard.employee.index', compact('employee'));
     }
 
     public function employeeFormChose()
@@ -29,7 +29,7 @@ class EmployeeController extends Controller
 
         $jadvallar_codlari = Config::get('dep_emp_tables.employee');;
 
-        return view('livewire.pages.dashboard.employee_category_choose', compact('jadvallar_codlari'));
+        return view('dashboard.employee_category_choose', compact('jadvallar_codlari'));
     }
 
 
@@ -68,7 +68,7 @@ class EmployeeController extends Controller
 
     //    dd($pointUserInformations);
 
-        return view('livewire.pages.dashboard.employee.show', compact('employee', 'pointUserInformations'));
+        return view('dashboard.employee.show', compact('employee', 'pointUserInformations'));
     }
 
     /**
@@ -161,7 +161,7 @@ class EmployeeController extends Controller
 
         // $totalPoints;
 
-        return view('livewire.pages.dashboard.my_submited_info', compact('pointUserInformations', 'totalPoints'));
+        return view('dashboard.my_submited_info', compact('pointUserInformations', 'totalPoints'));
     }
 
 

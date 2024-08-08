@@ -19,7 +19,7 @@ class FormsController extends Controller
             abort(404, 'Jadval topilmadi.');
         }
 
-        return view('livewire.pages.form_themplates.employee_form', compact('fields', 'tableName'));
+        return view('dashboard.form_themplates.employee_form', compact('fields', 'tableName'));
     }
 
     public function departmentShowForm($tableName)
@@ -31,7 +31,7 @@ class FormsController extends Controller
             abort(404, 'Jadval topilmadi.');
         }
 
-        return view('livewire.pages.form_themplates.department_form', compact('fields', 'tableName'));
+        return view('dashboard.form_themplates.department_form', compact('fields', 'tableName'));
     }
 
     public function employeeStoreForm(Request $request, $tableName)

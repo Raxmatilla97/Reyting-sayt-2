@@ -25,7 +25,7 @@ class DepartmentController extends Controller
             }
         }
 
-        return view('livewire.pages.dashboard.department.index', compact('departments'));
+        return view('dashboard.department.index', compact('departments'));
     }
 
     public function departmentFormChose()
@@ -34,7 +34,7 @@ class DepartmentController extends Controller
         // Kafedra ma'lumotlarini yuklash uchun uni bo'limlari ro'yxati
         $jadvallar_codlari = Config::get('dep_emp_tables.department');;;
 
-        return view('livewire.pages.dashboard.department_category_choose', compact('jadvallar_codlari'));
+        return view('dashboard.department_category_choose', compact('jadvallar_codlari'));
     }
 
     public function departmentShow(string $slug)
@@ -112,7 +112,7 @@ class DepartmentController extends Controller
         }
 
 
-        return view('livewire.pages.dashboard.department.show', compact(
+        return view('dashboard.department.show', compact(
             'department',
             'pointUserInformations',
             'totalEmployees',

@@ -1,14 +1,13 @@
 <?php
 
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\ApiHemisController;
-use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\FormsController;
-use App\Http\Controllers\Table11Controller;
-use App\Http\Controllers\Table12Controller;
+use App\Http\Controllers\Auth\ApiHemisController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,10 +20,12 @@ use App\Http\Controllers\Table12Controller;
 |
 */
 
+
+
 Route::view('/', 'welcome');
 
 Route::middleware('auth')->group(function () {
-    // Auth bo'lib kirganlar uchun routes
+
 
     // Dashboard bosh sahifasi
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -72,9 +73,19 @@ Route::middleware('auth')->group(function () {
 
     // O'qituvchi ma'lumotlarini show qilish
     Route::get('/employee/{id_employee}', [EmployeeController::class, 'employeeShow'])->name('dashboard.employeeShow');
-});
 
+
+ // Auth bo'lib kirganlar uchun routes
+ Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+ Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+ Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+
+
+});
 
 Route::get("/oauth", [ApiHemisController::class, 'redirectToAuthorization'])->name("redirectToAuthorization");
 Route::get("/oauth/callback", [ApiHemisController::class, 'handleAuthorizationCallback'])->name("handleAuthorizationCallback");
+
+
 require __DIR__ . '/auth.php';
