@@ -44,7 +44,8 @@ return new class extends Migration
             // end
             $table->float('point')->default(0);
             $table->boolean('departament_info')->default(false);
-            $table->boolean('status')->default(false);
+            $table->boolean('status')->nullable(); // null bu hali baholanmagan agar 1 bo'lsa bu baholanganligini anglatadi. 0 esa rad etilganligini
+            $table->boolean('is_active')->default(true);
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('temporary_files_id')->nullable()->constrained('temporary_files');
             $table->foreignId('departament_id')->nullable()->constrained('departments')->onDelete('cascade');

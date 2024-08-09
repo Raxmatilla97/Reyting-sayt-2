@@ -8,6 +8,7 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\FormsController;
 use App\Http\Controllers\Auth\ApiHemisController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PointUserDeportamentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -73,6 +74,11 @@ Route::middleware('auth')->group(function () {
 
     // O'qituvchi ma'lumotlarini show qilish
     Route::get('/employee/{id_employee}', [EmployeeController::class, 'employeeShow'])->name('dashboard.employeeShow');
+
+    // Murojaatlarni ro'yxati va ko'rish
+
+    Route::get('/murojatlar-list', [PointUserDeportamentController::class, 'list'])->name('murojatlar.list');
+    Route::get('/murojatni-korish/{name?}', [PointUserDeportamentController::class, 'show'])->name('murojatlar.show');
 
 
  // Auth bo'lib kirganlar uchun routes
