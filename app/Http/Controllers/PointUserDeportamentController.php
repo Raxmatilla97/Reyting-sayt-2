@@ -116,44 +116,64 @@ class PointUserDeportamentController extends Controller
         return view('dashboard.incoming_requests', compact('murojatlar', 'filter', 'form_info'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function murojatniTasdiqlash() {}
+
+    public function show($id)
     {
-        //
+        // Yuborilgan faylni qidirish
+        $information = PointUserDeportament::findOrFail($id);
+
+        // Default surat buni o'zgartirsa bo'ladi
+        $default_image = 'https://cspu.uz/storage/app/media/2023/avgust/i.webp';
+
+        $totalPoints = 0.0;
+
+        // Foydalanuvchining barcha pointlarni yig'indisini hisoblash
+        $totalPoints = PointUserDeportament::where('user_id', $information->user_id)
+            ->sum('point');
+
+
+
+            if (!$information) {
+                return response()->json(['error' => 'Item not found'], 404);
+            }
+
+            $relatedData = [];
+            $relationships = $information->getRelationships();
+
+            if (is_array($relationships)) {
+                foreach ($relationships as $relationship) {
+                    // Foreign key maydoni nomini tuzing
+                    $foreignKey = $relationship . '_id';
+                    // Foreign key maydoni mavjudligini va null emasligini tekshiring
+                    if (isset($information->{$foreignKey}) && !is_null($information->{$foreignKey})) {
+                        // Tegishli model sinf nomini dinamik ravishda aniqlang
+                        $relatedModelClass = $this->getModelClassForRelation($relationship);
+                        // Foreign key ID asosida tegishli elementni oling
+                        $relatedData[$relationship] = $relatedModelClass::find($information->{$foreignKey});
+
+                    } else {
+                        $relatedData[$relationship] = null; // Tegishli maʼlumotlar topilmadi
+                    }
+                }
+            } else {
+                return response()->json(['error' => 'No relationships defined'], 500);
+            }
+
+
+
+            // $item->year ni ko'rinishga uzatamiz
+            $year = $information->year;
+
+
+
+        return view('dashboard.show_request', compact('information', 'default_image', 'totalPoints', 'relatedData', 'year'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    private function getModelClassForRelation($relation)
     {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(PointUserDeportament $pointUserDeportament)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(PointUserDeportament $pointUserDeportament)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, PointUserDeportament $pointUserDeportament)
-    {
-        //
+        // Tegishli model uchun to'liq class nomini tuzish
+        return "\\App\\Models\\Tables\\" . ucfirst($relation) . "_";
     }
 
     /**

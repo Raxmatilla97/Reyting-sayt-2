@@ -331,10 +331,10 @@
 
                                         </td>
                                         <td class="px-6 py-4">
-                                            {{ $item->created_at->diffForHumans() }}
+                                            {{  $item->created_at->diffForHumans() }}
                                         </td>
                                         <td class="px-6 py-4">
-                                            <a href="{{ route('murojatlar.show', $item->id) }}"
+                                            <a href="{{ route('murojatlar.show', ['id' => $item->id]) }}"
                                                 class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Ko'rish</a>
                                         </td>
                                     </tr>

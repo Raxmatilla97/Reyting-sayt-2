@@ -111,7 +111,7 @@ class FormsController extends Controller
             $pointer['year'] = $request->year;
             $pointer['departament_id'] = Auth::user()->department_id;
             $pointer["{$tableName}id"] = $insertedId;
-
+            $pointer['updated_at'] = null;
 
             // Model orqali malumotni qo'shish
             PointUserDeportament::create($pointer);
@@ -187,6 +187,7 @@ class FormsController extends Controller
             // Joriy sana/vaqt qiymatlarini qo'shish
             $now = Carbon::now();
             $filteredData['created_at'] = $now;
+            $filteredData['updated_at'] = null;
 
 
             // Ma'lumotlarni bazaga yuklash
@@ -198,6 +199,7 @@ class FormsController extends Controller
             $pointer['year'] = $request->year;
             $pointer['status'] = 3;
             $pointer["$tableName" . 'id'] = 1;
+            $pointer['updated_at'] = null;
 
             // Model orqali malumotni qo'shish
             PointUserDeportament::create($pointer);

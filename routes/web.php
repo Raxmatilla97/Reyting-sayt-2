@@ -14,13 +14,7 @@ use App\Http\Controllers\PointUserDeportamentController;
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
-
 
 
 Route::view('/', 'welcome');
@@ -78,16 +72,17 @@ Route::middleware('auth')->group(function () {
     // Murojaatlarni ro'yxati va ko'rish
 
     Route::get('/murojatlar-list', [PointUserDeportamentController::class, 'list'])->name('murojatlar.list');
-    Route::get('/murojatni-korish/{name?}', [PointUserDeportamentController::class, 'show'])->name('murojatlar.show');
+    Route::get('/murojatni-korish/{id?}', [PointUserDeportamentController::class, 'show'])->name('murojatlar.show');
+
+    // Murojaatlarni tasdiqlash va o'chirish routeri
+    Route::post('/murojatni-tasdiqlash', [PointUserDeportamentController::class, 'murojatniTasdiqlash'])->name('murojatlar.murojatniTasdiqlash');
+    Route::delete('/murojatni-ochirish/{id}', [PointUserDeportamentController::class, 'destroy'])->name('murojaat.destroy');
 
 
- // Auth bo'lib kirganlar uchun routes
- Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
- Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
- Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
-
-
+    // Auth bo'lib kirganlar uchun routes
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 Route::get("/oauth", [ApiHemisController::class, 'redirectToAuthorization'])->name("redirectToAuthorization");
