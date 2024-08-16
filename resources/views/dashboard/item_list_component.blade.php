@@ -88,7 +88,7 @@
                         <td class="px-6 py-4">
                             @if ($item->status == 1)
                                 <span
-                                    class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">{{ $item->points }}
+                                    class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">{{ $item->point }}
                                     - ball</span>
                             @elseif($item->status == 0)
                                 <span

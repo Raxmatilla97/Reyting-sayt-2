@@ -89,7 +89,7 @@
                                                         <img class="hidden sm:block w-10 h-10 rounded-full" style="object-fit: cover;" src="{{ '/storage/users/image' }}/{{ $item->image }}" alt="">
                                                         <div class="ps-3" style="    width: 300px;">
                                                             <div class="text-base font-semibold" style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                                {{ ucfirst(strtolower($item->second_name)) }} {{ ucfirst(strtolower($item->first_name)) }} {{ ucfirst(strtolower($item->third_name)) }}
+                                                                {{ ucwords(strtolower($item->FullName)) }}
                                                             </div>
                                                             <div class="font-normal text-gray-500">
                                                                {{-- Fakultet ichidagi kafedralar soni <b class="text-blue-600">{{$item->department->count()}}</b> ta --}}
@@ -132,7 +132,7 @@
                                                     </td>
 
                                                     <td class="px-6 py-4">
-                                                        {{round($item->department->point_user_deportaments()->sum('point'), 2)}}
+                                                        {{ round($item->department->point_user_deportaments()->where('status', 1)->sum('point'), 2) }}
                                                     </td>
                                                     <td class="px-6 py-4">
                                                         <a href="{{route('dashboard.employeeShow', ['id_employee' => $item->employee_id_number])}}"

@@ -46,7 +46,8 @@ class PointUserDeportament extends Model
         'status',
         'temporary_files_id',
         'departament_id',
-        'year'
+        'year',
+        'arizaga_javob'
 
 
     ];

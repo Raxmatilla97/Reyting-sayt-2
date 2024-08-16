@@ -351,7 +351,8 @@
 
                                                                 <span
                                                                     class="bg-blue-100 text-blue-800 text-md font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                                                    {{ $item->name }}
+                                                                    <a href="{{ route('dashboard.departmentShow', ['slug' => $item->slug]) }}">{{ $item->name }}</a>
+                                                                  
                                                                 </span>
                                                             </td>
 
@@ -373,9 +374,11 @@
                                                                 @endphp
 
                                                                 @foreach ($item->point_user_deportaments as $points)
-                                                                    @php
-                                                                        $point_full += $points->point;
-                                                                    @endphp
+                                                                @if ($points->status === 1)
+                                                                @php
+                                                                    $point_full += $points->point;
+                                                                @endphp
+                                                            @endif
                                                                 @endforeach
 
                                                                 {{ $point_full }}

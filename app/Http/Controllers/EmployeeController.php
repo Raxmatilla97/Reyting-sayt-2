@@ -151,12 +151,17 @@ class EmployeeController extends Controller
                     $pointUserInformation->murojaat_codi = $originalKey;
                     break;
                 }
+              
             }
 
             // Foydalanuvchining har bir itemidagi ballarni yig'indiga qo'shish
-            if (isset($pointUserInformation->point)) {
-                $totalPoints += $pointUserInformation->point;
+
+            if ($pointUserInformation->status === 1) {
+                if (isset($pointUserInformation->point)) {               
+                    $totalPoints += $pointUserInformation->point;
+                }
             }
+           
         }
 
         // $totalPoints;

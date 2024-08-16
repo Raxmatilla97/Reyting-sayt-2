@@ -61,7 +61,7 @@
                                     <div>
                                         <span class="font-medium"></span> <span
                                             class=" text-lg font-medium me-2 px-2.5 py-0.5 rounded-full ">Umumiy ball:
-                                            {{ round($employee->department->point_user_deportaments()->sum('point'), 2) }}</span>
+                                            {{ round($employee->department->point_user_deportaments()->where('status', 1)->sum('point'), 2) }}</span>
                                     </div>
                                 </div>
 
@@ -78,9 +78,8 @@
                                 <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                                     <dt class="text-md font-medium leading-6 text-gray-900">To'liq F.I.SH</dt>
                                     <dd class="mt-1 text-xl leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                        {{ ucfirst(strtolower($employee->second_name)) }}
-                                        {{ ucfirst(strtolower($employee->first_name)) }}
-                                        {{ ucfirst(strtolower($employee->third_name)) }}</dd>
+                                        {{ ucfirst(strtolower($employee->FullName)) }}
+                                       </dd>
                                 </div>
                                 <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                                     <dt class="text-md font-medium leading-6 text-gray-900">Foydalanuvchining shaxsiy

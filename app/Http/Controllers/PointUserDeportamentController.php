@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use DateTime;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Validator;   
 
 class PointUserDeportamentController extends Controller
 {
@@ -116,8 +117,7 @@ class PointUserDeportamentController extends Controller
         return view('dashboard.incoming_requests', compact('murojatlar', 'filter', 'form_info'));
     }
 
-    public function murojatniTasdiqlash() {}
-
+   
     public function show($id)
     {
         // Yuborilgan faylni qidirish
@@ -129,7 +129,7 @@ class PointUserDeportamentController extends Controller
         $totalPoints = 0.0;
 
         // Foydalanuvchining barcha pointlarni yig'indisini hisoblash
-        $totalPoints = PointUserDeportament::where('user_id', $information->user_id)
+        $totalPoints = PointUserDeportament::where('user_id', $information->user_id)->where('status', 1)
             ->sum('point');
 
 
@@ -176,11 +176,52 @@ class PointUserDeportamentController extends Controller
         return "\\App\\Models\\Tables\\" . ucfirst($relation) . "_";
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(PointUserDeportament $pointUserDeportament)
+    public function murojatniTasdiqlash(Request $request)
     {
-        //
+        $model = PointUserDeportament::findOrFail($request->id); // Modelni topish
+
+        // Validatsiya qoidalari
+        $validator = Validator::make($request->all(), [
+            'murojaat_holati' => 'required|numeric|max:3',
+            'murojaat_bali' => 'nullable|numeric',
+            'murojaat_izohi' => 'nullable|string'
+        ], [
+            'murojaat_holati.required' => 'Ma\'lumot holatini kiritish majburiy.',
+            'murojaat_holati.string' => 'Ma\'lumot holati matn ko\'rinishida bo\'lishi kerak.',
+            'murojaat_holati.max' => 'Ma\'lumot holati eng ko\'pi bilan 3 belgidan iborat bo\'lishi kerak.',
+            'murojaat_bali.numeric' => 'Ma\'lumot bali raqam bo\'lishi kerak.',
+            'murojaat_izohi.string' => 'Ma\'lumot izohi matn ko\'rinishida bo\'lishi kerak.'
+        ]);
+
+        // Agar murojaat_holati "maqullandi" ga teng bo'lsa, murojaat_bali majburiy bo'ladi
+        $validator->sometimes('murojaat_bali', 'required|numeric', function ($input) {
+            return $input->murojaat_holati == '1';
+        }, [
+            'murojaat_bali.required' => 'Ma\'lumot holati "maqullandi" bo\'lganida, Ma\'lumot bali kiritish majburiy.'
+        ]);
+
+       
+
+        // Ma'lumotlarni yangilash         
+        $model->status = $request->murojaat_holati;
+        if ($request->murojaat_holati == 0 || $request->murojaat_holati == 3) {
+            $model->point = 0.00;
+        } else {
+            $model->point = $request->murojaat_bali;
+        }
+       
+        $model->arizaga_javob = $request->murojaat_izohi;
+        $model->save();
+
+        // Bajarilganidan so'ng, foydalanuvchini kerakli sahifaga yo'naltiring
+        return redirect()->back()->with('success', 'Ma\'lumot muvaffaqiyatli saqlandi');
+    }
+
+    public function destroy($fileId)
+    {
+        $file = PointUserDeportament::where('id', $fileId)->firstOrFail();
+        $file->delete();
+
+        return redirect()->route('murojatlar.list')->with('toaster', ['success', "Ma'lumot o'chirildi!"]);
     }
 }

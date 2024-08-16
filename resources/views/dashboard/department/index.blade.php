@@ -87,7 +87,7 @@
                                                         <img class="hidden sm:block w-10 h-10 rounded-full" style="object-fit: cover;" src="https://image.pngaaa.com/419/1509419-middle.png" alt="">
                                                         <div class="ps-3" style="">
                                                             <div class="text-base font-semibold" style=" overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                                {{ $item->name }}
+                                                                {{ ucwords(strtolower($item->FullName)) }}
                                                             </div>
                                                             <div class="font-normal text-gray-500">
                                                                Kafedra ichidagi o'qituvchilar soni <b class="text-blue-600">{{$item->user->count()}}</b> ta
@@ -113,7 +113,8 @@
                                                     </td>
 
                                                     <td class="px-6 py-4">
-                                                        {{$item->totalPoints}}
+                                                        {{-- {{$item->totalPoints}} --}}
+                                                        {{ round($item->point_user_deportaments()->where('status', 1)->sum('point'), 2) }}
                                                     </td>
                                                     <td class="px-6 py-4">
                                                         <a href="{{ route('dashboard.departmentShow', ['slug' => $item->slug]) }}"

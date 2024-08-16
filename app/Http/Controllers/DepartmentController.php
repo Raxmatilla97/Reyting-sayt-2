@@ -17,14 +17,6 @@ class DepartmentController extends Controller
     {
         $departments = Department::with('point_user_deportaments')->paginate(15);
 
-        foreach ($departments as $department) {
-            $department->totalPoints = 0; // Yangi xususiyat yaratish
-            foreach ($department->point_user_deportaments as $test) {
-                $department->totalPoints += $test->point; // Har bir `point_user_deportament` uchun `point` qiymatini qo'shish
-
-            }
-        }
-
         return view('dashboard.department.index', compact('departments'));
     }
 
@@ -76,7 +68,7 @@ class DepartmentController extends Controller
         $totalEmployees = $department->employee()->count();
 
         // Fakultet umumiy ballari soni
-        $totalPoints = round($department->point_user_deportaments()->sum('point'), 2);
+        $totalPoints = round($department->point_user_deportaments()->where('status', 1)->sum('point'), 2);
 
         // Fakultet umumiy ma'lumotlar soni
         $totalInfos = $department->point_user_deportaments()->count();

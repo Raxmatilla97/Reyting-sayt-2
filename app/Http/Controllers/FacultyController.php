@@ -20,9 +20,9 @@ class FacultyController extends Controller
         foreach ($faculties as $faculty) {
             $faculty->totalPoints = 0;
             foreach ($faculty->departments as $department) {
-                foreach ($department->point_user_deportaments as $test) {
-                    $faculty->totalPoints += $test->point;
-                }
+                $faculty->totalPoints += $department->point_user_deportaments()
+                    ->where('status', 1)
+                    ->sum('point');
             }
         }
         return view('dashboard.faculty.index', compact('faculties'));
@@ -67,7 +67,7 @@ class FacultyController extends Controller
 
         // Fakultet umumiy ballari soni
         $totalPoints = $faculty->departments->sum(function ($department) {
-            return round($department->point_user_deportaments()->sum('point'), 2);
+            return round($department->point_user_deportaments()->where('status', 1)->sum('point'), 2);
         });
 
         // Fakultet umumiy ma'lumotlar soni

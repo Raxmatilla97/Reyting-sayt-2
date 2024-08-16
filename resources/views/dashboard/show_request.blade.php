@@ -65,7 +65,8 @@
                                 <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                                     <dt class="text-md font-medium leading-6 text-gray-900">To'liq F.I.SH</dt>
                                     <dd class="mt-1 text-xl leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                        {{ $information->employee->FullName }}</dd>
+                                        {{ ucwords(strtolower($information->employee->FullName)) }}
+                                    </dd>
                                 </div>
                                 <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
                                     <dt class="text-md font-medium leading-6 text-gray-900">Umumiy to'plagan ballari
@@ -414,16 +415,16 @@
                                                             holatini tanlang</label>
                                                         <select id="countries" name="murojaat_holati"
                                                             class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-                                                            <option value="kutulmoqda"
-                                                                {{ $information->ariza_holati == 'kutulmoqda' ? 'selected' : '' }}>
+                                                            <option value="3"
+                                                                {{ $information->status == '3' ? 'selected' : '' }}>
                                                                 Ariza hali ko'rib
                                                                 chiqilmagan!</option>
-                                                            <option value="maqullandi"
-                                                                {{ $information->ariza_holati == 'maqullandi' ? 'selected' : '' }}>
+                                                            <option value="1"
+                                                                {{ $information->status == '1' ? 'selected' : '' }}>
                                                                 Ariza maqullandi!
                                                             </option>
-                                                            <option value="rad_etildi"
-                                                                {{ $information->ariza_holati == 'rad_etildi' ? 'selected' : '' }}>
+                                                            <option value="0"
+                                                                {{ $information->status == '0' ? 'selected' : '' }}>
                                                                 Ariza rad etildi!
                                                             </option>
                                                         </select>
@@ -454,15 +455,15 @@
                                                             </div>
 
                                                             <input type="text" id="simple-search"
-                                                                value="{{ old('points', $information->points) }}"
+                                                                value="{{ old('point', $information->point) }}"
                                                                 name="murojaat_bali"
                                                                 class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                                                 placeholder="0-100" required>
-                                                            <script>
+                                                            {{-- <script>
                                                                 document.getElementById('simple-search').addEventListener('input', function(event) {
                                                                     this.value = this.value.replace(/[^0-9]/g, '');
                                                                 });
-                                                            </script>
+                                                            </script> --}}
                                                         </div>
                                                     </div>
                                                 </div>
@@ -477,7 +478,7 @@
                                                     <div class="w-full">
 
                                                         <label for="message"
-                                                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Agar
+                                                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Agar foydalanuvchi ma'lumotiga izoh yozmoqchi bo'lsangiz yoki
                                                             maqullanmagan bo'lsa nima uchunligini yozing.</label>
                                                         <textarea id="message" rows="4" name="murojaat_izohi"
                                                             class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
