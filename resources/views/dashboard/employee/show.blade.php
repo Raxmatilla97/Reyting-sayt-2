@@ -125,14 +125,13 @@
                     </div>
                     <hr class="mb-8 mt-3">
                     <p class="text-gray-500 dark:text-gray-400 pl-4 m-auto text-center" style="width: 90%">
-                        <span
+                        {{-- <span
                             class="bg-gray-100 text-gray-800 text-md font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">
-                            Foydalanuvchi tomonidan yuklangan fayllar va ularga qo'yilgan ballar:</span>
+                            Foydalanuvchi tomonidan yuklangan fayllar va ularga qo'yilgan ballar:</span> --}}
                     </p>
 
                     <div  class="p-4 px-0">
-                        <h3 class="text-2xl font-bold mb-5">Kafedra o'qituvchilari tomonidan yuborilgan
-                            ma'lumotlar</h3>
+                        <h3 class="text-2xl font-bold mb-7 ml-3"> Foydalanuvchi tomonidan yuklangan fayllar va ularga qo'yilgan ballar:</h3>
                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                             <div class="text-gray-900 mb-8">
 

@@ -7,18 +7,33 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use App\Models\PointUserDeportament;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 
 class DepartmentController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $departments = Department::with('point_user_deportaments')->paginate(15);
+        // Query builderni yaratish va point_user_deportaments bilan bog'lanish
+        $departments = Department::with('point_user_deportaments');
 
+        // Agar 'name' parametri mavjud bo'lsa, nomga mos keladigan xodimlarni qidirish
+        if ($request->filled('name')) {
+            $name = '%' . $request->name . '%'; // LIKE qidiruvlari uchun qidiruv terminini tayyorlash
+            $departments->where(function ($q) use ($name) {
+                $q->where('name', 'like', $name);
+            });
+        }
+
+        // Tartiblash va paginatsiya qilish
+        $departments = $departments->orderBy('created_at', 'desc')->paginate(21);
+
+        // Natijani ko'rsatish uchun ko'rinishni qaytarish
         return view('dashboard.department.index', compact('departments'));
     }
+
 
     public function departmentFormChose()
     {

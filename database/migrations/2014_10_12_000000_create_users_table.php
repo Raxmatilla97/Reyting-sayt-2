@@ -37,6 +37,7 @@ return new class extends Migration
             $table->string('user_type')->nullable();
             $table->string('phone')->nullable();
             $table->boolean('status')->default(0);
+            $table->boolean('is_admin')->default(false);
             // Men qo'shgan yangi migratsiyalar
             $table->foreignId('department_id')->nullable()->constrained('departments');
 

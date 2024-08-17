@@ -21,7 +21,7 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
 
                         <div class="p-6 text-gray-900 mb-8">
-                            <form class="mb-6" action="" method="get">
+                            <form class="mb-6" action="{{route('dashboard.employees')}}" method="get">
 
                                 <label for="default-search"
                                     class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Qidirish</label>
@@ -145,8 +145,8 @@
                                     </table>
                                 @else
                                     <h1 class="text-center text-xl font-medium mb-4 mt-2 text-gray-400">
-                                        Murojaatlar kelib tushmagan!</h1>
-                                    @include('reyting.frontend.frogments.skeletonTable')
+                                       O'qituvchilar topilmadi!</h1>
+                                    @include('frogments.skeletonTable')
                                 @endif
 
                             </div>

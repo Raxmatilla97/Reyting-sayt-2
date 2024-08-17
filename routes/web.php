@@ -9,6 +9,7 @@ use App\Http\Controllers\FormsController;
 use App\Http\Controllers\Auth\ApiHemisController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PointUserDeportamentController;
+use App\Http\Middleware\IsAdmin;
 
 /*
 |--------------------------------------------------------------------------
@@ -29,10 +30,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/faculties', [FacultyController::class, 'index'])->name('dashboard.faculties');
 
     // Kafedralar uchun CRUD Routerlari
-    Route::get('/departments', [DepartmentController::class, 'index'])->name('dashboard.departments');
+    Route::get('/departments/{name?}', [DepartmentController::class, 'index'])->name('dashboard.departments');
 
     // O'qituvchilar uchun CRUD Routerlari
-    Route::get('/employees', [EmployeeController::class, 'index'])->name('dashboard.employees');
+    Route::get('/employees/{name?}', [EmployeeController::class, 'index'])->name('dashboard.employees');
 
     // O'qituvchilar malumotini bolimini tanlash sahifasi
     Route::get('/employee-form-chose', [EmployeeController::class, 'employeeFormChose'])->name('dashboard.employee_form_chose');
@@ -71,13 +72,16 @@ Route::middleware('auth')->group(function () {
 
     // Murojaatlarni ro'yxati va ko'rish
 
-    Route::get('/murojatlar-list', [PointUserDeportamentController::class, 'list'])->name('murojatlar.list');
-    Route::get('/murojatni-korish/{id?}', [PointUserDeportamentController::class, 'show'])->name('murojatlar.show');
+    //Faqat adminlar uchun routelar
+    Route::middleware(['auth', 'isadmin'])->group(function () {
+        // Murojaatlarni ro'yxati va ko'rish
+        Route::get('/murojatlar-list', [PointUserDeportamentController::class, 'list'])->name('murojatlar.list');
+        Route::get('/murojatni-korish/{id?}', [PointUserDeportamentController::class, 'show'])->name('murojatlar.show');
 
-    // Murojaatlarni tasdiqlash va o'chirish routeri
-    Route::post('/murojatni-tasdiqlash', [PointUserDeportamentController::class, 'murojatniTasdiqlash'])->name('murojatlar.murojatniTasdiqlash');
-    Route::delete('/murojatni-ochirish/{id}', [PointUserDeportamentController::class, 'destroy'])->name('murojaat.destroy');
-
+        // Murojaatlarni tasdiqlash va o'chirish routeri
+        Route::post('/murojatni-tasdiqlash', [PointUserDeportamentController::class, 'murojatniTasdiqlash'])->name('murojatlar.murojatniTasdiqlash');
+        Route::delete('/murojatni-ochirish/{id}', [PointUserDeportamentController::class, 'destroy'])->name('murojaat.destroy');
+    });
 
     // Auth bo'lib kirganlar uchun routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

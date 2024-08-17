@@ -42,6 +42,7 @@ return new class extends Migration
             $table->foreignId('table_4_1_id')->nullable()->constrained('table_4_1_')->onDelete('cascade');
             $table->year('year')->nullable(); // Yil ustuni
             $table->text('arizaga_javob')->nullable();
+
             // end
             $table->float('point')->default(0);
             $table->boolean('departament_info')->default(false);

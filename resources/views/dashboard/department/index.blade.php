@@ -21,7 +21,7 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
 
                         <div class="p-6 text-gray-900 mb-8">
-                            <form class="mb-6" action="" method="get">
+                            <form class="mb-6" action="{{route('dashboard.departments')}}" method="get">
 
                                 <label for="default-search"
                                     class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Qidirish</label>
@@ -87,7 +87,7 @@
                                                         <img class="hidden sm:block w-10 h-10 rounded-full" style="object-fit: cover;" src="https://image.pngaaa.com/419/1509419-middle.png" alt="">
                                                         <div class="ps-3" style="">
                                                             <div class="text-base font-semibold" style=" overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                                {{ ucwords(strtolower($item->FullName)) }}
+                                                                {{ $item->name }}
                                                             </div>
                                                             <div class="font-normal text-gray-500">
                                                                Kafedra ichidagi o'qituvchilar soni <b class="text-blue-600">{{$item->user->count()}}</b> ta
@@ -127,10 +127,10 @@
 
                                         </tbody>
                                     </table>
-                                @else
+                                    @else
                                     <h1 class="text-center text-xl font-medium mb-4 mt-2 text-gray-400">
-                                        Murojaatlar kelib tushmagan!</h1>
-                                    @include('reyting.frontend.frogments.skeletonTable')
+                                      Kafedralar topilmadi!</h1>
+                                    @include('frogments.skeletonTable')
                                 @endif
 
                             </div>

@@ -74,4 +74,14 @@ class User extends Authenticatable
         return "{$this->first_name} {$this->second_name} {$this->third_name}";
     }
 
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function isAdmin()
+    {
+        return $this->is_admin === 1;
+    }
+
 }
