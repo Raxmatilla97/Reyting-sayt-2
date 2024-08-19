@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}" wire:navigate>
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
+                        <img class="h-10  mx-auto" src="https://qabul.cspu.uz/assets/thumb__90_90_0_0_crop.png" alt="">
                     </a>
                 </div>
 
@@ -68,7 +68,7 @@
 
                     <x-slot name="content">
                         <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
+                            {{ __("Profil ma'lumotlari") }}
                         </x-dropdown-link>
 
                         <!-- Authentication -->
@@ -78,7 +78,7 @@
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();">
-                                {{ __('Log Out') }}
+                                {{ __('Chiqish') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -126,7 +126,7 @@
 
             <div class="mt-3 space-y-1">
                 <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profil') }}
+                    {{ __("Profil ma'lumotlari") }}
                 </x-responsive-nav-link>
 
                 <!-- Authentication -->

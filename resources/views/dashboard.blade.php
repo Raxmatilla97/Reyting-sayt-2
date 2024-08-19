@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-           Salom {{ ucfirst(strtolower($auth->first_name)) }} {{ __('OTM reyting saytiga hush kelibsiz!') }}
+           Salom {{ ucfirst(strtolower($auth->first_name)) }} {{ __('OTM Ilmiy tadqiqot faoliyatini tashkil etish saytiga hush kelibsiz!') }}
 
 
         </h2>

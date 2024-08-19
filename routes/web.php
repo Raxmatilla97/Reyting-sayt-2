@@ -6,6 +6,7 @@ use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\FormsController;
+use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\Auth\ApiHemisController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PointUserDeportamentController;
@@ -18,7 +19,7 @@ use App\Http\Middleware\IsAdmin;
 */
 
 
-Route::view('/', 'welcome');
+Route::get('/', [FrontendController::class, 'index'])->name('welcome');
 
 Route::middleware('auth')->group(function () {
 
