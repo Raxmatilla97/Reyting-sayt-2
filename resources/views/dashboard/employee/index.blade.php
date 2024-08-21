@@ -110,7 +110,7 @@
 
                                                                         </span>
 
-                                                                    {{isset($item->department->name)}}</span>
+                                                                        {{ $item->department->name ?? 'N/A' }}</span>
 
                                                         </div>
 
@@ -132,7 +132,7 @@
                                                     </td>
 
                                                     <td class="px-6 py-4">
-                                                        {{ isset(round($item->department->point_user_deportaments()->where('status', 1)->sum('point'), 2)) }}
+                                                        {{ round($item->department->point_user_deportaments()->where('status', 1)->sum('point'), 2) ?? 'N/A' }}
                                                     </td>
                                                     <td class="px-6 py-4">
                                                         <a href="{{route('dashboard.employeeShow', ['id_employee' => $item->employee_id_number])}}"
