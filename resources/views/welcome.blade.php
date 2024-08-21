@@ -32,7 +32,7 @@
         @if (Route::has('login'))
         <div id="login-div" class="sm:fixed mt-8 sm:top-0 sm:right-0 p-6 text-right z-10">
             @auth
-                <a href="{{ url('/dashboard') }}" class="font-semibold text-gray-600 hover:text-gray-900 focus:outline focus:outline-2 focus:rounded-sm focus:outline-red-500">Profilga kirish</a>
+                <a href="{{ url('/dashboard') }}" class="inline-block px-6 py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Profilga kirish</a>
             @else
                 <a href="{{ route('login') }}" class="inline-block px-6 py-3 font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">Saytga kirish</a>
             @endauth
