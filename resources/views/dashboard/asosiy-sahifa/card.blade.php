@@ -4,7 +4,7 @@
 
     </div>
     <div class="flex flex-col items-center pb-3">
-        <img class="w-34 h-34 mb-3 rounded-full shadow-lg"
+        <img class="w-24 h-24 mb-3 rounded-full shadow-lg"
             src="{{ $auth->image ? asset('storage/users/image/' . $auth->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
             alt="User image" />
 
