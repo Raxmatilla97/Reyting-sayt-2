@@ -15,7 +15,7 @@ class FacultyController extends Controller
      */
     public function index()
     {
-        $faculties = Faculty::with('departments.point_user_deportaments')->paginate(15);
+        $faculties = Faculty::with('departments.point_user_deportaments')->where('status', 1)->paginate(15);
 
         foreach ($faculties as $faculty) {
             $faculty->totalPoints = 0;

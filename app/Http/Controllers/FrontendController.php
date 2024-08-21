@@ -50,10 +50,10 @@ class FrontendController extends Controller
     }
 
     // Bo'limlarni top 10 ga ajratish
-    $topDepartments = $departmentsWithPoints->sortByDesc('total_points')->take(5);
+    $topDepartments = $departmentsWithPoints->sortByDesc('total_points')->where('status', 1)->take(5);
 
     // Foydalanuvchilarni top 10 ga ajratish
-    $topUsers = $usersWithPoints->sortByDesc('total_points')->take(10);
+    $topUsers = $usersWithPoints->sortByDesc('total_points')->where('status', 1)->take(10);
 
         //-----------------------------------------------------------//
 

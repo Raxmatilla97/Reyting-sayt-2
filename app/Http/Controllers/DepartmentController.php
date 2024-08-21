@@ -17,7 +17,7 @@ class DepartmentController extends Controller
     public function index(Request $request)
     {
         // Query builderni yaratish va point_user_deportaments bilan bog'lanish
-        $departments = Department::with('point_user_deportaments');
+        $departments = Department::with('point_user_deportaments')->where('status', 1);
 
         // Agar 'name' parametri mavjud bo'lsa, nomga mos keladigan xodimlarni qidirish
         if ($request->filled('name')) {
@@ -28,7 +28,7 @@ class DepartmentController extends Controller
         }
 
         // Tartiblash va paginatsiya qilish
-        $departments = $departments->orderBy('created_at', 'desc')->paginate(21);
+        $departments = $departments->orderBy('created_at', 'desc')->where('status', 1)->paginate(21);
 
         // Natijani ko'rsatish uchun ko'rinishni qaytarish
         return view('dashboard.department.index', compact('departments'));
