@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
 use League\OAuth2\Client\Provider\GenericProvider;
 use App\Models\User;
+use App\Models\Department;
 
 class ApiHemisController extends Controller
 {
@@ -148,8 +149,20 @@ class ApiHemisController extends Controller
                                 }
 
                                 // Test uchun cod bu keyin o'chirib yuboriladi!
-                                if (isset($department_id) &&  $department_id === 81) {
-                                    $department_id = 54;
+                                // if (isset($department_id) &&  $department_id === 81) {
+                                //     $department_id = 54;
+                                // }
+
+                                if (isset($department_id)) {
+                                    // Foydalanuvchining departament_id sining mavjudligini tekshirish
+                                    $isInDepartment = Department::where('id', $department_id)->exists();
+                                }
+
+
+
+                                if (!$isInDepartment) {
+                                    Auth::logout(); // Foydalanuvchini logout qilish
+                                    return redirect('/login')->withErrors(['oauth_error' => 'Siz Hemis tizimida hechqaysi kafedraga birlashtirilmagansiz!']);
                                 }
 
 
