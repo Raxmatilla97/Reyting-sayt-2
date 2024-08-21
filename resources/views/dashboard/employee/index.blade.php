@@ -86,7 +86,7 @@
                                                         </div>
                                                     </td>
                                                     <th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-                                                        <img class="hidden sm:block w-10 h-10 rounded-full" style="object-fit: cover;" src="{{ '/storage/users/image' }}/{{ $item->image }}" alt="">
+                                                        <img class="hidden sm:block w-10 h-10 rounded-full" style="object-fit: cover;" src="{{ $item->image ? asset('storage/users/image/' . $item->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}" alt="">
                                                         <div class="ps-3" style="    width: 300px;">
                                                             <div class="text-base font-semibold" style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                                                 {{ ucwords(strtolower($item->FullName)) }}

@@ -67,7 +67,7 @@
 
                             </div>
                             <img class="rounded w-4/5 sm:w-2/4 md:w-1/3 lg:w-1/6"
-                                src="{{ '/storage/users/image' }}/{{ $employee->image }}" alt="Extra large avatar"
+                            src="{{ $employee->image ? asset('storage/users/image/' . $employee->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}" alt="Extra large avatar"
                                 style="width: 189px; height: 200px; object-fit: cover;">
                         </div>
 
