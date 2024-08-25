@@ -2,7 +2,7 @@
 <p align="left">
 Proyekt shaxsiy tajribani oshirish uchun yaratilgan va kerakli maqsadlarda ishlatish uchun mo'ljallangan.
 <br>
-Proyektning asosiy maqsadi OTM o'qituvchilarining faoliyatini baholash va uni ko'rsatishdan iborat, saytda Hemis Api dan foydalanilgan va kerakli ma'lumotlarni hemisdan yuklab oladi, masalan, fakultetar, Kafedralar undan tashqari o'qituvchilarning auth qilish fuksiyalari.
+Proyektning asosiy maqsadi OTM o'qituvchilarining faoliyatini baholash va uni ko'rsatishdan iborat, saytda Hemis Api dan foydalanilgan va kerakli ma'lumotlarni hemisdan yuklab oladi, masalan, fakultetar, Kafedralar undan tashqari o'qituvchilarning auth qilish fuksiyalari bor.
 </p>
 
 <h1 align="center">Hi 👋, I'm Raxmatilla</h1>
