@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('description')->nullable();
             $table->boolean('status')->default(0);
             $table->string('custom_points')->nullable();
-            $table->foreignId('faculty_id')->constrained('faculties')->onDelete('cascade');
+            $table->foreignId('faculty_id')->nullable()->constrained('faculties')->onDelete('cascade');
             $table->timestamps();
         });
     }

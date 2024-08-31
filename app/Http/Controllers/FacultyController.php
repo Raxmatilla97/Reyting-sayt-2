@@ -7,6 +7,8 @@ use App\Models\PointUserDeportament;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class FacultyController extends Controller
 {
@@ -104,8 +106,7 @@ class FacultyController extends Controller
         })->sortByDesc('created_at')->first();
 
         if ($mostRecentEntry) {
-             $fullName = $mostRecentEntry->employee->full_name;
-
+            $fullName = $mostRecentEntry->employee->full_name;
         } else {
             $fullName = "Ma'lumot topilmadi!";
         }
@@ -168,52 +169,69 @@ class FacultyController extends Controller
         return "\\App\\Models\\Tables\\" . ucfirst($relation) . "_";
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    // Hali ishlamaydigan funksiya keyinchalik ishlataman
+    public function update()
     {
-        //
-    }
+        $token = env('API_HEMIS_TOKEN');
+        $apiUrl = env('API_HEMIS_URL') . '/rest/v1/data/department-list?limit=200&active=1&_structure_type=11&localityType.name=Mahalliy&structureType.name=Fakultet';
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+        $response = Http::withToken($token)->get($apiUrl);
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Faculty $faculty)
-    {
-        //
-    }
+        if ($response->failed()) {
+            return response()->json(['error' => 'API ga so\'rov yuborishda xatolik yuz berdi.'], 500);
+        }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Faculty $faculty)
-    {
-        //
-    }
+        $hemisFaculties = $response->json()['data']['items'] ?? [];
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Faculty $faculty)
-    {
-        //
-    }
+        if (empty($hemisFaculties)) {
+            return response()->json(['message' => 'API dan ma\'lumotlar olinmadi.'], 404);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Faculty $faculty)
-    {
-        //
+        $existingFaculties = Faculty::all()->keyBy('id');
+
+        $newCount = 0;
+        $updatedCount = 0;
+        $unchangedCount = 0;
+
+        foreach ($hemisFaculties as $hemisFaculty) {
+            if (!$existingFaculties->has($hemisFaculty['id'])) {
+                Faculty::create([
+                    'id' => $hemisFaculty['id'],
+                    'name' => $hemisFaculty['name'],
+                    'slug' => Str::slug($hemisFaculty['name'] . "-fakulteti"),
+                    'status' => true,
+                ]);
+                $newCount++;
+            } else {
+                $existingFaculty = $existingFaculties->get($hemisFaculty['id']);
+                if ($existingFaculty->id !== $hemisFaculty['id']) {
+                    $existingFaculty->update([
+
+                        'name' => $hemisFaculty['name'],
+                        'slug' => Str::slug($hemisFaculty['name'] . "-fakulteti"),
+                        'status' => true,
+                    ]);
+                    $updatedCount++;
+                } else {
+                    $unchangedCount++;
+                }
+            }
+        }
+
+        $message = "Yangilash yakunlandi. ";
+        if ($newCount > 0) {
+            $message .= "{$newCount} ta yangi fakultet qo'shildi. ";
+        }
+        if ($updatedCount > 0) {
+            $message .= "{$updatedCount} ta fakultet yangilandi. ";
+        }
+        if ($unchangedCount > 0) {
+            $message .= "{$unchangedCount} ta fakultet o'zgarishsiz qoldi. ";
+        }
+        if ($newCount == 0 && $updatedCount == 0) {
+            $message = "Fakultetlar ro'yxatida o'zgarish yo'q.";
+        }
+
+        return response()->json(['message' => $message]);
     }
 }

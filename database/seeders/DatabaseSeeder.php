@@ -23,8 +23,9 @@ class DatabaseSeeder extends Seeder
             FacultySeeder::class,
             DepartmentSeeder::class,
             CategorySeeder::class,
+            UserSeeder::class,
             // Boshqa seederlarni ham shu erda chaqiring
         ]);
- 
+
     }
 }

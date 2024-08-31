@@ -82,6 +82,9 @@ Route::middleware('auth')->group(function () {
         // Murojaatlarni tasdiqlash va o'chirish routeri
         Route::post('/murojatni-tasdiqlash', [PointUserDeportamentController::class, 'murojatniTasdiqlash'])->name('murojatlar.murojatniTasdiqlash');
         Route::delete('/murojatni-ochirish/{id}', [PointUserDeportamentController::class, 'destroy'])->name('murojaat.destroy');
+
+        // Fakultet va kafedra ma'lumotlarini HemisApi dan yangilab olish routeri
+        Route::post('/update-faculties', [FacultyController::class, 'update'])->name('update.faculties');
     });
 
     // Auth bo'lib kirganlar uchun routes

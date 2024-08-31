@@ -9,7 +9,8 @@ use App\Models\Department;
 class Faculty extends Model
 {
     use HasFactory;
-
+    public $incrementing = false;
+    protected $keyType = 'integer';
     // Ruxsat berilgan ustunlar ro'yxati
     protected $fillable = [
         'name',

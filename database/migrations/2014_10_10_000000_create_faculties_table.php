@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('faculties', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();            
+            $table->string('name')->nullable();
             $table->string('slug')->nullable();
             $table->string('logo')->nullable();
             $table->text('description')->nullable();
-            $table->boolean('status')->default(0);
+            $table->boolean('status')->default(false);
+            $table->boolean('to_deactivate')->default(false);
             $table->string('custom_points')->nullable();
 
             $table->timestamps();
