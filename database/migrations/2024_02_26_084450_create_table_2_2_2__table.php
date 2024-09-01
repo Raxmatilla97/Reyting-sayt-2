@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('qollanma_mualliflar_soni')->nullable();
             $table->string('qollanma_nomi')->nullable();
             $table->string('qollanma_guvohnomasi')->nullable();
-            $table->string('qollanma_reestr_raqami')->nullable();         
+            $table->string('qollanma_reestr_raqami')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('sohalar_buyurtma_nomi')->nullable();
             $table->string('sohalar_buyurtma_summasi')->nullable();
-            $table->string('jami_summa')->nullable();          
+            $table->string('jami_summa')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

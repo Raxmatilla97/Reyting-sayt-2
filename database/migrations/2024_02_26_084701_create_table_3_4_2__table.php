@@ -13,14 +13,15 @@ return new class extends Migration
     {
         Schema::create('table_3_4_2_', function (Blueprint $table) {
             $table->id();
-            $table->string('talaba_fish')->nullable();           
-            $table->string('respublika_tanlov_nomi')->nullable();           
-            $table->string('otkazilgan_joy_sana')->nullable();           
-            $table->string('musobaqalar_nomi')->nullable();           
-            $table->string('egallagan_orni')->nullable();           
-            $table->string('diplom_seryasi')->nullable();           
-            $table->string('diplom_raqami')->nullable();           
+            $table->string('talaba_fish')->nullable();
+            $table->string('respublika_tanlov_nomi')->nullable();
+            $table->string('otkazilgan_joy_sana')->nullable();
+            $table->string('musobaqalar_nomi')->nullable();
+            $table->string('egallagan_orni')->nullable();
+            $table->string('diplom_seryasi')->nullable();
+            $table->string('diplom_raqami')->nullable();
             $table->text('izoh')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

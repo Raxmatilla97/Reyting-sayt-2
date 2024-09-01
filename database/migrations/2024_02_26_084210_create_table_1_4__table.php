@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('table_1_4_', function (Blueprint $table) {
             $table->id();
-            $table->string('ish_joyi')->nullable();          
+            $table->string('ish_joyi')->nullable();
             $table->string('ixtisoslik_shifri')->nullable();
             $table->string('ixtisoslik_nomi')->nullable();
             $table->string('disertatsiya_mavzusi')->nullable();
             $table->string('maxsus_kengash_shifri')->nullable();
             $table->string('ilmiy_unvon_olganlar')->nullable();
-            $table->string('ilmiy_unvon_tasdiqlangan_sana')->nullable();          
+            $table->string('ilmiy_unvon_tasdiqlangan_sana')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

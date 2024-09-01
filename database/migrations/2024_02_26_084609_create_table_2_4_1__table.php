@@ -19,7 +19,8 @@ return new class extends Migration
             $table->string('mutaxasislik_nomi')->nullable();
             $table->string('xorijiy_talaba_fish')->nullable();
             $table->string('davlat_otm_nomi2')->nullable();
-            $table->string('mutaxasislik_nomi2')->nullable();          
+            $table->string('mutaxasislik_nomi2')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

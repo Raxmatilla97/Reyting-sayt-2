@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->string('otm_nomi')->nullable();
             $table->string('asosiy_shtatdagi_prof_oqituv')->nullable();
-            $table->string('olingan_guvohnomalar')->nullable();         
+            $table->string('olingan_guvohnomalar')->nullable();
             $table->string('mualliflar_soni')->nullable();
             $table->string('berilgan_sana')->nullable();
-            $table->string('qayd_raqami')->nullable();          
+            $table->string('qayd_raqami')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

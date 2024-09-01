@@ -19,7 +19,8 @@ return new class extends Migration
             $table->string('dsc_diplom_seryasi')->nullable();
             $table->string('dsc_diplom_raqami')->nullable();
             $table->string('mutaxasislik_nomi')->nullable();
-            $table->string('ishga_qabul_raqam_seryasi')->nullable();            
+            $table->string('ishga_qabul_raqam_seryasi')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

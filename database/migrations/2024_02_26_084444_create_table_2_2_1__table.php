@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('darslik_mualliflar_soni')->nullable();
             $table->string('darslik_nomi')->nullable();
             $table->string('darslik_guvohnomasi')->nullable();
-            $table->string('darslik_reestr_raqami')->nullable();          
+            $table->string('darslik_reestr_raqami')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('sport_turi')->nullable();
             $table->string('sport_klubiga_azolik_sanasi')->nullable();
             $table->string('nechanchi_razryad')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

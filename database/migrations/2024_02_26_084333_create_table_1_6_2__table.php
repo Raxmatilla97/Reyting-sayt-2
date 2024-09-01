@@ -17,7 +17,8 @@ return new class extends Migration
             $table->string('ilmiy_maqola_nomi')->nullable();
             $table->string('nashr_yili_betlari')->nullable();
             $table->string('url_manzili')->nullable();
-            $table->string('mualliflar_soni')->nullable();          
+            $table->string('mualliflar_soni')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

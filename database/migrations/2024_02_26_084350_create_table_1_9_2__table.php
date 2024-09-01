@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('table_1_9_2_', function (Blueprint $table) {
             $table->id();
-            $table->string('otmlar_nomi')->nullable();            
+            $table->string('otmlar_nomi')->nullable();
             $table->string('asosiy_statdagi_professorlar')->nullable();
             $table->string('ixtiro_model_uchun_patent')->nullable();
             $table->string('berilgan_sanasi')->nullable();
-            $table->string('qayd_raqami')->nullable();         
+            $table->string('qayd_raqami')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

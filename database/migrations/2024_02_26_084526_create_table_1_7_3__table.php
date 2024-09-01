@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('davlat_grant_mavzusi')->nullable();
             $table->string('davlat_grant_summasi')->nullable();
-            $table->string('jami_summa')->nullable();           
+            $table->string('jami_summa')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

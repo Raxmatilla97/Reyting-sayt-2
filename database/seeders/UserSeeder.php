@@ -19,6 +19,9 @@ class UserSeeder extends Seeder
        $userPassword = Str::random(12);
        $user = User::create([
            'name' => 'Raxmatilla',
+           'first_name' => 'Raxmatilla',
+           'second_name' => 'Fayziyev',
+           'third_name' => "Xanshor o'g'lli",
            'email' => 'wi.fi.xor@gmail.com',
            'employee_id_number' => '3541911085',
            'employee_id' => '1307',

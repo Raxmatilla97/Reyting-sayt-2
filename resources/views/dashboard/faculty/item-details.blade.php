@@ -1,59 +1,83 @@
 <div class="p-4 bg-white rounded-lg shadow-md">
-    @foreach($relatedData as $table => $data)
-        @if($data)
+    @foreach ($relatedData as $table => $data)
+        @if ($data)
             @php
-                // Konfiguratsiya kaliti uchun jadval nomini moslashtirish
-                $configKey = "employee_form_fields.{$table}_";
-                $fields = config($configKey);
-                $fieldsByName = collect($fields)->keyBy('name');
+                $configKey = "employee_form_fields.{$table}_,department_forms_fields.{$table}_";
+
+                $allFields = [];
+                foreach (explode(',', $configKey) as $key) {
+                    $fields = config(trim($key)) ?? [];
+                    $allFields = array_merge($allFields, $fields);
+                }
+
+                $fieldsByName = collect($allFields)->keyBy('name');
             @endphp
             <h4 class="text-lg font-semibold mb-4 mt-4">
                 <span class="bg-blue-100 text-blue-800 text-lg font-medium px-3 py-1 rounded">
-                    Maxsus forma kodi: {{  $table }} ma'lumotlari
+                    Maxsus forma kodi: {{ $table }} ma'lumotlari
                 </span>
             </h4>
-            <div class="flex p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
-                <svg class="flex-shrink-0 inline w-4 h-4 me-3 mt-[2px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+            <div class="flex p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
+                role="alert">
+                <svg class="flex-shrink-0 inline w-4 h-4 me-3 mt-[2px]" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                        d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
                 </svg>
                 <span class="sr-only">Info</span>
                 <div>
-                  <span class="font-medium">Ushbu ma'lumotlar qaysi yilda yaratilgan yoki tegishli bo'lishi mumkinligi:</span>
-                  <ul class="mt-1.5 list-disc list-inside">
-                    <span class="text-gray-900">{{ $year}}</span> yilda yaratilgan yoki tegishli.
-                </ul>
+                    <span class="font-medium">Ushbu ma'lumotlar qaysi yilda yaratilgan yoki tegishli bo'lishi
+                        mumkinligi:</span>
+                    <ul class="mt-1.5 list-disc list-inside">
+                        <span class="text-gray-900">{{ $year }}</span> yilda yaratilgan yoki tegishli.
+                    </ul>
                 </div>
             </div>
-                @foreach($data->toArray() as $column => $value)
-                    @if($column !== 'id')
+            @foreach ($data->toArray() as $column => $value)
+                @if ($column !== 'id')
                     @php
                         $label = $fieldsByName[$column]['label'] ?? ucfirst(str_replace('_', ' ', $column));
                         $isFile = strpos($value, 'documents/') === 0;
+
+                        // Maxsus nomlar uchun
+
+                        if ($column === 'created_at') {
+                            $label = 'Yaratilgan sana';
+                            $value = \Carbon\Carbon::parse($value)->format('d-M-Y H:i');
+                        } elseif ($column === 'updated_at') {
+                            $label = 'Tekshirilgan sana';
+                            $value = 'Yashirin.';
+                        }
                     @endphp
-                   <div class="flex p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
-                    <svg class="flex-shrink-0 inline w-4 h-4 me-3 mt-[2px]" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                      <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-                    </svg>
-                    <span class="sr-only">Info</span>
-                    <div>
-                      <span class="font-medium">{{ $label }}:</span>
-                      <ul class="mt-1.5 list-disc list-inside">
-                        @if($isFile)
-                            <a href="{{ asset('storage/'.$value) }}" download class="text-blue-600 hover:text-blue-800 underline">
-                                <button type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                    Yuklab olish
-                                </button>
-                                </a>
-                        @else
-                            <span class="text-gray-900">{{ $value }}</span>
-                        @endif
-                    </ul>
+
+                    <div class="flex p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
+                        role="alert">
+                        <svg class="flex-shrink-0 inline w-4 h-4 me-3 mt-[2px]" aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                            <path
+                                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                        </svg>
+                        <span class="sr-only">Info</span>
+                        <div>
+                            <span class="font-medium">{{ $label }}:</span>
+
+                            <ul class="mt-1.5 list-disc list-inside">
+                                @if ($isFile)
+                                    <a href="{{ asset('storage/' . $value) }}" download
+                                        class="text-blue-600 hover:text-blue-800 underline">
+                                        <button type="button"
+                                            class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+                                            Yuklab olish
+                                        </button>
+                                    </a>
+                                @else
+                                    <span class="text-gray-900">{{ $value }}</span>
+                                @endif
+                            </ul>
+                        </div>
                     </div>
-                  </div>
-                    @endif
-                @endforeach
-
-
+                @endif
+            @endforeach
         @endif
     @endforeach
 

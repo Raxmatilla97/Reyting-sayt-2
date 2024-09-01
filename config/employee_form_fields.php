@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 // O'qituvchilar uchun mo'ljallangan forma name, type, label malumotlari yozilgan
 
@@ -8,17 +8,17 @@ return [
             'name' => 'daraja_bergan_otm_nomi',
             'type' => 'text',
             'label' => 'Ilmiy daraja bergan xorijiy OTM nomi',
-        ],       
+        ],
         [
             'name' => 'phd_diplom_seryasi',
             'type' => 'text',
             'label' => 'PhD (falsafa doktori yoki fan nomzodi) diplom seriyasi',
-        ],       
+        ],
         [
             'name' => 'phd_diplom_raqami',
             'type' => 'text',
             'label' => 'PhD (falsafa doktori yoki fan nomzodi) raqami',
-        ], 
+        ],
         [
             'name' => 'dsc_diplom_seryasi',
             'type' => 'text',
@@ -38,6 +38,11 @@ return [
             'name' => 'ishga_qabul_raqam_seryasi',
             'type' => 'text',
             'label' => 'Ishga qabul qilinganligi to‘g‘risidagi buyruq raqami va sanasi',
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
         ],
     ],
     'table_1_2_' => [
@@ -83,32 +88,37 @@ return [
             'type' => 'text',
             'label' => "*Fan doktorlik diplomi raqami",
         ],
-       
+
         [
             'name' => 'ilmiy_unvon_seryasi',
             'type' => 'text',
             'label' => "*Ilmiy darajaga ega bo‘lmay professor ilmiy unvonini olgan yoki unga tenglashtirilgan diplomi seriyasi",
         ],
-       
+
         [
             'name' => 'ilmiy_unvon_raqami',
             'type' => 'text',
             'label' => "*Ilmiy darajaga ega bo‘lmay professor ilmiy unvonini olgan yoki unga tenglashtirilgan diplomi raqami",
         ],
-       
+
         [
             'name' => 'mutaxasisligi_nomi',
             'type' => 'text',
             'label' => "Mutaxassisligi nomi",
         ],
-       
+
         [
             'name' => 'ishga_buyrug_rqami_seryasi',
             'type' => 'text',
             'label' => "Ishga qabul qilinganligi to‘g‘risidagi buyruq raqami va sanasi",
         ],
-       
-       
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
+
+
     ],
     'table_1_3_2_' => [
         [
@@ -121,33 +131,37 @@ return [
             'type' => 'text',
             'label' => "*Fan doktorlik diplomi raqami",
         ],
-       
+
         [
             'name' => 'ilmiy_unvon_seryasi',
             'type' => 'text',
             'label' => "*Ilmiy darajaga ega bo‘lmay professor ilmiy unvonini olgan yoki unga tenglashtirilgan diplomi seriyasi",
         ],
-       
+
         [
             'name' => 'ilmiy_unvon_raqami',
             'type' => 'text',
             'label' => "*Ilmiy darajaga ega bo‘lmay professor ilmiy unvonini olgan yoki unga tenglashtirilgan diplomi raqami",
         ],
-       
+
         [
             'name' => 'mutaxasisligi_nomi',
             'type' => 'text',
             'label' => "Mutaxassisligi nomi",
         ],
-       
+
         [
             'name' => 'ishga_buyrug_rqami_seryasi',
             'type' => 'text',
             'label' => "Ishga qabul qilinganligi to‘g‘risidagi buyruq raqami va sanasi",
         ],
-       
-       
-    ],   
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
+
+    ],
     'table_1_4_' => [
         [
             'name' => 'ish_joyi',
@@ -184,8 +198,12 @@ return [
             'type' => 'text',
             'label' => "Ilmiy daraja yoki ilmiy unvon berish to‘g‘risidagi Maxsus kengash qarorining OAK tomonidan tasdiqlangan sanasi",
         ],
-      
-       
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
+
     ],
     'table_1_5_' => [
         [
@@ -217,8 +235,13 @@ return [
             'name' => 'google_schoolar_iqtiboslar',
             'type' => 'text',
             'label' => "«Web of Science», «Scopus», «Google Scholar» yoki boshqa xalqaro e’tirof etilgan bazalarda mavjud bo‘lgan ushbu materiallarga iqtiboslar soni*",
-        ],   
-       
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
+
     ],
     'table_1_6_1_' => [
         [
@@ -230,28 +253,33 @@ return [
             'name' => 'ilmiy_jurnal_nomi',
             'type' => 'text',
             'label' => "Ilmiy jurnal nomi ",
-        ],        
+        ],
         [
             'name' => 'ilmiy_maqola_nomi',
             'type' => 'text',
             'label' => "Ilmiy maqola nomi",
-        ],        
+        ],
         [
             'name' => 'nashr_yili_betlari',
             'type' => 'text',
             'label' => "Nashr yili, betlari",
-        ],        
+        ],
         [
             'name' => 'url_manzili',
             'type' => 'text',
             'label' => "Elektron maqolalarning internet manzili (giper xavola)",
-        ],        
+        ],
         [
             'name' => 'mualliflar_soni',
             'type' => 'text',
             'label' => "Mualliflar soni",
-        ], 
-       
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
+
     ],
     'table_1_6_2_' => [
         [
@@ -263,12 +291,12 @@ return [
             'name' => 'ilmiy_maqola_nomi',
             'type' => 'text',
             'label' => "Ilmiy maqola nomi",
-        ],       
+        ],
         [
             'name' => 'nashr_yili_betlari',
             'type' => 'text',
             'label' => "Nashr yili, betlari",
-        ],       
+        ],
         [
             'name' => 'url_manzili',
             'type' => 'text',
@@ -279,8 +307,12 @@ return [
             'type' => 'text',
             'label' => "Mualliflar soni",
         ],
-       
-       
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
+
     ],
     'table_1_9_1_' => [
         [
@@ -318,7 +350,11 @@ return [
             'type' => 'text',
             'label' => "http://isbn.natlib.uz  saytdagi ISBN raqami",
         ],
-       
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
     ],
     'table_1_9_2_' => [
         [
@@ -346,7 +382,11 @@ return [
             'type' => 'text',
             'label' => "Qayd raqamlari",
         ],
-
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
     ],
     'table_1_9_3_' => [
         [
@@ -379,8 +419,12 @@ return [
             'type' => 'text',
             'label' => "Qayd raqamlari",
         ],
-       
-       
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
+
     ],
     'table_2_2_1_' => [
         [
@@ -408,7 +452,11 @@ return [
             'type' => 'text',
             'label' => "Darslik reestr raqami",
         ],
-       
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
     ],
     'table_2_2_2_' => [
         [
@@ -420,13 +468,13 @@ return [
             'name' => 'qollanma_mualliflar_soni',
             'type' => 'text',
             'label' => "O‘quv qo‘llanma mualliflar soni",
-        ],      
+        ],
         [
             'name' => 'qollanma_nomi',
             'type' => 'text',
             'label' => "O‘quv qo‘llanma nomi",
         ],
-      
+
         [
             'name' => 'qollanma_guvohnomasi',
             'type' => 'text',
@@ -437,7 +485,11 @@ return [
             'type' => 'text',
             'label' => "O‘quv qo‘llanma reestr raqami",
         ],
-       
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
     ],
     'table_2_4_2_' => [
         [
@@ -465,8 +517,12 @@ return [
             'type' => 'text',
             'label' => "Xalqaro xorijiy konferensiya va seminarlar nomi",
         ],
-        
-               
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
+
     ],
     // table_1_2_ uchun ham shu tarzda...
 ];

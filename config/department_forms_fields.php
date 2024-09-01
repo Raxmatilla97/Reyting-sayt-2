@@ -18,8 +18,12 @@ return [
             'name' => 'jami_summa',
             'type' => 'text',
             'label' => "Jami summasi",
-        ]
-
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
     ],
     'table_1_7_2_' => [
         [
@@ -36,8 +40,12 @@ return [
             'name' => 'jami_summa',
             'type' => 'text',
             'label' => "Jami summasi",
-        ]
-
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
 
     ],
     'table_1_7_3_' => [
@@ -55,8 +63,12 @@ return [
             'name' => 'jami_summa',
             'type' => 'text',
             'label' => "Jami summasi",
-        ]
-
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
 
     ],
     'table_2_3_1_' => [
@@ -151,7 +163,11 @@ return [
             'type' => 'text',
             'label' => "Ta’lim yo‘nalishi (mutaxassislik) nomi",
         ],
-
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
 
     ],
     'table_2_4_2_b_' => [
@@ -186,7 +202,11 @@ return [
             'label' => "Xalqaro xorijiy konferensiya va seminarlar nomi",
         ],
 
-       
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
     ],
     'table_2_5_' => [
         [
@@ -234,7 +254,11 @@ return [
             'type' => 'text',
             'label' => "Fan resurslari(O'UM)ning elektron manzili (giper xavola**)",
         ],
-
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
 
 
     ],
@@ -274,14 +298,18 @@ return [
             'name' => 'diplom_raqam',
             'type' => 'text',
             'label' => "Diplom raqami",
-        ], 
+        ],
         [
             'name' => 'izoh',
             'type' => 'text',
             'label' => "Izoh",
-        ],       
+        ],
 
-
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
     ],
     'table_3_4_2_' => [
         [
@@ -318,13 +346,17 @@ return [
             'name' => 'diplom_raqami',
             'type' => 'text',
             'label' => "Diplom raqami",
-        ],  
+        ],
         [
             'name' => 'izoh',
             'type' => 'text',
             'label' => "Izoh",
-        ],       
-     
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
 
 
     ],
@@ -363,9 +395,13 @@ return [
             'name' => 'nechanchi_razryad',
             'type' => 'text',
             'label' => "Nechanchi razryad",
-        ],  
-           
-     
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
+
 
 
     ],

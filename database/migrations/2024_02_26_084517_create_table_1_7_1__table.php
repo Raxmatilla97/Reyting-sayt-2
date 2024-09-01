@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('xorijiy_granti_buyurtma_nomi')->nullable();
             $table->string('xorijiy_granti_buyurtma_summasi')->nullable();
-            $table->string('jami_summa')->nullable();          
+            $table->string('jami_summa')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

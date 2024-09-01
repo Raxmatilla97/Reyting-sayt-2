@@ -18,7 +18,8 @@ return new class extends Migration
             $table->string('xorijiy_davlat_otm_nomi')->nullable();
             $table->string('mutaxasislik_nomi')->nullable();
             $table->string('loyha_nomi')->nullable();
-            $table->string('seminar_nomi')->nullable(); 
+            $table->string('seminar_nomi')->nullable();
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }

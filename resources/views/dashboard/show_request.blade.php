@@ -284,7 +284,7 @@
                                                                                     $label = 'Yaratilgan sana';
                                                                                     $value = \Carbon\Carbon::parse(
                                                                                         $value,
-                                                                                    )->format('d-M-Y');
+                                                                                    )->format('d-M-Y H:i');
                                                                                 } elseif ($column === 'updated_at') {
                                                                                     $label = 'Tekshirilgan sana';
                                                                                     if (
@@ -296,7 +296,7 @@
                                                                                     } else {
                                                                                         $value = \Carbon\Carbon::parse(
                                                                                             $information->updated_at,
-                                                                                        )->format('d-m-Y');
+                                                                                        )->format('d-M-Y H:i');
                                                                                     }
                                                                                 }
 

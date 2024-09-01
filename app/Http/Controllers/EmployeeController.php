@@ -51,42 +51,47 @@ class EmployeeController extends Controller
 
 
     public function employeeShow($id_employee)
-    {
-        $employee = Employee::where('employee_id_number', $id_employee)->firstOrFail();
+{
+    $employee = Employee::where('employee_id_number', $id_employee)->firstOrFail();
 
-        $pointUserInformations = PointUserDeportament::where('user_id', $employee->id)->paginate('15');
+    $pointUserInformations = PointUserDeportament::where('user_id', $employee->id)->paginate('15');
 
-        // Department va Employee konfiguratsiyalarini olish
-        $departmentCodlari = Config::get('dep_emp_tables.department');
-        $employeeCodlari = Config::get('dep_emp_tables.employee');
+    // Department va Employee konfiguratsiyalarini olish
+    $departmentCodlari = Config::get('dep_emp_tables.department');
+    $employeeCodlari = Config::get('dep_emp_tables.employee');
 
-        // Ikkala massivni birlashtirish
-        $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
+    // Ikkala massivni birlashtirish
+    $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
 
-        // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
-        $arrayKey = [];
-        foreach ($jadvallarCodlari as $key => $value) {
-            $arrayKey[$key . 'id'] = $key; // $key . 'id' qiymatini o'rnating
-        }
+    // Config fayllaridan label nomlarini olish
+    $employeeLabels = Config::get('employee_form_fields');
+    $departmentLabels = Config::get('department_forms_fields');
+    $allLabels = array_merge($employeeLabels, $departmentLabels);
 
-        // Ma'lumotlar massivini tekshirish
-        foreach ($pointUserInformations as $faculty_item) {
-            foreach ($arrayKey as $column => $originalKey) {
-                // column tekshiriladi
-                if (isset($faculty_item->$column)) {
-                    // $murojaat_nomi o'rnatiladi
-                    $faculty_item->murojaat_nomi = $jadvallarCodlari[$originalKey];
-                    $faculty_item->murojaat_codi = $originalKey;
-                    break;
-                }
+    // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
+    $arrayKey = [];
+    foreach ($jadvallarCodlari as $key => $value) {
+        $arrayKey[$key . 'id'] = $key;
+    }
+
+    // Ma'lumotlar massivini tekshirish
+    foreach ($pointUserInformations as $faculty_item) {
+        foreach ($arrayKey as $column => $originalKey) {
+            // column tekshiriladi
+            if (isset($faculty_item->$column)) {
+                // Config faylidan label nomini olish
+                $labelKey = $originalKey . '_';
+                $label = isset($allLabels[$labelKey]) ? $allLabels[$labelKey]['label'] : $jadvallarCodlari[$originalKey];
+
+                $faculty_item->murojaat_nomi = $label;
+                $faculty_item->murojaat_codi = $originalKey;
+                break;
             }
         }
-
-
-        //    dd($pointUserInformations);
-
-        return view('dashboard.employee.show', compact('employee', 'pointUserInformations'));
     }
+
+    return view('dashboard.employee.show', compact('employee', 'pointUserInformations'));
+}
 
     /**
      * Show the form for creating a new resource.
