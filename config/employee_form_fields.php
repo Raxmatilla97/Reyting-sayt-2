@@ -205,7 +205,7 @@ return [
         ],
 
     ],
-    'table_1_5_' => [
+    'table_1_5_1_' => [
         [
             'name' => 'jurnalning_nomi',
             'type' => 'text',
@@ -234,7 +234,46 @@ return [
         [
             'name' => 'google_schoolar_iqtiboslar',
             'type' => 'text',
-            'label' => "«Web of Science», «Scopus», «Google Scholar» yoki boshqa xalqaro e’tirof etilgan bazalarda mavjud bo‘lgan ushbu materiallarga iqtiboslar soni*",
+            'label' => "«Google Scholar» yoki boshqa xalqaro e’tirof etilgan bazalarda mavjud bo‘lgan ushbu materiallarga iqtiboslar soni*",
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
+
+    ],
+
+    'table_1_5_1_a_' => [
+        [
+            'name' => 'jurnalning_nomi',
+            'type' => 'text',
+            'label' => "Jurnalning nomi",
+        ],
+        [
+            'name' => 'jurnal_nashr_yili_oyi',
+            'type' => 'text',
+            'label' => "Jurnalning nashr etilgan yili va oyi ",
+        ],
+        [
+            'name' => 'maqolaning_nomi',
+            'type' => 'text',
+            'label' => "Maqolaning nomi ",
+        ],
+        [
+            'name' => 'maqola_tili',
+            'type' => 'text',
+            'label' => "Maqolaning qaysi tilda chop etilganligi ",
+        ],
+        [
+            'name' => 'google_schoolar_url',
+            'type' => 'text',
+            'label' => "Chop etilgan materiallarning «Web of Science», «Scopus» va boshqa xalqaro e’tirof etilgan qidiruv tizimlardagi internet manzili (giper xavolasi)",
+        ],
+        [
+            'name' => 'google_schoolar_iqtiboslar',
+            'type' => 'text',
+            'label' => "«Web of Science», «Scopus» yoki boshqa xalqaro e’tirof etilgan bazalarda mavjud bo‘lgan ushbu materiallarga iqtiboslar soni*",
         ],
         [
             'name' => 'asos_file',
@@ -244,6 +283,45 @@ return [
 
     ],
     'table_1_6_1_' => [
+        [
+            'name' => 'xorijiy_jirnal_davlat_nomi',
+            'type' => 'text',
+            'label' => "Xorijiy ilmiy jurnal nashr etilgan davlat nomi",
+        ],
+        [
+            'name' => 'ilmiy_jurnal_nomi',
+            'type' => 'text',
+            'label' => "Ilmiy jurnal nomi ",
+        ],
+        [
+            'name' => 'ilmiy_maqola_nomi',
+            'type' => 'text',
+            'label' => "Ilmiy maqola nomi",
+        ],
+        [
+            'name' => 'nashr_yili_betlari',
+            'type' => 'text',
+            'label' => "Nashr yili, betlari",
+        ],
+        [
+            'name' => 'url_manzili',
+            'type' => 'text',
+            'label' => "Elektron maqolalarning internet manzili (giper xavola)",
+        ],
+        [
+            'name' => 'mualliflar_soni',
+            'type' => 'text',
+            'label' => "Mualliflar soni",
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        ],
+
+    ],
+
+    'table_1_6_1_a_' => [
         [
             'name' => 'xorijiy_jirnal_davlat_nomi',
             'type' => 'text',

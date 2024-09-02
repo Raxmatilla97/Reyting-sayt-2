@@ -19,8 +19,10 @@ return new class extends Migration
             $table->foreignId('table_1_3_1_id')->nullable()->constrained('table_1_3_1_')->onDelete('cascade');
             $table->foreignId('table_1_3_2_id')->nullable()->constrained('table_1_3_2_')->onDelete('cascade');
             $table->foreignId('table_1_4_id')->nullable()->constrained('table_1_4_')->onDelete('cascade');
-            $table->foreignId('table_1_5_id')->nullable()->constrained('table_1_5_')->onDelete('cascade');
+            $table->foreignId('table_1_5_1_id')->nullable()->constrained('table_1_5_1_')->onDelete('cascade');
+            $table->foreignId('table_1_5_1_a_id')->nullable()->constrained('table_1_5_1_a_')->onDelete('cascade');
             $table->foreignId('table_1_6_1_id')->nullable()->constrained('table_1_6_1_')->onDelete('cascade');
+            $table->foreignId('table_1_6_1_a_id')->nullable()->constrained('table_1_6_1_a_')->onDelete('cascade');
             $table->foreignId('table_1_6_2_id')->nullable()->constrained('table_1_6_2_')->onDelete('cascade');
             $table->foreignId('table_1_9_1_id')->nullable()->constrained('table_1_9_1_')->onDelete('cascade');
             $table->foreignId('table_1_9_2_id')->nullable()->constrained('table_1_9_2_')->onDelete('cascade');

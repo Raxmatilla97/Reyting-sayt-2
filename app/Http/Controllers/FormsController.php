@@ -14,24 +14,28 @@ class FormsController extends Controller
     {
         // Formani shakillantirdigan ma'lumotlarni config papkasi ichidan employee_form_fields.php olib beradi
         $fields = config("employee_form_fields.{$tableName}");
+        $section = 'employee'; // yoki 'department'
+        $title = config("dep_emp_tables.{$section}.{$tableName}");
 
         if (!$fields) {
             abort(404, 'Jadval topilmadi.');
         }
 
-        return view('dashboard.form_themplates.employee_form', compact('fields', 'tableName'));
+        return view('dashboard.form_themplates.employee_form', compact('fields', 'tableName', 'title'));
     }
 
     public function departmentShowForm($tableName)
     {
         // Formani shakillantirdigan ma'lumotlarni config papkasi ichidan employee_form_fields.php olib beradi
         $fields = config("department_forms_fields.{$tableName}");
+        $section = 'department'; // yoki 'employee'
+        $title = config("dep_emp_tables.{$section}.{$tableName}");
 
         if (!$fields) {
             abort(404, 'Jadval topilmadi.');
         }
 
-        return view('dashboard.form_themplates.department_form', compact('fields', 'tableName'));
+        return view('dashboard.form_themplates.department_form', compact('fields', 'tableName', 'title'));
     }
 
     public function employeeStoreForm(Request $request, $tableName)
@@ -50,8 +54,10 @@ class FormsController extends Controller
                 'table_1_3_1_' => ['doktorlik_diplom_seryasi', 'doktorlik_diplom_raqami', 'ilmiy_unvon_seryasi', 'ilmiy_unvon_raqami', 'mutaxasisligi_nomi', 'ishga_buyrug_rqami_seryasi','asos_file'],
                 'table_1_3_2_' => ['doktorlik_diplom_seryasi', 'doktorlik_diplom_raqami', 'ilmiy_unvon_seryasi', 'ilmiy_unvon_raqami', 'mutaxasisligi_nomi', 'ishga_buyrug_rqami_seryasi','asos_file'],
                 'table_1_4_' => ['ish_joyi', 'ixtisoslik_shifri', 'ixtisoslik_nomi', 'disertatsiya_mavzusi', 'maxsus_kengash_shifri', 'ilmiy_unvon_olganlar', 'ilmiy_unvon_tasdiqlangan_sana','asos_file'],
-                'table_1_5_' => ['jurnalning_nomi', 'jurnal_nashr_yili_oyi', 'maqolaning_nomi', 'maqola_tili', 'google_schoolar_url', 'google_schoolar_iqtiboslar','asos_file'],
+                'table_1_5_1_' => ['jurnalning_nomi', 'jurnal_nashr_yili_oyi', 'maqolaning_nomi', 'maqola_tili', 'google_schoolar_url', 'google_schoolar_iqtiboslar','asos_file'],
+                'table_1_5_1_a_' => ['jurnalning_nomi', 'jurnal_nashr_yili_oyi', 'maqolaning_nomi', 'maqola_tili', 'google_schoolar_url', 'google_schoolar_iqtiboslar','asos_file'],
                 'table_1_6_1_' => ['xorijiy_jirnal_davlat_nomi', 'ilmiy_jurnal_nomi', 'ilmiy_maqola_nomi', 'nashr_yili_betlari', 'url_manzili', 'mualliflar_soni','asos_file'],
+                'table_1_6_1_a_' => ['xorijiy_jirnal_davlat_nomi', 'ilmiy_jurnal_nomi', 'ilmiy_maqola_nomi', 'nashr_yili_betlari', 'url_manzili', 'mualliflar_soni','asos_file'],
                 'table_1_6_2_' => ['ilmiy_jurnal_nomi', 'ilmiy_maqola_nomi', 'nashr_yili_betlari', 'url_manzili', 'mualliflar_soni','asos_file'],
                 'table_1_9_1_' => ['ixtisoslik_shifri', 'mualliflar_soni', 'monograf_mualliflar_soni', 'monograf_nomi', 'monograf_kengash_bayoni', 'nashryot_nomi', 'natlib_isbn_raqami','asos_file'],
                 'table_1_9_2_' => ['otmlar_nomi', 'asosiy_statdagi_professorlar', 'ixtiro_model_uchun_patent', 'berilgan_sanasi', 'qayd_raqami','asos_file'],
