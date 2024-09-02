@@ -145,7 +145,7 @@ class EmployeeController extends Controller
     public function mySubmittedInformation()
     {
         $user = auth()->user();
-        $pointUserInformations = PointUserDeportament::where('user_id', $user->id)->paginate('15');
+        $pointUserInformations = PointUserDeportament::where('user_id', $user->id)->orderBy('created_at', 'desc')->paginate('15');
 
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');

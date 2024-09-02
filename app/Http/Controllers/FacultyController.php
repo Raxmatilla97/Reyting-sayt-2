@@ -34,7 +34,7 @@ class FacultyController extends Controller
     {
         $faculty = Faculty::where('slug', $slug)->firstOrFail();
 
-        $pointUserInformations = PointUserDeportament::whereIn('departament_id', $faculty->departments->pluck('id'))->paginate('15');
+        $pointUserInformations = PointUserDeportament::whereIn('departament_id', $faculty->departments->pluck('id'))->orderBy('created_at', 'desc')->paginate('15');
 
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');
@@ -137,26 +137,33 @@ class FacultyController extends Controller
 
         if (is_array($relationships)) {
             foreach ($relationships as $relationship) {
-                // Foreign key maydoni nomini tuzing
                 $foreignKey = $relationship . '_id';
-                // Foreign key maydoni mavjudligini va null emasligini tekshiring
                 if (isset($item->{$foreignKey}) && !is_null($item->{$foreignKey})) {
-                    // Tegishli model sinf nomini dinamik ravishda aniqlang
                     $relatedModelClass = $this->getModelClassForRelation($relationship);
-                    // Foreign key ID asosida tegishli elementni oling
                     $relatedData[$relationship] = $relatedModelClass::find($item->{$foreignKey});
                 } else {
-                    $relatedData[$relationship] = null; // Tegishli maʼlumotlar topilmadi
+                    $relatedData[$relationship] = null;
                 }
             }
         } else {
             return response()->json(['error' => 'No relationships defined'], 500);
         }
 
+        // $item->arizaga_javob ni $relatedData massiviga qo'shamiz
+        $arizaga_javob = $item->arizaga_javob;
+        $yaratilgan_sana = $item->created_at;
+        $tekshirilgan_sana = $item->updated_at;
+
+        // Qo'yilgan ballni hisoblash
+        $qoyilgan_ball = 0;
+        if ($item->point !== null && is_numeric($item->point)) {
+            $qoyilgan_ball = round($item->point, 2);
+        }
+
         // $item->year ni ko'rinishga uzatamiz
         $year = $item->year;
 
-        $view = view('dashboard.faculty.item-details', compact('item', 'relatedData', 'year'))->render();
+        $view = view('dashboard.faculty.item-details', compact('item', 'relatedData', 'year', 'arizaga_javob', 'tekshirilgan_sana', 'yaratilgan_sana', 'qoyilgan_ball'))->render();
 
         return response()->json(['html' => $view]);
     }

@@ -15,7 +15,11 @@
             <h4 class="text-lg font-semibold mb-4 mt-4">
                 <span class="bg-blue-100 text-blue-800 text-lg font-medium px-3 py-1 rounded">
                     Maxsus forma kodi: {{ $table }} ma'lumotlari
+
+
                 </span>
+                <span class="bg-green-100 text-green-800 text-md font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300 ml-4">Ball: {{$qoyilgan_ball}}</span>
+
             </h4>
             <div class="flex p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
                 role="alert">
@@ -43,10 +47,16 @@
 
                         if ($column === 'created_at') {
                             $label = 'Yaratilgan sana';
-                            $value = \Carbon\Carbon::parse($value)->format('d-M-Y H:i');
+                            $created_at = \Carbon\Carbon::parse($yaratilgan_sana);
+                            $value = $created_at->format('d-M-Y H:i');
                         } elseif ($column === 'updated_at') {
                             $label = 'Tekshirilgan sana';
-                            $value = 'Yashirin.';
+                            $updated_at = \Carbon\Carbon::parse($tekshirilgan_sana);
+                            if ($created_at->eq($updated_at)) {
+                                $value = 'Hali tekshirilmagan';
+                            } else {
+                                $value = $updated_at->format('d-M-Y H:i');
+                            }
                         }
                     @endphp
 
@@ -63,6 +73,7 @@
 
                             <ul class="mt-1.5 list-disc list-inside">
                                 @if ($isFile)
+                                @if (Auth::user()->is_admin !== null)
                                     <a href="{{ asset('storage/' . $value) }}" download
                                         class="text-blue-600 hover:text-blue-800 underline">
                                         <button type="button"
@@ -71,13 +82,50 @@
                                         </button>
                                     </a>
                                 @else
-                                    <span class="text-gray-900">{{ $value }}</span>
+                                    <span class="text-red-600">Hujjatlarning maxfiyligi va ma'lumotlarni himoya qilish qoidalariga muvofiq, sizning joriy foydalanuvchi darajangiz ushbu faylni yuklash uchun yetarli huquqlarga ega emas. </span>
                                 @endif
+                            @else
+                                <span class="text-gray-900">{{ $value }}</span>
+                            @endif
                             </ul>
                         </div>
                     </div>
                 @endif
             @endforeach
+
+            @if (isset($arizaga_javob))
+                <div class="flex p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
+                    role="alert">
+                    <svg class="flex-shrink-0 inline w-4 h-4 me-3 mt-[2px]" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                    </svg>
+                    <span class="sr-only">Info</span>
+                    <div>
+                        <span class="font-medium">Arizaga javob:</span>
+                        <ul class="mt-1.5 list-disc list-inside">
+                            <span class="text-gray-900">{{ $arizaga_javob }}</span>
+                        </ul>
+                    </div>
+                </div>
+            @else
+                <div class="flex p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
+                    role="alert">
+                    <svg class="flex-shrink-0 inline w-4 h-4 me-3 mt-[2px]" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                    </svg>
+                    <span class="sr-only">Info</span>
+                    <div>
+                        <span class="font-medium">Arizaga javob:</span>
+                        <ul class="mt-1.5 list-disc list-inside">
+                            <h3>Tekshiruvchi tomonidan xabar yozilmagan!</h3>
+                        </ul>
+                    </div>
+                </div>
+            @endif
         @endif
     @endforeach
 

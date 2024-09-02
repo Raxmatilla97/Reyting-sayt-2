@@ -50,7 +50,7 @@ class DepartmentController extends Controller
 
 
 
-        $pointUserInformations = PointUserDeportament::where('departament_id', $department->id)->paginate(15);
+        $pointUserInformations = PointUserDeportament::where('departament_id', $department->id)->orderBy('created_at', 'desc')->paginate(15);
 
 
         // Department va Employee konfiguratsiyalarini olish
