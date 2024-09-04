@@ -91,7 +91,7 @@ class ApiHemisController extends Controller
 
     private function findOrCreateUser($userDetails)
     {
-        dd($userDetails);
+        // dd($userDetails);
         $user = User::where('employee_id_number', $userDetails['employee_id_number'])->first();
 
         if (!$user) {
