@@ -188,15 +188,18 @@
                                                             <td class="px-4 py-2 text-center">
 
                                                                 @php
-                                                                    $totalPoints = $employee->department->point_user_deportaments->count();
+                                                                    $totalInfos = 0;
+                                                                    if ($employee->department) {
+                                                                        $totalInfos = $employee->department
+                                                                            ->point_user_deportaments()
+                                                                            ->where('user_id', $employee->id)
+                                                                            ->count();
+                                                                    }
                                                                 @endphp
 
-                                                                {{ $totalPoints }}
+                                                                {{ $totalInfos }}
                                                             </td>
                                                             <td class="px-4 py-2 text-center">
-                                                                @php
-                                                                    $point_full = 0.0;
-                                                                @endphp
 
                                                                 @php
                                                                     $point_full = 0;

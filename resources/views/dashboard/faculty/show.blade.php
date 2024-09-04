@@ -298,12 +298,16 @@
                                                     keyinchalik to'ldirilib boyitilib borilishi mumkin!
                                                 </p>
                                                 <ul class="list-disc list-inside text-gray-700">
-                                                    <li class="mb-2">Fakultet o'qituvchilar soni: {{$totalEmployees}} nafar</li>
-                                                    <li class="mb-2">Fakultet to'plangan umumiy ballar: {{$totalPoints}}</li>
+                                                    <li class="mb-2">Fakultet o'qituvchilar soni:
+                                                        {{ $totalEmployees }} nafar</li>
+                                                    <li class="mb-2">Fakultet to'plangan umumiy ballar:
+                                                        {{ $totalPoints }}</li>
                                                     <li class="mb-2">Fakultet hisobidagi yuborilgan ma'lumotlar
-                                                        soni: {{$totalInfos}} ta</li>
-                                                    <li class="mb-2">Oxirgi yuborilgan ma'lumot vaqti: {{$timeAgo}}</li>
-                                                    <li class="mb-2">Oxirgi yuborgan ma'lumot egasi nomi: {{$fullName}}</li>
+                                                        soni: {{ $totalInfos }} ta</li>
+                                                    <li class="mb-2">Oxirgi yuborilgan ma'lumot vaqti:
+                                                        {{ $timeAgo }}</li>
+                                                    <li class="mb-2">Oxirgi yuborgan ma'lumot egasi nomi:
+                                                        {{ $fullName }}</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -351,8 +355,9 @@
 
                                                                 <span
                                                                     class="bg-blue-100 text-blue-800 text-md font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                                                    <a href="{{ route('dashboard.departmentShow', ['slug' => $item->slug]) }}">{{ $item->name }}</a>
-                                                                  
+                                                                    <a
+                                                                        href="{{ route('dashboard.departmentShow', ['slug' => $item->slug]) }}">{{ $item->name }}</a>
+
                                                                 </span>
                                                             </td>
 
@@ -363,25 +368,34 @@
                                                             <td class="px-4 py-2 text-center">
 
                                                                 @php
-                                                                    $totalPoints = $item->point_user_deportaments->count();
+                                                                    $totalInfos = 0;
+                                                                    if ($item->department) {
+                                                                        $totalInfos = $item->department
+                                                                            ->point_user_deportaments()
+                                                                            ->where('user_id', $item->id)
+                                                                            ->count();
+                                                                    }
                                                                 @endphp
 
-                                                                {{ $totalPoints }}
+                                                                {{ $totalInfos }}
                                                             </td>
                                                             <td class="px-4 py-2 text-center">
                                                                 @php
-                                                                    $point_full = 0.0;
-                                                                @endphp
+                                                                $point_full = 0;
+                                                                if ($item->department) {
+                                                                    $points = $item->department
+                                                                        ->point_user_deportaments()
+                                                                        ->where('status', 1)
+                                                                        ->where('user_id', $item->id)
+                                                                        ->get();
 
-                                                                @foreach ($item->point_user_deportaments as $points)
-                                                                @if ($points->status === 1)
-                                                                @php
-                                                                    $point_full += $points->point;
-                                                                @endphp
-                                                            @endif
-                                                                @endforeach
+                                                                    foreach ($points as $point) {
+                                                                        $point_full += $point->point;
+                                                                    }
+                                                                }
+                                                            @endphp
 
-                                                                {{ $point_full }}
+                                                            {{ $point_full }}
 
 
                                                             </td>
