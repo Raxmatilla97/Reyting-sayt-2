@@ -114,6 +114,7 @@
 
                                                     <td class="px-6 py-4">
                                                         {{-- {{$item->totalPoints}} --}}
+
                                                         {{ round($item->point_user_deportaments()->where('status', 1)->sum('point'), 2) }}
                                                     </td>
                                                     <td class="px-6 py-4">

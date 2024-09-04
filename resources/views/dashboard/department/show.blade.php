@@ -123,12 +123,16 @@
                                                     keyinchalik to'ldirilib boyitilib borilishi mumkin!
                                                 </p>
                                                 <ul class="list-disc list-inside text-gray-700">
-                                                    <li class="mb-2">Fakultet o'qituvchilar soni: {{$totalEmployees}} nafar</li>
-                                                    <li class="mb-2">Fakultet to'plangan umumiy ballar: {{$totalPoints}}</li>
+                                                    <li class="mb-2">Fakultet o'qituvchilar soni:
+                                                        {{ $totalEmployees }} nafar</li>
+                                                    <li class="mb-2">Fakultet to'plangan umumiy ballar:
+                                                        {{ $totalPoints }}</li>
                                                     <li class="mb-2">Fakultet hisobidagi yuborilgan ma'lumotlar
-                                                        soni: {{$totalInfos}} ta</li>
-                                                    <li class="mb-2">Oxirgi yuborilgan ma'lumot vaqti: {{$timeAgo}}</li>
-                                                    <li class="mb-2">Oxirgi yuborgan ma'lumot egasi nomi: {{$fullName}}</li>
+                                                        soni: {{ $totalInfos }} ta</li>
+                                                    <li class="mb-2">Oxirgi yuborilgan ma'lumot vaqti:
+                                                        {{ $timeAgo }}</li>
+                                                    <li class="mb-2">Oxirgi yuborgan ma'lumot egasi nomi:
+                                                        {{ $fullName }}</li>
                                                 </ul>
                                             </div>
                                         </div>
@@ -173,10 +177,11 @@
 
                                                                 <span
                                                                     class="bg-blue-100 text-blue-800 text-md font-medium px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                                                    <a href="{{route('dashboard.employeeShow', ['id_employee' => $employee->employee_id_number])}}">
+                                                                    <a
+                                                                        href="{{ route('dashboard.employeeShow', ['id_employee' => $employee->employee_id_number]) }}">
                                                                         {{ ucwords(strtolower($employee->FullName)) }}
                                                                     </a>
-                                                                  
+
                                                                 </span>
                                                             </td>
 
@@ -193,13 +198,20 @@
                                                                     $point_full = 0.0;
                                                                 @endphp
 
-                                                                @foreach ($employee->department->point_user_deportaments as $points)
-                                                                @if ($points->status === 1)
                                                                 @php
-                                                                    $point_full += $points->point;
+                                                                    $point_full = 0;
+                                                                    if ($employee->department) {
+                                                                        $points = $employee->department
+                                                                            ->point_user_deportaments()
+                                                                            ->where('status', 1)
+                                                                            ->where('user_id', $employee->id)
+                                                                            ->get();
+
+                                                                        foreach ($points as $point) {
+                                                                            $point_full += $point->point;
+                                                                        }
+                                                                    }
                                                                 @endphp
-                                                            @endif
-                                                                @endforeach
 
                                                                 {{ $point_full }}
 
@@ -213,107 +225,107 @@
 
                                         </div>
                                     </div>
-                                  <div id="yuborilgan" class="p-4 tab-content hidden">
+                                    <div id="yuborilgan" class="p-4 tab-content hidden">
                                         <h3 class="text-2xl font-bold mb-5">Kafedra o'qituvchilari tomonidan yuborilgan
                                             ma'lumotlar</h3>
                                         <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                                             <div class="text-gray-900 mb-8">
 
-                                            @include('dashboard.item_list_component')
+                                                @include('dashboard.item_list_component')
 
+                                            </div>
                                         </div>
+
                                     </div>
 
+                                    {{-- Tab funksiyasini ishga tushurish kodi --}}
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            // Hammasi tablarga
+                                            const tabs = document.querySelectorAll('.tab');
+                                            const tabContents = document.querySelectorAll('.tab-content');
+
+                                            tabs.forEach(tab => {
+                                                tab.addEventListener('click', function(event) {
+                                                    event.preventDefault();
+
+                                                    // Barcha tablar va kontentlardan active sinflarini olib tashlash
+                                                    tabs.forEach(item => item.classList.remove('active', 'border-blue-500',
+                                                        'text-blue-600'));
+                                                    tabContents.forEach(content => content.classList.add('hidden'));
+
+                                                    // Joriy tabni active qilish
+                                                    const target = document.querySelector(tab.getAttribute('href'));
+                                                    tab.classList.add('active', 'border-blue-500', 'text-blue-600');
+                                                    if (target) {
+                                                        target.classList.remove('hidden');
+                                                    }
+                                                });
+                                            });
+
+                                            // Default active tabni aniqlash
+                                            if (tabs.length > 0) {
+                                                tabs[0].click();
+                                            }
+                                        });
+                                    </script>
+
+                                    {{-- Paginatsiya bo'lganda active tabni saqlaydigan js codi --}}
+
+                                    <script>
+                                        document.addEventListener('DOMContentLoaded', function() {
+                                            const tabs = document.querySelectorAll('.tab');
+                                            const tabContents = document.querySelectorAll('.tab-content');
+
+                                            function showTab(tabId) {
+                                                tabContents.forEach(content => {
+                                                    content.classList.add('hidden');
+                                                });
+                                                document.getElementById(tabId).classList.remove('hidden');
+                                            }
+
+                                            tabs.forEach(tab => {
+                                                tab.addEventListener('click', function(event) {
+                                                    event.preventDefault();
+                                                    const tabId = this.getAttribute('data-tab');
+                                                    localStorage.setItem('activeTab', tabId);
+                                                    showTab(tabId);
+                                                });
+                                            });
+
+                                            // Function to get URL parameters
+                                            function getUrlParameter(name) {
+                                                name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+                                                const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+                                                const results = regex.exec(location.search);
+                                                return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+                                            }
+
+                                            // Determine which tab to show
+                                            const page = getUrlParameter('page');
+                                            const activeTab = localStorage.getItem('activeTab');
+
+                                            if (page) {
+                                                showTab('yuborilgan');
+                                            } else if (activeTab) {
+                                                showTab(activeTab);
+                                            } else {
+                                                showTab('about_us'); // Default tab
+                                            }
+                                        });
+                                    </script>
+
+                                    {{--  --}}
                                 </div>
-
-                                {{-- Tab funksiyasini ishga tushurish kodi --}}
-                                <script>
-                                    document.addEventListener('DOMContentLoaded', function() {
-                                        // Hammasi tablarga
-                                        const tabs = document.querySelectorAll('.tab');
-                                        const tabContents = document.querySelectorAll('.tab-content');
-
-                                        tabs.forEach(tab => {
-                                            tab.addEventListener('click', function(event) {
-                                                event.preventDefault();
-
-                                                // Barcha tablar va kontentlardan active sinflarini olib tashlash
-                                                tabs.forEach(item => item.classList.remove('active', 'border-blue-500',
-                                                    'text-blue-600'));
-                                                tabContents.forEach(content => content.classList.add('hidden'));
-
-                                                // Joriy tabni active qilish
-                                                const target = document.querySelector(tab.getAttribute('href'));
-                                                tab.classList.add('active', 'border-blue-500', 'text-blue-600');
-                                                if (target) {
-                                                    target.classList.remove('hidden');
-                                                }
-                                            });
-                                        });
-
-                                        // Default active tabni aniqlash
-                                        if (tabs.length > 0) {
-                                            tabs[0].click();
-                                        }
-                                    });
-                                </script>
-
-                                {{-- Paginatsiya bo'lganda active tabni saqlaydigan js codi --}}
-
-                                <script>
-                                    document.addEventListener('DOMContentLoaded', function() {
-                                        const tabs = document.querySelectorAll('.tab');
-                                        const tabContents = document.querySelectorAll('.tab-content');
-
-                                        function showTab(tabId) {
-                                            tabContents.forEach(content => {
-                                                content.classList.add('hidden');
-                                            });
-                                            document.getElementById(tabId).classList.remove('hidden');
-                                        }
-
-                                        tabs.forEach(tab => {
-                                            tab.addEventListener('click', function(event) {
-                                                event.preventDefault();
-                                                const tabId = this.getAttribute('data-tab');
-                                                localStorage.setItem('activeTab', tabId);
-                                                showTab(tabId);
-                                            });
-                                        });
-
-                                        // Function to get URL parameters
-                                        function getUrlParameter(name) {
-                                            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
-                                            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
-                                            const results = regex.exec(location.search);
-                                            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
-                                        }
-
-                                        // Determine which tab to show
-                                        const page = getUrlParameter('page');
-                                        const activeTab = localStorage.getItem('activeTab');
-
-                                        if (page) {
-                                            showTab('yuborilgan');
-                                        } else if (activeTab) {
-                                            showTab(activeTab);
-                                        } else {
-                                            showTab('about_us'); // Default tab
-                                        }
-                                    });
-                                </script>
-
-                                {{--  --}}
-                            </div>
-                            {{-- <div class=" items-center justify-between mt-6">
+                                {{-- <div class=" items-center justify-between mt-6">
                                     paginate
                                 </div> --}}
-                        </div>
+                            </div>
 
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
 </x-app-layout>
