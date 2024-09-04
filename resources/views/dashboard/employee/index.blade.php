@@ -21,7 +21,7 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
 
                         <div class="p-6 text-gray-900 mb-8">
-                            <form class="mb-6" action="{{route('dashboard.employees')}}" method="get">
+                            <form class="mb-6" action="{{ route('dashboard.employees') }}" method="get">
 
                                 <label for="default-search"
                                     class="mb-2 text-sm font-medium text-gray-900 sr-only dark:text-white">Qidirish</label>
@@ -56,18 +56,18 @@
                                                     </div>
                                                 </th>
                                                 <th scope="col" class="px-6 py-3">
-                                                   O'qituvchi F.I.SH
+                                                    O'qituvchi F.I.SH
                                                 </th>
                                                 <th scope="col" class="px-6 py-3">
-                                                   Kafedrasi
+                                                    Kafedrasi
                                                 </th>
 
                                                 <th scope="col" class="px-6 py-3">
-                                                   Holati
+                                                    Holati
                                                 </th>
                                                 <th scope="col" class="px-6 py-3">
                                                     Umumiy ball
-                                                 </th>
+                                                </th>
                                                 <th scope="col" class="px-6 py-3">
                                                     Bajarish
                                                 </th>
@@ -85,14 +85,19 @@
                                                             {{ $i++ }}
                                                         </div>
                                                     </td>
-                                                    <th scope="row" class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
-                                                        <img class="hidden sm:block w-10 h-10 rounded-full" style="object-fit: cover;" src="{{ $item->image ? asset('storage/users/image/' . $item->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}" alt="">
+                                                    <th scope="row"
+                                                        class="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
+                                                        <img class="hidden sm:block w-10 h-10 rounded-full"
+                                                            style="object-fit: cover;"
+                                                            src="{{ $item->image ? asset('storage/users/image/' . $item->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
+                                                            alt="">
                                                         <div class="ps-3" style="    width: 300px;">
-                                                            <div class="text-base font-semibold" style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-                                                                {{ ucwords(strtolower($item->FullName ?? "Kuzatuvchi")) }}
+                                                            <div class="text-base font-semibold"
+                                                                style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                                {{ ucwords(strtolower($item->FullName ?? 'Kuzatuvchi')) }}
                                                             </div>
                                                             <div class="font-normal text-gray-500">
-                                                               {{-- Fakultet ichidagi kafedralar soni <b class="text-blue-600">{{$item->department->count()}}</b> ta --}}
+                                                                {{-- Fakultet ichidagi kafedralar soni <b class="text-blue-600">{{$item->department->count()}}</b> ta --}}
                                                             </div>
                                                         </div>
                                                     </th>
@@ -101,16 +106,22 @@
 
                                                         <div class="my-1.2">
 
-                                                                 <span class="bg-blue-100 text-blue-800 text-xs font-md me-3 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                                                    <span class="inline-flex items-center justify-center w-5 h-5 me-2 text-sm font-semibold text-blue-800 bg-blue-100 rounded-full dark:bg-gray-700 dark:text-blue-400">
-                                                                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                                                        <path fill="currentColor" d="m18.774 8.245-.892-.893a1.5 1.5 0 0 1-.437-1.052V5.036a2.484 2.484 0 0 0-2.48-2.48H13.7a1.5 1.5 0 0 1-1.052-.438l-.893-.892a2.484 2.484 0 0 0-3.51 0l-.893.892a1.5 1.5 0 0 1-1.052.437H5.036a2.484 2.484 0 0 0-2.48 2.481V6.3a1.5 1.5 0 0 1-.438 1.052l-.892.893a2.484 2.484 0 0 0 0 3.51l.892.893a1.5 1.5 0 0 1 .437 1.052v1.264a2.484 2.484 0 0 0 2.481 2.481H6.3a1.5 1.5 0 0 1 1.052.437l.893.892a2.484 2.484 0 0 0 3.51 0l.893-.892a1.5 1.5 0 0 1 1.052-.437h1.264a2.484 2.484 0 0 0 2.481-2.48V13.7a1.5 1.5 0 0 1 .437-1.052l.892-.893a2.484 2.484 0 0 0 0-3.51Z"/>
-                                                                        <path fill="#fff" d="M8 13a1 1 0 0 1-.707-.293l-2-2a1 1 0 1 1 1.414-1.414l1.42 1.42 5.318-3.545a1 1 0 0 1 1.11 1.664l-6 4A1 1 0 0 1 8 13Z"/>
-                                                                        </svg>
+                                                            <span
+                                                                class="bg-blue-100 text-blue-800 text-xs font-md me-3 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                                                <span
+                                                                    class="inline-flex items-center justify-center w-5 h-5 me-2 text-sm font-semibold text-blue-800 bg-blue-100 rounded-full dark:bg-gray-700 dark:text-blue-400">
+                                                                    <svg class="w-3 h-3" aria-hidden="true"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        fill="currentColor" viewBox="0 0 20 20">
+                                                                        <path fill="currentColor"
+                                                                            d="m18.774 8.245-.892-.893a1.5 1.5 0 0 1-.437-1.052V5.036a2.484 2.484 0 0 0-2.48-2.48H13.7a1.5 1.5 0 0 1-1.052-.438l-.893-.892a2.484 2.484 0 0 0-3.51 0l-.893.892a1.5 1.5 0 0 1-1.052.437H5.036a2.484 2.484 0 0 0-2.48 2.481V6.3a1.5 1.5 0 0 1-.438 1.052l-.892.893a2.484 2.484 0 0 0 0 3.51l.892.893a1.5 1.5 0 0 1 .437 1.052v1.264a2.484 2.484 0 0 0 2.481 2.481H6.3a1.5 1.5 0 0 1 1.052.437l.893.892a2.484 2.484 0 0 0 3.51 0l.893-.892a1.5 1.5 0 0 1 1.052-.437h1.264a2.484 2.484 0 0 0 2.481-2.48V13.7a1.5 1.5 0 0 1 .437-1.052l.892-.893a2.484 2.484 0 0 0 0-3.51Z" />
+                                                                        <path fill="#fff"
+                                                                            d="M8 13a1 1 0 0 1-.707-.293l-2-2a1 1 0 1 1 1.414-1.414l1.42 1.42 5.318-3.545a1 1 0 0 1 1.11 1.664l-6 4A1 1 0 0 1 8 13Z" />
+                                                                    </svg>
 
-                                                                        </span>
+                                                                </span>
 
-                                                                        {{ $item->department ? $item->department->name : 'N/A' }}</span>
+                                                                {{ $item->department ? $item->department->name : 'N/A' }}</span>
 
                                                         </div>
 
@@ -121,8 +132,7 @@
                                                             @if ($item->status)
                                                                 <div class="h-2.5 w-2.5 rounded-full bg-green-500 me-2">
                                                                 </div>
-                                                               Aktive
-
+                                                                Aktive
                                                             @else
                                                                 <div class="h-2.5 w-2.5 rounded-full bg-red-500 me-2">
                                                                 </div>
@@ -132,10 +142,16 @@
                                                     </td>
 
                                                     <td class="px-6 py-4">
-                                                        {{ $item->department ? round($item->department->point_user_deportaments()->where('status', 1)->sum('point'), 2) : 'N/A' }}
+                                                        @php
+                                                            $totalPoints = $item
+                                                                ->point_user_deportaments()
+                                                                ->where('status', 1)
+                                                                ->sum('point');
+                                                        @endphp
+                                                        {{ $item->department ? round($totalPoints, 2) : 'N/A' }}
                                                     </td>
                                                     <td class="px-6 py-4">
-                                                        <a href="{{route('dashboard.employeeShow', ['id_employee' => $item->employee_id_number])}}"
+                                                        <a href="{{ route('dashboard.employeeShow', ['id_employee' => $item->employee_id_number]) }}"
                                                             class="font-medium text-blue-600  hover:underline">Ko'rish</a>
                                                     </td>
                                                 </tr>
@@ -145,7 +161,7 @@
                                     </table>
                                 @else
                                     <h1 class="text-center text-xl font-medium mb-4 mt-2 text-gray-400">
-                                       O'qituvchilar topilmadi!</h1>
+                                        O'qituvchilar topilmadi!</h1>
                                     @include('frogments.skeletonTable')
                                 @endif
 

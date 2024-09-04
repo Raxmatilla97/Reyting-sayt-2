@@ -42,7 +42,7 @@
                     <div class="bg-white p-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300">
                         <img src="{{ '/storage/users/image' }}/{{ $user->image }}" alt="{{ ucwords(strtolower($user->FullName)) }}" class="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 mx-auto rounded-full mb-4 border-4 border-blue-500">
                         <h3 class="text-base sm:text-lg font-bold text-center">{{ ucwords(strtolower($user->FullName)) }}</h3>
-                        <p class="text-lg sm:text-xl font-bold text-center text-blue-600">{{$user->total_points}}</p>
+                        <p class="text-lg sm:text-xl font-bold text-center text-blue-600">Ball: {{$user->total_points}}</p>
                     </div>
                 @endforeach
             </div>
