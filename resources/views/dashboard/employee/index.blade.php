@@ -143,12 +143,14 @@
 
                                                     <td class="px-6 py-4">
                                                         @php
-                                                            $totalPoints = $item
-                                                                ->point_user_deportaments()
+                                                        $totalPoints = $item->department
+                                                            ? $item->department->point_user_deportaments()
                                                                 ->where('status', 1)
-                                                                ->sum('point');
-                                                        @endphp
-                                                        {{ $item->department ? round($totalPoints, 2) : 'N/A' }}
+                                                                ->where('user_id', $item->id)
+                                                                ->sum('point')
+                                                            : 0;
+                                                    @endphp
+                                                    {{ $item->department ? round($totalPoints, 2) : 'N/A' }}
                                                     </td>
                                                     <td class="px-6 py-4">
                                                         <a href="{{ route('dashboard.employeeShow', ['id_employee' => $item->employee_id_number]) }}"
