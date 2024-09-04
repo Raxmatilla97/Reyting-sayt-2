@@ -10,10 +10,59 @@
     <div class="font-sans bg-gray-200 bg-hero bg-no-repeat bg-cover bg-center bg-fixed min-h-screen flex flex-col"
         style="background-image: url(https://reyting.cspu.uz/assets/thumb__1_0_0_0_auto.jpg);">
 
-        <header class="bg-blue-600 bg-opacity-70 py-2 px-4 sticky top-0 z-20">
-            <div class="flex items-center justify-center animate-marquee">
-                <img src="https://cdn2.iconfinder.com/data/icons/medicare/512/warning_danger_alert_alarm_safety_exclamation_attention-1024.png" class="mr-2 h-5 sm:h-6 md:h-8" alt="Warning">
-                <p class="font-medium text-xs sm:text-sm md:text-base text-white">Saytda sozlash ishlari olib borilishi mumkin!</p>
+        <style>
+            @keyframes slide-left {
+                0% { transform: translateX(100%); }
+                100% { transform: translateX(-100%); }
+            }
+
+            .warning-header {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                z-index: 9999;
+                background-color: rgba(37, 99, 235, 0.9);
+                padding: 0.5rem 0;
+                overflow: hidden;
+            }
+
+            .warning-content {
+                display: flex;
+                align-items: center;
+                white-space: nowrap;
+                animation: slide-left 20s linear infinite;
+            }
+
+            .warning-icon {
+                width: 1.25rem;
+                height: 1.25rem;
+                margin-right: 0.5rem;
+                flex-shrink: 0;
+            }
+
+            .warning-text {
+                color: white;
+                font-size: 0.875rem;
+                font-weight: 500;
+            }
+
+            @media (min-width: 640px) {
+                .warning-icon { width: 1.5rem; height: 1.5rem; }
+                .warning-text { font-size: 1rem; }
+            }
+
+            @media (min-width: 768px) {
+                .warning-icon { width: 2rem; height: 2rem; }
+                .warning-text { font-size: 1.125rem; }
+            }
+        </style>
+
+        <header class="warning-header">
+            <div class="warning-content">
+                <img src="https://cdn2.iconfinder.com/data/icons/medicare/512/warning_danger_alert_alarm_safety_exclamation_attention-1024.png" class="warning-icon" alt="Warning">
+                <p class="warning-text">Saytda sozlash ishlari olib borilishi mumkin! &nbsp;&nbsp;&nbsp;&nbsp;</p>
+
             </div>
         </header>
 
@@ -34,10 +83,11 @@
 
             <div class="text-center text-white mb-8">
                 <h1 class="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2">REYTING 2024</h1>
-                <h2 class="text-sm sm:text-base md:text-lg lg:text-xl px-4">CHIRCHIQ DAVLAT PEDAGOGIKA UNIVERSITETINING 2024 YILDA ENG YUQORI REYTING KO'RSATKICHLARIGA EGA BO'LGAN PROFESSOR O'QITUVCHI, KAFEDRA VA FAKULTETLARI</h2>
+                <h2 class="text-sm sm:text-base md:text-lg lg:text-4xl px-4">Chirchiq davlat pedagogika universiteti professor-oʻqituvchilarining asosiy faoliyat koʻrsatkichlari
+                    KPI</h2>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8 w-full">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-7 mb-8 w-full">
                 @foreach ($topEmployees as $user)
                     <div class="bg-white p-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300">
                         <img src="{{ '/storage/users/image' }}/{{ $user->image }}" alt="{{ ucwords(strtolower($user->FullName)) }}" class="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 mx-auto rounded-full mb-4 border-4 border-blue-500">
