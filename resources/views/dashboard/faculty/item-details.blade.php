@@ -73,7 +73,7 @@
 
                             <ul class="mt-1.5 list-disc list-inside">
                                 @if ($isFile)
-                                @if (Auth::user()->is_admin !== null)
+                                @if (Auth::user()->is_admin === 1)
                                     <a href="{{ asset('storage/' . $value) }}" download
                                         class="text-blue-600 hover:text-blue-800 underline">
                                         <button type="button"
