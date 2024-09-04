@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\TemporaryFile;
 use App\Models\Department;
+use App\Models\PointUserDeportament;
 
 class Employee extends Model
 {
@@ -55,4 +56,6 @@ class Employee extends Model
     {
         return "{$this->first_name} {$this->second_name} {$this->third_name}";
     }
+
+
 }

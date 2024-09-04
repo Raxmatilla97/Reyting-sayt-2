@@ -80,6 +80,7 @@ class ApiHemisController extends Controller
 
     private function validateUserDetails($userDetails)
     {
+        // dd($userDetails);
         $requiredFields = ['employee_id_number', 'login', 'uuid', 'employee_id', 'type', 'email'];
         foreach ($requiredFields as $field) {
             if (!isset($userDetails[$field])) {
@@ -90,7 +91,7 @@ class ApiHemisController extends Controller
 
     private function findOrCreateUser($userDetails)
     {
-        // dd($userDetails);
+        dd($userDetails);
         $user = User::where('employee_id_number', $userDetails['employee_id_number'])->first();
 
         if (!$user) {
@@ -138,8 +139,10 @@ class ApiHemisController extends Controller
 
     private function getEmployeeDataFromHemis($employeeIdNumber)
     {
+
         $url = env('API_HEMIS_URL') . "/rest/v1/data/employee-list?type=all&search=$employeeIdNumber";
         $response = Http::withToken(env('API_HEMIS_TOKEN'))->get($url)->json();
+
 
         if ($response['data']['pagination']['totalCount'] > 0) {
             return $response['data']['items'][0];

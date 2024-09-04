@@ -28,8 +28,8 @@
         @endif
 
         <main class="flex-grow container mx-auto p-4 sm:p-6 md:p-8 flex flex-col items-center justify-center">
-            <div class="mb-6">
-                <img class="h-20 sm:h-24 md:h-32 lg:h-40" src="https://qabul.cspu.uz/assets/thumb__90_90_0_0_crop.png" alt="Logo">
+            <div class="mb-6 bg-white rounded-lg p-4 shadow-md">
+                <img class="h-20 sm:h-24 md:h-32 lg:h-40 mx-auto" src="https://cspu.uz/storage/app/media/2024/sentyabr/CHDPU%20logo-2022.png" alt="Logo">
             </div>
 
             <div class="text-center text-white mb-8">
@@ -38,7 +38,7 @@
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8 w-full">
-                @foreach ($topUsers as $user)
+                @foreach ($topEmployees as $user)
                     <div class="bg-white p-4 rounded-lg shadow-lg transform hover:scale-105 transition-all duration-300">
                         <img src="{{ '/storage/users/image' }}/{{ $user->image }}" alt="{{ ucwords(strtolower($user->FullName)) }}" class="w-20 h-20 sm:w-24 sm:h-24 md:w-32 md:h-32 mx-auto rounded-full mb-4 border-4 border-blue-500">
                         <h3 class="text-base sm:text-lg font-bold text-center">{{ ucwords(strtolower($user->FullName)) }}</h3>

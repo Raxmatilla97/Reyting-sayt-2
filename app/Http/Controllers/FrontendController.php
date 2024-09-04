@@ -6,60 +6,68 @@ use Illuminate\Http\Request;
 
 use App\Models\Faculty;
 use App\Models\PointUserDeportament;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection as SupportCollection;
 
 class FrontendController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
+
     public function index()
     {
         // Fakultetlar statusi 1 bo'lganlarini olamiz
-        $faculties = Faculty::where('status', 1)->get();
+        $faculties = Faculty::where('status', 1)->with(['departments.employee', 'departments.point_user_deportaments'])->get();
 
-        // Har bir fakultet uchun tegishli bo'limlar va ularning point yig'indisini hisoblash
-        $facultiesWithPoints = $faculties->map(function ($faculty) {
+        // Fakultetlar, bo'limlar va xodimlar uchun point'larni hisoblash
+        $topFaculties = $this->calculateFacultyPoints($faculties);
+        $topDepartments = $this->calculateDepartmentPoints($faculties);
+        $topEmployees = $this->calculateEmployeePoints($faculties);
+
+        return view('welcome', compact('topFaculties', 'topDepartments', 'topEmployees'));
+    }
+
+    private function calculateFacultyPoints(Collection $faculties): SupportCollection
+    {
+        return $faculties->map(function ($faculty) {
             $faculty->total_points = $faculty->departments->sum(function ($department) {
                 return $department->point_user_deportaments->sum('point');
             });
             return $faculty;
-        });
-
-        // Top 10 fakultetlarni olamiz
-        $topFaculties = $facultiesWithPoints->sortByDesc('total_points')->take(3);
-
-        //-----------------------------------------------------------//
-
-        // Har bir fakultet uchun tegishli bo'limlar va ularning point yig'indisini hisoblash
-       // Har bir fakultet uchun tegishli bo'limlar va ularning point yig'indisini hisoblash
-    $departmentsWithPoints = collect();
-    $usersWithPoints = collect();
-
-    foreach ($faculties as $faculty) {
-        foreach ($faculty->departments as $department) {
-            // Bo'limning umumiy ballini hisoblash va unga qo'shish
-            $department->total_points = $department->point_user_deportaments->sum('point');
-            $departmentsWithPoints->push($department);
-
-            // Har bir bo'lim uchun foydalanuvchilarning ballarini hisoblash va ularni o'ziga qo'shish
-            foreach ($department->Employee as $user) {
-                $user->total_points = $user->department->point_user_deportaments->sum('point');
-                $usersWithPoints->push($user);
-            }
-        }
+        })->sortByDesc('total_points')->take(3);
     }
 
-    // Bo'limlarni top 10 ga ajratish
-    $topDepartments = $departmentsWithPoints->sortByDesc('total_points')->where('status', 1)->take(5);
+    private function calculateDepartmentPoints(Collection $faculties): SupportCollection
+    {
+        $departmentsWithPoints = new SupportCollection();
 
-    // Foydalanuvchilarni top 10 ga ajratish
-    $topUsers = $usersWithPoints->sortByDesc('total_points')->where('status', 1)->take(10);
+        foreach ($faculties as $faculty) {
+            foreach ($faculty->departments as $department) {
+                $department->total_points = $department->point_user_deportaments->sum('point');
+                $departmentsWithPoints->push($department);
+            }
+        }
 
-        //-----------------------------------------------------------//
+        return $departmentsWithPoints->sortByDesc('total_points')->where('status', 1)->take(5);
+    }
 
+    private function calculateEmployeePoints(Collection $faculties): SupportCollection
+    {
+        $employeesWithPoints = new SupportCollection();
 
+        foreach ($faculties as $faculty) {
+            foreach ($faculty->departments as $department) {
+                foreach ($department->employee as $employee) {
+                    $employee->total_points = $department->point_user_deportaments
+                        ->where('user_id', $employee->id)
+                        ->sum('point');
+                    $employeesWithPoints->push($employee);
+                }
+            }
+        }
 
-        return view('welcome', compact('topFaculties', 'topDepartments', 'topUsers'));
+        return $employeesWithPoints->sortByDesc('total_points')->where('status', 1)->take(10);
     }
 
 
