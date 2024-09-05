@@ -105,7 +105,7 @@ class FormsController extends Controller
             // Joriy sana/vaqt qiymatlarini qo'shish
             $now = Carbon::now();
             $filteredData['created_at'] = $now;
-            dd($filteredData);
+
 
             // Ma'lumotlarni bazaga yuklash va insert qilingan yozuvning ID sini olish
             $insertedId = DB::table($tableName)->insertGetId($filteredData);
