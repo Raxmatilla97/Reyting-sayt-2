@@ -51,47 +51,47 @@ class EmployeeController extends Controller
 
 
     public function employeeShow($id_employee)
-{
-    $employee = Employee::where('employee_id_number', $id_employee)->firstOrFail();
+    {
+        $employee = Employee::where('employee_id_number', $id_employee)->firstOrFail();
 
-    $pointUserInformations = PointUserDeportament::where('user_id', $employee->id)->paginate('15');
+        $pointUserInformations = PointUserDeportament::where('user_id', $employee->id)->paginate('15');
 
-    // Department va Employee konfiguratsiyalarini olish
-    $departmentCodlari = Config::get('dep_emp_tables.department');
-    $employeeCodlari = Config::get('dep_emp_tables.employee');
+        // Department va Employee konfiguratsiyalarini olish
+        $departmentCodlari = Config::get('dep_emp_tables.department');
+        $employeeCodlari = Config::get('dep_emp_tables.employee');
 
-    // Ikkala massivni birlashtirish
-    $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
+        // Ikkala massivni birlashtirish
+        $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
 
-    // Config fayllaridan label nomlarini olish
-    $employeeLabels = Config::get('employee_form_fields');
-    $departmentLabels = Config::get('department_forms_fields');
-    $allLabels = array_merge($employeeLabels, $departmentLabels);
+        // Config fayllaridan label nomlarini olish
+        $employeeLabels = Config::get('employee_form_fields');
+        $departmentLabels = Config::get('department_forms_fields');
+        $allLabels = array_merge($employeeLabels, $departmentLabels);
 
-    // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
-    $arrayKey = [];
-    foreach ($jadvallarCodlari as $key => $value) {
-        $arrayKey[$key . 'id'] = $key;
-    }
+        // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
+        $arrayKey = [];
+        foreach ($jadvallarCodlari as $key => $value) {
+            $arrayKey[$key . 'id'] = $key;
+        }
 
-    // Ma'lumotlar massivini tekshirish
-    foreach ($pointUserInformations as $faculty_item) {
-        foreach ($arrayKey as $column => $originalKey) {
-            // column tekshiriladi
-            if (isset($faculty_item->$column)) {
-                // Config faylidan label nomini olish
-                $labelKey = $originalKey . '_';
-                $label = isset($allLabels[$labelKey]) ? $allLabels[$labelKey]['label'] : $jadvallarCodlari[$originalKey];
+        // Ma'lumotlar massivini tekshirish
+        foreach ($pointUserInformations as $faculty_item) {
+            foreach ($arrayKey as $column => $originalKey) {
+                // column tekshiriladi
+                if (isset($faculty_item->$column)) {
+                    // Config faylidan label nomini olish
+                    $labelKey = $originalKey . '_';
+                    $label = isset($allLabels[$labelKey]) ? $allLabels[$labelKey]['label'] : $jadvallarCodlari[$originalKey];
 
-                $faculty_item->murojaat_nomi = $label;
-                $faculty_item->murojaat_codi = $originalKey;
-                break;
+                    $faculty_item->murojaat_nomi = $label;
+                    $faculty_item->murojaat_codi = $originalKey;
+                    break;
+                }
             }
         }
-    }
 
-    return view('dashboard.employee.show', compact('employee', 'pointUserInformations'));
-}
+        return view('dashboard.employee.show', compact('employee', 'pointUserInformations'));
+    }
 
     /**
      * Show the form for creating a new resource.
@@ -145,7 +145,11 @@ class EmployeeController extends Controller
     public function mySubmittedInformation()
     {
         $user = auth()->user();
-        $pointUserInformations = PointUserDeportament::where('user_id', $user->id)->orderBy('created_at', 'desc')->paginate('15');
+
+        // Pagination uchun so'rov
+        $pointUserInformations = PointUserDeportament::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
 
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');
@@ -157,34 +161,24 @@ class EmployeeController extends Controller
         // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
         $arrayKey = [];
         foreach ($jadvallarCodlari as $key => $value) {
-            $arrayKey[$key . 'id'] = $key; // $key . 'id' qiymatini o'rnating
+            $arrayKey[$key . 'id'] = $key;
         }
 
-        // Umumiy ballar yig'indisini saqlash uchun o'zgaruvchi
-        $totalPoints = 0;
-
-        // Ma'lumotlar massivini tekshirish
+        // Ma'lumotlarni tekshirish va murojaat nomini o'rnatish
         foreach ($pointUserInformations as $pointUserInformation) {
             foreach ($arrayKey as $column => $originalKey) {
-                // column tekshiriladi
                 if (isset($pointUserInformation->$column)) {
-                    // $murojaat_nomi o'rnatiladi
                     $pointUserInformation->murojaat_nomi = $jadvallarCodlari[$originalKey];
                     $pointUserInformation->murojaat_codi = $originalKey;
                     break;
                 }
             }
-
-            // Foydalanuvchining har bir itemidagi ballarni yig'indiga qo'shish
-
-            if ($pointUserInformation->status === 1) {
-                if (isset($pointUserInformation->point)) {
-                    $totalPoints += $pointUserInformation->point;
-                }
-            }
         }
 
-        // $totalPoints;
+        // Umumiy ballarni hisoblash (pagination qilinmagan)
+        $totalPoints = PointUserDeportament::where('user_id', $user->id)
+            ->where('status', 1)
+            ->sum('point');
 
         return view('dashboard.my_submited_info', compact('pointUserInformations', 'totalPoints'));
     }
@@ -210,5 +204,4 @@ class EmployeeController extends Controller
         // Natijani ko'rsatish uchun ko'rinishni qaytarish
         return view('dashboard.employee.index', compact('employees'));
     }
-
 }
