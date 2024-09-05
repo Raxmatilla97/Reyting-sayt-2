@@ -275,11 +275,11 @@ return [
             'type' => 'text',
             'label' => "«Web of Science», «Scopus» yoki boshqa xalqaro e’tirof etilgan bazalarda mavjud bo‘lgan ushbu materiallarga iqtiboslar soni*",
         ],
-        [
-            'name' => 'asos_file',
-            'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
-        ],
+        // [
+        //     'name' => 'asos_file',
+        //     'type' => 'file',
+        //     'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        // ],
 
     ],
     'table_1_6_1_' => [
