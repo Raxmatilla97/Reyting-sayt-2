@@ -82,7 +82,7 @@ class FormsController extends Controller
                 // Fayl uchun validatsiya qoidalarini belgilash
                 $validatedData = $request->validate(
                     [
-                        'asos_file' => 'required|file|mimes:pdf,docx,jpeg,png|max:2048', // 2MB dan kichik fayllar
+                        'asos_file' => 'required|file|mimes:pdf|max:2048', // 2MB dan kichik fayllar
                     ],
                     [
                         'asos_file.required' => 'Fayl yuklash majburiy.',
@@ -170,7 +170,7 @@ class FormsController extends Controller
                 // Fayl uchun validatsiya qoidalarini belgilash
                 $validatedData = $request->validate(
                     [
-                        'asos_file' => 'required|file|mimes:pdf,docx,jpeg,png|max:2048', // 2MB dan kichik fayllar
+                        'asos_file' => 'required|file|mimes:pdf|max:2048', // 2MB dan kichik fayllar
                     ],
                     [
                         'asos_file.required' => 'Fayl yuklash majburiy.',
