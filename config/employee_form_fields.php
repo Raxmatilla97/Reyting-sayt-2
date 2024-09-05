@@ -586,7 +586,7 @@ return [
             'label' => "Ta’lim yo‘nalishi (mutaxassislik) nomi",
         ],
         [
-            'name' => 'Xorijiy_va_hamkorlik_loyhasi',
+            'name' => 'xorijiy_va_hamkor',
             'type' => 'text',
             'label' => "Xorijiy va xamkorlikda bajarilayotgan loyixalar nomi",
         ],

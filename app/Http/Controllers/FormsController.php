@@ -40,7 +40,7 @@ class FormsController extends Controller
 
     public function employeeStoreForm(Request $request, $tableName)
     {
-
+        // dd($request);
         // Foydalanuvchini aniqlash
         $user = auth()->user();
 
@@ -64,7 +64,7 @@ class FormsController extends Controller
                 'table_1_9_3_' => ['otm_nomi', 'asosiy_shtatdagi_prof_oqituv', 'olingan_guvohnomalar', 'mualliflar_soni', 'berilgan_sana', 'qayd_raqami','asos_file'],
                 'table_2_2_1_' => ['ixtisoslik_shifri', 'darslik_mualliflar_soni', 'darslik_nomi', 'darslik_guvohnomasi', 'darslik_reestr_raqami','asos_file'],
                 'table_2_2_2_' => ['ixtisoslik_shifri', 'qollanma_mualliflar_soni', 'qollanma_nomi', 'qollanma_guvohnomasi', 'qollanma_reestr_raqami','asos_file'],
-                'table_2_4_2_' => ['hujjat_nomi_sanasi', 'xorijiy_davlat_nomi', 'talim_yonalishi', 'xorijiy_va_hamkorlik_loyhasi', 'seminar_knfrensiya_nomi'],'asos_file',
+                'table_2_4_2_' => [ 'xorijiy_va_hamkor', 'hujjat_nomi_sanasi', 'xorijiy_davlat_nomi', 'talim_yonalishi', 'seminar_knfrensiya_nomi'],'asos_file',
             ];
 
             if (!array_key_exists($tableName, $allowedFields)) {
@@ -105,7 +105,7 @@ class FormsController extends Controller
             // Joriy sana/vaqt qiymatlarini qo'shish
             $now = Carbon::now();
             $filteredData['created_at'] = $now;
-
+            dd($filteredData);
 
             // Ma'lumotlarni bazaga yuklash va insert qilingan yozuvning ID sini olish
             $insertedId = DB::table($tableName)->insertGetId($filteredData);
