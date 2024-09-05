@@ -62,7 +62,9 @@
                                     <div>
                                         <span class="font-medium"></span> <span
                                             class=" text-lg font-medium me-2 px-2.5 py-0.5 rounded-full ">Umumiy ball:
-                                            {{ round($employee->department->point_user_deportaments()->where('status', 1)->sum('point'), 2) }}</span>
+                                            {{ round($employee->department->point_user_deportaments()->where('user_id', $employee->id)->where('status', 1)->sum('point'), 2) }}
+
+                                        </span>
                                     </div>
                                 </div>
 
@@ -112,7 +114,7 @@
                                         <span
                                             class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
                                             Umumiy yuborgan ma'lumotlar soni:
-                                            {{ $employee->department->point_user_deportaments->count() }} ta
+                                            {{ $employee->department->point_user_deportaments->where('user_id', $employee->id)->count() }} ta
 
                                         </span>
 

@@ -94,10 +94,21 @@ class EmployeeController extends Controller
             }
         }
 
-        // Umumiy ballarni hisoblash
+       // Umumiy ballarni hisoblash
         $totalPoints = PointUserDeportament::where('user_id', $employee->id)
             ->where('status', 1)
             ->sum('point');
+
+        // $totalPoints = 0;
+        // if ($employee->department) {
+        //     $totalPoints = $employee->department->point_user_deportaments()
+        //         ->where('status', 1)
+        //         ->where('user_id', $employee->id)
+        //         ->selectRaw('ROUND(COALESCE(SUM(CASE WHEN point > 0 THEN point ELSE 0 END), 0), 2) as total_points')
+        //         ->value('total_points');
+        // }
+
+        // $totalPoints = $employee->department ? $totalPoints : 'N/A';
 
         return view('dashboard.employee.show', compact('employee', 'pointUserInformations', 'totalPoints'));
     } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
