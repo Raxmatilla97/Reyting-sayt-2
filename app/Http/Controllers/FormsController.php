@@ -87,7 +87,7 @@ class FormsController extends Controller
                     [
                         'asos_file.required' => 'Fayl yuklash majburiy.',
                         'asos_file.file' => 'Yuklangan fayl haqiqiy fayl bo\'lishi kerak.',
-                        'asos_file.mimes' => 'Faqat PDF, DOCX, JPEG va PNG formatidagi fayllar ruxsat etiladi.',
+                        'asos_file.mimes' => 'Faqat PDF formatidagi fayllar ruxsat etiladi.',
                         'asos_file.max' => 'Fayl hajmi 2MB dan katta bo\'lmasligi kerak.',
                     ]
                 );
@@ -175,7 +175,7 @@ class FormsController extends Controller
                     [
                         'asos_file.required' => 'Fayl yuklash majburiy.',
                         'asos_file.file' => 'Yuklangan fayl haqiqiy fayl bo\'lishi kerak.',
-                        'asos_file.mimes' => 'Faqat PDF, DOCX, JPEG va PNG formatidagi fayllar ruxsat etiladi.',
+                        'asos_file.mimes' => 'Faqat PDF formatidagi fayllar ruxsat etiladi.',
                         'asos_file.max' => 'Fayl hajmi 2MB dan katta bo\'lmasligi kerak.',
                     ]
                 );
