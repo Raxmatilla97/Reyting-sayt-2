@@ -50,11 +50,16 @@ class EmployeeController extends Controller
     }
 
 
-    public function employeeShow($id_employee)
-    {
-        $employee = Employee::where('employee_id_number', $id_employee)->firstOrFail();
+    public function employeeShow($employee_id)
+{
+    try {
+        // employee_id bo'yicha xodimni topishga harakat qilamiz
+        $employee = Employee::where('employee_id_number', $employee_id)->firstOrFail();
 
-        $pointUserInformations = PointUserDeportament::where('user_id', $employee->id)->paginate('15');
+        // Xodimga tegishli point ma'lumotlarini olamiz
+        $pointUserInformations = PointUserDeportament::where('user_id', $employee->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
 
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');
@@ -75,23 +80,35 @@ class EmployeeController extends Controller
         }
 
         // Ma'lumotlar massivini tekshirish
-        foreach ($pointUserInformations as $faculty_item) {
+        foreach ($pointUserInformations as $item) {
             foreach ($arrayKey as $column => $originalKey) {
-                // column tekshiriladi
-                if (isset($faculty_item->$column)) {
+                if (isset($item->$column)) {
                     // Config faylidan label nomini olish
                     $labelKey = $originalKey . '_';
                     $label = isset($allLabels[$labelKey]) ? $allLabels[$labelKey]['label'] : $jadvallarCodlari[$originalKey];
 
-                    $faculty_item->murojaat_nomi = $label;
-                    $faculty_item->murojaat_codi = $originalKey;
+                    $item->murojaat_nomi = $label;
+                    $item->murojaat_codi = $originalKey;
                     break;
                 }
             }
         }
 
-        return view('dashboard.employee.show', compact('employee', 'pointUserInformations'));
+        // Umumiy ballarni hisoblash
+        $totalPoints = PointUserDeportament::where('user_id', $employee->id)
+            ->where('status', 1)
+            ->sum('point');
+
+        return view('dashboard.employee.show', compact('employee', 'pointUserInformations', 'totalPoints'));
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        // Xodim topilmasa, xato xabarini ko'rsatamiz
+        return back()->with('error', "ID: $employee_id bo'lgan xodim topilmadi.");
+    } catch (\Exception $e) {
+        // Boshqa xatoliklar uchun
+        \Log::error('Xodim ma\'lumotlarini olishda xatolik: ' . $e->getMessage());
+        return back()->with('error', 'Ma\'lumotlarni olishda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko\'ring.');
     }
+}
 
     /**
      * Show the form for creating a new resource.
@@ -145,11 +162,7 @@ class EmployeeController extends Controller
     public function mySubmittedInformation()
     {
         $user = auth()->user();
-
-        // Pagination uchun so'rov
-        $pointUserInformations = PointUserDeportament::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+        $pointUserInformations = PointUserDeportament::where('user_id', $user->id)->orderBy('created_at', 'desc')->paginate('15');
 
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');
@@ -161,24 +174,34 @@ class EmployeeController extends Controller
         // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
         $arrayKey = [];
         foreach ($jadvallarCodlari as $key => $value) {
-            $arrayKey[$key . 'id'] = $key;
+            $arrayKey[$key . 'id'] = $key; // $key . 'id' qiymatini o'rnating
         }
 
-        // Ma'lumotlarni tekshirish va murojaat nomini o'rnatish
+        // Umumiy ballar yig'indisini saqlash uchun o'zgaruvchi
+        $totalPoints = 0;
+
+        // Ma'lumotlar massivini tekshirish
         foreach ($pointUserInformations as $pointUserInformation) {
             foreach ($arrayKey as $column => $originalKey) {
+                // column tekshiriladi
                 if (isset($pointUserInformation->$column)) {
+                    // $murojaat_nomi o'rnatiladi
                     $pointUserInformation->murojaat_nomi = $jadvallarCodlari[$originalKey];
                     $pointUserInformation->murojaat_codi = $originalKey;
                     break;
                 }
             }
+
+            // Foydalanuvchining har bir itemidagi ballarni yig'indiga qo'shish
+
+            if ($pointUserInformation->status === 1) {
+                if (isset($pointUserInformation->point)) {
+                    $totalPoints += $pointUserInformation->point;
+                }
+            }
         }
 
-        // Umumiy ballarni hisoblash (pagination qilinmagan)
-        $totalPoints = PointUserDeportament::where('user_id', $user->id)
-            ->where('status', 1)
-            ->sum('point');
+        // $totalPoints;
 
         return view('dashboard.my_submited_info', compact('pointUserInformations', 'totalPoints'));
     }
@@ -204,4 +227,5 @@ class EmployeeController extends Controller
         // Natijani ko'rsatish uchun ko'rinishni qaytarish
         return view('dashboard.employee.index', compact('employees'));
     }
+
 }
