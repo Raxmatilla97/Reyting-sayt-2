@@ -236,11 +236,11 @@ return [
             'type' => 'text',
             'label' => "«Google Scholar» yoki boshqa xalqaro e’tirof etilgan bazalarda mavjud bo‘lgan ushbu materiallarga iqtiboslar soni*",
         ],
-        [
-            'name' => 'asos_file',
-            'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
-        ],
+        // [
+        //     'name' => 'asos_file',
+        //     'type' => 'file',
+        //     'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+        // ],
 
     ],
 
