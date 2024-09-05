@@ -67,7 +67,7 @@ class FrontendController extends Controller
             }
         }
 
-        return $employeesWithPoints->sortByDesc('total_points')->where('status', 1)->take(10);
+        return $employeesWithPoints->sortByDesc('total_points')->where('status', 1)->take(12);
     }
 
 
