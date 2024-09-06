@@ -5,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REYTING 2024 - CHIRCHIQ DAVLAT PEDAGOGIKA UNIVERSITETI</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
 </head>
 <body class="antialiased">
     <div class="font-sans bg-gray-200 bg-hero bg-no-repeat bg-cover bg-center bg-fixed min-h-screen flex flex-col"
         style="background-image: url(https://reyting.cspu.uz/assets/thumb__1_0_0_0_auto.jpg);">
-
+        {{-- Texnik ishlar sahifasini ko'rsatish uchun --}}
+        @include('texnik')
         <style>
             @keyframes slide-left {
                 0% { transform: translateX(100%); }
