@@ -5,7 +5,7 @@
             <h3 class="text-2xl leading-6 font-bold text-gray-900 mb-4">Muhim xabar</h3>
             <div class="mt-2 px-7 py-3">
                 <p class="text-lg text-gray-700 leading-relaxed">
-                    Hurmatli foydalanuvchilar, saytimizda O'qituvchi, Kafedra va Fakultet ballarini shakllantirish funksiyalari ustida yakunlovchi ishlar amalga oshirilmoqda, bu jarayon ohiriga yetib qoldi, siz bemalol ma'lumotlaringizni yuborishingiz mumkin, lekin hozircha ballar berish vaqtincha cheklangan bo'lib, bu jarayon 3 ish kunida to'g'irlanishi kutilmoqda.
+                    Hurmatli foydalanuvchilar, saytimizda O'qituvchi, Kafedra va Fakultet ballarini shakllantirish yuzasidan texnik ishlar olib borilayotgani sababli ma'lumotlar uchun vaqtincha bal berilmaydi.
                 </p>
             </div>
             <div class="items-center px-4 py-3">
