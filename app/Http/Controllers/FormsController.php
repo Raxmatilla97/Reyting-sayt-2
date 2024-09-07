@@ -197,7 +197,7 @@ class FormsController extends Controller
 
 
             // Ma'lumotlarni bazaga yuklash
-           $insertedId = DB::table($tableName)->insert($filteredData);
+            $insertedId = DB::table($tableName)->insertGetId($filteredData);
 
             // Malumotni pointer tablitsiyasiga saqlash
             $userAuth = Auth::user()->id;
