@@ -468,7 +468,7 @@ return [
     ],
     'table_1_9_3_' => [
         [
-            'name' => 'otmlar_nomi',
+            'name' => 'otm_nomi',
             'type' => 'text',
             'label' => "OTMlar nomi",
         ],
