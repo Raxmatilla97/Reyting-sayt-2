@@ -197,7 +197,7 @@ class FormsController extends Controller
 
 
             // Ma'lumotlarni bazaga yuklash
-            DB::table($tableName)->insert($filteredData);
+           $insertedId = DB::table($tableName)->insert($filteredData);
 
             // Malumotni pointer tablitsiyasiga saqlash
             $userAuth = Auth::user()->id;
@@ -205,7 +205,7 @@ class FormsController extends Controller
             $pointer['year'] = $request->year;
             $pointer['departament_id'] = Auth::user()->department_id;
             $pointer['status'] = 3;
-            $pointer["$tableName" . 'id'] = 1;
+            $pointer["{$tableName}id"] = $insertedId;
             $pointer['updated_at'] = null;
 
             // Model orqali malumotni qo'shish
