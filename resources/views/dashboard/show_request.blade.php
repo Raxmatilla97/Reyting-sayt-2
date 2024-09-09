@@ -236,6 +236,7 @@
                                                                             $fieldsByName = collect($fields)->keyBy(
                                                                                 'name',
                                                                             );
+                                                                            $currentTable = $table;
                                                                         @endphp
                                                                         <h4 class="text-lg font-semibold mb-4 mt-4">
                                                                             <span
@@ -356,6 +357,76 @@
 
 
                                     </li>
+
+                                    <li class="mb-10 ms-6">
+                                        <span
+                                            class="absolute flex items-center justify-center w-8 h-8 @if ($information->ariza_holati == 'maqullandi') bg-green-100 @else bg-gray-100 @endif  rounded-full -start-4 ring-4 ring-white dark:ring-gray-900 dark:bg-gray-700">
+                                            <svg class="w-4 h-4 @if ($information->ariza_holati == 'maqullandi') text-green-500  @else text-gray-500 @endif dark:text-gray-400"
+                                                aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                                                fill="currentColor" viewBox="0 0 18 20">
+                                                <path
+                                                    d="M10 3.464V1.1m0 2.365a5.338 5.338 0 0 1 5.133 5.368v1.8c0 2.386 1.867 2.982 1.867 4.175C17 15.4 17 16 16.462 16H3.538C3 16 3 15.4 3 14.807c0-1.193 1.867-1.789 1.867-4.175v-1.8A5.338 5.338 0 0 1 10 3.464ZM4 3 3 2M2 7H1m15-4 1-1m1 5h1M6.54 16a3.48 3.48 0 0 0 6.92 0H6.54Z" />
+                                            </svg>
+                                        </span>
+                                        <h3 class="font-medium leading-tight">Bu yo'nalish bo'yicha olgan ballari
+                                            haqida</h3>
+                                        <p class="text-sm">Ball berishdan oldin ko'rib chiqing</p>
+                                        <div class="flex items-center p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
+                                            role="alert">
+                                            <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true"
+                                                xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                                                viewBox="0 0 20 20">
+                                                <path
+                                                    d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                                            </svg>
+                                            <span class="sr-only">Info</span>
+                                            @php
+                                                $extraPoints = max(
+                                                    0,
+                                                    $userPointInfo['total_points'] - $userPointInfo['max_point'],
+                                                );
+                                                $isDisabled =
+                                                    $userPointInfo['total_points'] <= $userPointInfo['max_point'];
+                                                $truePoint =
+                                                    max($userPointInfo['total_points'], $userPointInfo['max_point']) -
+                                                    $userPointInfo['total_points'];
+                                                $initialInputValue = old('point', $information->point);
+                                            @endphp
+                                            <input type="text" id="extraPointsInput" name="extra_point"
+                                                value="{{ $extraPoints }}" hidden>
+                                            <div id="pointInfo">
+                                                <span class="font-medium">DIQQAT!</span> Foydalanuvchi <b></b>
+                                                yo'nalishidan ball olgan bo'lishi mumkin!.
+                                                <ul class="mb-4 mt-3">
+                                                    <li>Bu yo'nalish kodi: <b>{{ $userPointInfo['table_name'] }}!</b>
+                                                    </li>
+                                                    <li>Bu yo'nalish uchun belgilangan maksimal ball: <b
+                                                            id="maxPoint">{{ $userPointInfo['max_point'] }}</b>
+                                                        ballni tashkil etadi!</li>
+                                                    <li><b class="text-green-600" id="remainingPoints">Bu yerdagi gap
+                                                            JS</b></li>
+                                                    <li id="teacherPoints"
+                                                        class="@if ($userPointInfo['total_points'] > $userPointInfo['max_point']) text-red-600 font-bold @endif">
+                                                        Bu yo'nalish uchun o'qituvchi olgan ball:
+                                                        <b>{{ $userPointInfo['total_points'] }}</b> ballni tashkil
+                                                        etadi!
+                                                        <span id="exceedWarning"
+                                                            class="ml-2 text-red-600 @if ($userPointInfo['total_points'] <= $userPointInfo['max_point']) hidden @endif">
+                                                            (Diqqat: Olingan ball maksimal balldan oshib ketdi!)
+                                                        </span>
+                                                    </li>
+                                                    <li id="extraPointsInfo"
+                                                        class="text-indigo-600 font-semibold @if ($extraPoints <= 0) hidden @endif">
+                                                        Ortiqcha <span
+                                                            id="extraPointsValue">{{ $extraPoints }}</span> ballni
+                                                        kafedra hisobiga o'tkazish kerak! (Buning uchun "Ortiqcha balni
+                                                        kafedra hisobiga o'tqazish") ga belgilang shunda ortiqcha ball
+                                                        kafedra hisobiga o'tadi!
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
                                     <li class="mb-10 ms-6">
                                         <span
                                             class="absolute flex items-center justify-center w-8 h-8 @if ($information->ariza_holati == 'maqullandi') bg-green-100 @else bg-gray-100 @endif  rounded-full -start-4 ring-4 ring-white dark:ring-gray-900 dark:bg-gray-700">
@@ -407,6 +478,7 @@
                                                     </div>
                                                 @endif
 
+
                                                 <!-- Category Item -->
                                                 <div class="mt-4 flex mb-4">
                                                     <div class="label-box" style="width: 300px;">
@@ -433,31 +505,150 @@
                                                 </div>
 
                                                 <!-- URL Site -->
-                                                <div class="mt-4 flex mb-4 items-center" id="hidden-div"
+                                                <div class="mt-4 flex flex-col mb-4" id="hidden-div"
                                                     style="display: none;">
-                                                    <div class="label-box flex items-center" style="width: 300px;">
-                                                        <i class="fas fa-link text-purple-500"></i>
-                                                        <span class="ml-2 text-lg font-medium">Ma'lumotga reyting
-                                                            bali:</span>
-                                                    </div>
-                                                    <div class="relative" style="width: 200px;">
-                                                        <div
-                                                            class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                                            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                                aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                                                fill="none" viewBox="0 0 18 20">
-                                                                <path stroke="currentColor" stroke-linecap="round"
-                                                                    stroke-linejoin="round" stroke-width="2"
-                                                                    d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2" />
-                                                            </svg>
+                                                    <div class="flex items-center mb-4">
+                                                        <div class="label-box flex items-center"
+                                                            style="width: 300px;">
+                                                            <i class="fas fa-link text-purple-500"></i>
+                                                            <span class="ml-2 text-lg font-medium">Ma'lumotga reyting
+                                                                bali:</span>
                                                         </div>
-                                                        <input type="text"
-                                                            value="{{ old('point', $information->point) }}"
-                                                            name="murojaat_bali"
-                                                            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                            placeholder="0-100" required pattern="[0-9]*[.,]?[0-9]+"
-                                                            title="Only numbers and a single decimal point are allowed">
+                                                        <div class="flex items-center space-x-4">
+                                                            <div class="relative" style="width: 200px;">
+                                                                <div
+                                                                    class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                                                        aria-hidden="true"
+                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                        fill="none" viewBox="0 0 18 20">
+                                                                        <path stroke="currentColor"
+                                                                            stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2" />
+                                                                    </svg>
+                                                                </div>
+                                                                <input type="text" id="murojaatBali"
+                                                                    value="{{ $initialInputValue }}"
+                                                                    name="murojaat_bali"
+                                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                                    placeholder="0-100" required
+                                                                    pattern="[0-9]*[.,]?[0-9]+"
+                                                                    title="Only numbers and a single decimal point are allowed">
+                                                            </div>
 
+
+                                                            <div x-show="!isDisabled" class="flex items-center">
+                                                                <div
+                                                                    class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                                                    <input type="checkbox" name="kafedra_uchun"
+                                                                        id="toggle" :disabled="isDisabled"
+                                                                        class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                                                        :class="{ 'opacity-50 cursor-not-allowed': isDisabled }" />
+                                                                    <label for="toggle"
+                                                                        class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
+                                                                        :class="{ 'opacity-50 cursor-not-allowed': isDisabled }"></label>
+                                                                </div>
+                                                                <label for="toggle" class="text-sm text-gray-700"
+                                                                    :class="{ 'opacity-50': isDisabled }">
+                                                                    Bu yerni tanlashiz uchun ortiqcha ball yetarli emas.
+                                                                </label>
+                                                            </div>
+
+                                                            <script>
+                                                                document.addEventListener('DOMContentLoaded', function() {
+                                                                    const murojaatBaliInput = document.getElementById('murojaatBali');
+                                                                    const remainingPointsElement = document.getElementById('remainingPoints');
+                                                                    const teacherPointsElement = document.getElementById('teacherPoints');
+                                                                    const exceedWarningElement = document.getElementById('exceedWarning');
+                                                                    const extraPointsInfoElement = document.getElementById('extraPointsInfo');
+                                                                    const extraPointsValueElement = document.getElementById('extraPointsValue');
+                                                                    const kafedraHisobiCheckbox = document.getElementById('kafedra-hisobi');
+                                                                    const toggleCheckbox = document.getElementById('toggle');
+                                                                    const extraPointsInput = document.getElementById('extraPointsInput'); // Yangi qo'shilgan element
+
+                                                                    const maxPoint = {{ $userPointInfo['max_point'] }};
+                                                                    const initialTotalPoints = {{ $userPointInfo['total_points'] }};
+                                                                    const initialInputValue = {{ $initialInputValue }};
+
+                                                                    function updatePointInfo() {
+                                                                        const currentInputValue = parseFloat(murojaatBaliInput.value) || 0;
+                                                                        const newTotalPoints = initialTotalPoints + (currentInputValue - initialInputValue);
+                                                                        const truePoint = Math.max(0, maxPoint - newTotalPoints);
+                                                                        const extraPoints = Math.max(0, newTotalPoints - maxPoint);
+
+                                                                        remainingPointsElement.textContent =
+                                                                            `Siz yana ${truePoint.toFixed(2)} bal bera olasiz! Qolgan ortiqcha ballar kafedra hisobiga o'tadi.`;
+
+                                                                        teacherPointsElement.querySelector('b').textContent = newTotalPoints.toFixed(2);
+                                                                        teacherPointsElement.classList.toggle('text-red-600', newTotalPoints > maxPoint);
+                                                                        teacherPointsElement.classList.toggle('font-bold', newTotalPoints > maxPoint);
+
+                                                                        exceedWarningElement.classList.toggle('hidden', newTotalPoints <= maxPoint);
+
+                                                                        extraPointsInfoElement.classList.toggle('hidden', extraPoints <= 0);
+                                                                        extraPointsValueElement.textContent = extraPoints.toFixed(2);
+
+                                                                        // Yangi qo'shilgan qismlar
+                                                                        extraPointsInput.value = extraPoints.toFixed(2);
+
+                                                                        // Update the disabled state of checkboxes
+                                                                        const isDisabled = currentInputValue <= maxPoint;
+                                                                        kafedraHisobiCheckbox.disabled = isDisabled;
+                                                                        toggleCheckbox.disabled = isDisabled;
+
+                                                                        // Update classes for visual feedback
+                                                                        [kafedraHisobiCheckbox, toggleCheckbox].forEach(checkbox => {
+                                                                            checkbox.classList.toggle('opacity-50', isDisabled);
+                                                                            checkbox.classList.toggle('cursor-not-allowed', isDisabled);
+                                                                        });
+
+                                                                        [kafedraHisobiCheckbox.nextElementSibling, toggleCheckbox.nextElementSibling].forEach(label => {
+                                                                            label.classList.toggle('opacity-50', isDisabled);
+                                                                        });
+
+                                                                        // Update Alpine.js state
+                                                                        if (window.Alpine) {
+                                                                            Alpine.store('pointInfo').isDisabled = isDisabled;
+                                                                        }
+                                                                    }
+
+                                                                    murojaatBaliInput.addEventListener('input', updatePointInfo);
+                                                                    updatePointInfo(); // Initial call to set correct values
+                                                                });
+                                                            </script>
+                                                            <style>
+                                                                .toggle-checkbox:checked {
+                                                                    @apply: right-0 border-green-400;
+                                                                    right: 0;
+                                                                    border-color: #68D391;
+                                                                }
+
+                                                                .toggle-checkbox:checked+.toggle-label {
+                                                                    @apply: bg-green-400;
+                                                                    background-color: #68D391;
+                                                                }
+                                                            </style>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- File Upload Info -->
+                                                    <div class="flex mt-4">
+                                                        <div class="label-box" style="width: 300px;">
+                                                            <i class="fas fa-file-upload text-red-500"></i>
+                                                            <span class="ml-2 text-lg font-medium">Ma'lumot holati
+                                                                izohi:</span>
+                                                        </div>
+                                                        <div class="w-full">
+                                                            <label for="message"
+                                                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                                                Agar foydalanuvchi ma'lumotiga izoh yozmoqchi bo'lsangiz
+                                                                yoki maqullanmagan bo'lsa nima uchunligini yozing.
+                                                            </label>
+                                                            <textarea id="message" rows="4" name="murojaat_izohi"
+                                                                class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                                placeholder="Assalomu alaykum, sizning ....">{{ old('arizaga_javob', $information->arizaga_javob) }}</textarea>
+                                                        </div>
                                                     </div>
                                                 </div>
 
@@ -470,46 +661,20 @@
                                                         const selectElement = document.getElementById('murojaat-holati');
                                                         const hiddenDiv = document.getElementById('hidden-div');
 
-                                                        // Funksiya select o'zgarishiga qarab divni yashirish yoki ko'rsatish
                                                         function toggleDivVisibility() {
                                                             if (selectElement.value === '1') {
-                                                                hiddenDiv.style.display = 'flex'; // Elementlarni yonma-yon joylashtirish uchun flex
+                                                                hiddenDiv.style.display = 'flex';
                                                             } else {
-                                                                hiddenDiv.style.display = 'none'; // Elementlarni yashirish uchun
+                                                                hiddenDiv.style.display = 'none';
                                                             }
                                                         }
 
-                                                        // Yuklangan vaqtni tekshirish
                                                         toggleDivVisibility();
 
-                                                        // Har safar select tanlanganda funksiya ishlaydi
                                                         selectElement.addEventListener('change', toggleDivVisibility);
                                                     });
                                                 </script>
-
-                                                <!-- File Upload Info -->
-                                                <div class="mt-4 flex">
-                                                    <div class="label-box" style="width: 300px;">
-                                                        <i class="fas fa-file-upload text-red-500"></i>
-                                                        <span class="ml-2 text-lg font-medium">Ma'lumot holati
-                                                            izohi:</span>
-                                                    </div>
-
-                                                    <div class="w-full">
-
-                                                        <label for="message"
-                                                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Agar
-                                                            foydalanuvchi ma'lumotiga izoh yozmoqchi bo'lsangiz yoki
-                                                            maqullanmagan bo'lsa nima uchunligini yozing.</label>
-                                                        <textarea id="message" rows="4" name="murojaat_izohi"
-                                                            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                            placeholder="Assalomu alaykum, sizning ....">{{ old('arizaga_javob', $information->arizaga_javob) }}</textarea>
-
-                                                    </div>
-
-                                                </div>
                                             </div>
-                                        </div>
                                     </li>
                                     <li class="ms-6">
                                         <span

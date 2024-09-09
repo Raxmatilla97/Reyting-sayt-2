@@ -4,16 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
-
 
 class PointUserDeportament extends Model
 {
     use HasFactory;
 
-
-
+    // Ruxsat etilgan columnlar ro'yxati
     protected $fillable =
     [
         'user_id',
@@ -46,7 +42,6 @@ class PointUserDeportament extends Model
         'table_4_1_id',
         'departament_info',
         'status',
-        'temporary_files_id',
         'departament_id',
         'year',
         'arizaga_javob',
@@ -55,9 +50,7 @@ class PointUserDeportament extends Model
 
     ];
 
-
-
-
+    // Relationlarni nomli ro'yxati
     protected $relationships = [
         'table_1_1',
         'table_1_2',
@@ -88,15 +81,35 @@ class PointUserDeportament extends Model
         'table_4_1',
     ];
 
+    // Bu modeldan biron item o'chirilganda unga tegishli bosha tabledagi item ham o'chadi!
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($pointUserDeportament) {
+            foreach ($pointUserDeportament->getRelationships() as $relationship) {
+                $relatedModels = $pointUserDeportament->$relationship;
+                if ($relatedModels instanceof Model) {
+                    $relatedModels->delete();
+                } elseif ($relatedModels instanceof \Illuminate\Database\Eloquent\Collection) {
+                    foreach ($relatedModels as $model) {
+                        $model->delete();
+                    }
+                }
+            }
+        });
+    }
+
     public function getRelationships()
     {
         return $this->relationships;
     }
 
+
     public function employee()
-{
-    return $this->belongsTo(\App\Models\Employee::class, 'user_id');
-}
+    {
+        return $this->belongsTo(\App\Models\Employee::class, 'user_id');
+    }
 
     public function user_ponts()
     {
@@ -246,7 +259,4 @@ class PointUserDeportament extends Model
     {
         return $this->hasMany(\App\Models\Tables\Table_4_1_::class, 'id');
     }
-
-
-
 }
