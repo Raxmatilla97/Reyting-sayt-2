@@ -43,7 +43,7 @@
                                             <span class="font-medium"></span> <span
                                                 class=" text-lg font-medium me-2 px-2.5 py-0.5 rounded-full ">Ushbu
                                                 yuborilgan ma'lumot uchun olgan bali:
-                                                {{ $information->point }}</span>
+                                                {{ $userPointInfo['total_points'] }}</span>
                                         @else
                                             <span class="font-medium"></span> <span
                                                 class=" text-lg font-medium me-2 px-2.5 py-0.5 rounded-full ">Baholanmagan!</span>
@@ -74,7 +74,17 @@
                                     <dd class="mt-1 text-md leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                                         <span
                                             class="bg-blue-100 text-blue-800 text-md font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                                            {{ $totalPoints }} ball
+                                            O'qituvchiga berilgan: {{ $totalPointsWithDeportament }} ball
+                                        </span>
+                                        +
+                                        <span
+                                            class="bg-blue-100 text-blue-800 text-md font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
+                                           Kafedraga o'tgan: {{ $departmentPoint }} ball
+                                        </span>
+                                        =
+                                        <span
+                                            class="bg-blue-100 text-blue-800 text-md font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
+                                           Umumiy: {{ $totalPoints }} ball
                                         </span>
                                     </dd>
                                 </div>
@@ -107,8 +117,6 @@
                         <input type="hidden" name="id" value="{{ $information->id }}">
                         <div class="px-4 py-6 ml-8 sm:grid sm:grid-cols-2 sm:gap-4 sm:px-0 ">
                             <dd class="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-
-
                                 <ol
                                     class="relative text-gray-500 border-s border-gray-200 dark:border-gray-700 dark:text-gray-400">
                                     <li class="mb-10 ms-6">
@@ -390,7 +398,9 @@
                                                 $truePoint =
                                                     max($userPointInfo['total_points'], $userPointInfo['max_point']) -
                                                     $userPointInfo['total_points'];
-                                                $initialInputValue = old('point', $information->point);
+
+
+                                                $initialInputValue = old('point', $userPointInfo['total_points']);
                                             @endphp
                                             <input type="text" id="extraPointsInput" name="extra_point"
                                                 value="{{ $extraPoints }}" hidden>
@@ -406,22 +416,19 @@
                                                     <li><b class="text-green-600" id="remainingPoints">Bu yerdagi gap
                                                             JS</b></li>
                                                     <li id="teacherPoints"
-                                                        class="@if ($userPointInfo['total_points'] > $userPointInfo['max_point']) text-red-600 font-bold @endif">
+                                                        class="@if ($userPointInfo['total_points'] > $userPointInfo['max_point']) text-yellow-800 font-bold @endif">
                                                         Bu yo'nalish uchun o'qituvchi olgan ball:
                                                         <b>{{ $userPointInfo['total_points'] }}</b> ballni tashkil
                                                         etadi!
                                                         <span id="exceedWarning"
                                                             class="ml-2 text-red-600 @if ($userPointInfo['total_points'] <= $userPointInfo['max_point']) hidden @endif">
-                                                            (Diqqat: Olingan ball maksimal balldan oshib ketdi!)
+
                                                         </span>
                                                     </li>
                                                     <li id="extraPointsInfo"
                                                         class="text-indigo-600 font-semibold @if ($extraPoints <= 0) hidden @endif">
                                                         Ortiqcha <span
-                                                            id="extraPointsValue">{{ $extraPoints }}</span> ballni
-                                                        kafedra hisobiga o'tkazish kerak! (Buning uchun "Ortiqcha balni
-                                                        kafedra hisobiga o'tqazish") ga belgilang shunda ortiqcha ball
-                                                        kafedra hisobiga o'tadi!
+                                                            id="extraPointsValue">{{ $extraPoints }}</span> ballni tizim avtomatik ravishda kafedra hisobiga o'tqazadi!
                                                     </li>
                                                 </ul>
                                             </div>
@@ -460,7 +467,7 @@
                                                     </div>
                                                 @endif
                                                 @if (session('success'))
-                                                    <div class="fixed top-3 right-3 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
+                                                    <div class="fixed top-3 mb-5 right-3 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
                                                         role="alert">
                                                         <strong class="font-bold">Muvaffaqiyat!</strong>
                                                         <span class="block sm:inline">{{ session('success') }}</span>
@@ -480,7 +487,7 @@
 
 
                                                 <!-- Category Item -->
-                                                <div class="mt-4 flex mb-4">
+                                                <div class="mt-8 flex mb-4">
                                                     <div class="label-box" style="width: 300px;">
                                                         <i class="fas fa-tags text-blue-500"></i>
                                                         <span class="ml-2 text-lg font-medium">Ma'lumot holati:</span>
@@ -538,22 +545,6 @@
                                                             </div>
 
 
-                                                            <div x-show="!isDisabled" class="flex items-center">
-                                                                <div
-                                                                    class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                                                                    <input type="checkbox" name="kafedra_uchun"
-                                                                        id="toggle" :disabled="isDisabled"
-                                                                        class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-                                                                        :class="{ 'opacity-50 cursor-not-allowed': isDisabled }" />
-                                                                    <label for="toggle"
-                                                                        class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
-                                                                        :class="{ 'opacity-50 cursor-not-allowed': isDisabled }"></label>
-                                                                </div>
-                                                                <label for="toggle" class="text-sm text-gray-700"
-                                                                    :class="{ 'opacity-50': isDisabled }">
-                                                                    Bu yerni tanlashiz uchun ortiqcha ball yetarli emas.
-                                                                </label>
-                                                            </div>
 
                                                             <script>
                                                                 document.addEventListener('DOMContentLoaded', function() {
@@ -596,12 +587,6 @@
                                                                         const isDisabled = currentInputValue <= maxPoint;
                                                                         kafedraHisobiCheckbox.disabled = isDisabled;
                                                                         toggleCheckbox.disabled = isDisabled;
-
-                                                                        // Update classes for visual feedback
-                                                                        [kafedraHisobiCheckbox, toggleCheckbox].forEach(checkbox => {
-                                                                            checkbox.classList.toggle('opacity-50', isDisabled);
-                                                                            checkbox.classList.toggle('cursor-not-allowed', isDisabled);
-                                                                        });
 
                                                                         [kafedraHisobiCheckbox.nextElementSibling, toggleCheckbox.nextElementSibling].forEach(label => {
                                                                             label.classList.toggle('opacity-50', isDisabled);

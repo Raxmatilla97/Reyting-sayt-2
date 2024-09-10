@@ -115,7 +115,7 @@ return [
         [
             'name' => 'asos_file',
             'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+            'label' => "Asos*",
         ],
 
 
@@ -158,7 +158,7 @@ return [
         [
             'name' => 'asos_file',
             'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+            'label' => "Asos*",
         ],
 
     ],
