@@ -64,7 +64,92 @@ class PointCalculationController extends Controller
         return [$relatedData, $userPointInfo, $foundRelation];
     }
 
-    // Boshqa metodlar...
+    /**
+     * Foydalanuvchining umumiy ballarini hisoblash.
+     *
+     * @param int $userId Foydalanuvchi ID si
+     * @return array Umumiy ballar, departament ballari va departamentsiz ballar
+     */
+    public function calculateTotalPoints($userId)
+    {
+        // Foydalanuvchining asosiy ballarini hisoblash
+        $totalPoints = PointUserDeportament::where('user_id', $userId)
+            ->where('status', 1)
+            ->sum('point');
+
+        // Departament ballarini hisoblash
+        $totalDepartmentPoints = DepartPoints::whereIn('point_user_deport_id', function ($query) use ($userId) {
+            $query->select('id')
+                ->from('point_user_deportaments')
+                ->where('user_id', $userId)
+                ->where('status', 1);
+        })->sum('point');
+
+        $totalPointsWithDepartment = $totalPoints + $totalDepartmentPoints;
+        $totalPointsWithoutDepartment = $totalPoints;
+
+        return [
+            'totalPoints' => $totalPointsWithDepartment,
+            'totalPointsWithoutDepartment' => $totalPointsWithoutDepartment,
+            'totalDepartmentPoints' => $totalDepartmentPoints
+        ];
+    }
+
+    /**
+     * Foydalanuvchining ma'lum bir jadval uchun ballarini hisoblash.
+     *
+     * @param int $userId Foydalanuvchi ID si
+     * @param string $tableName Jadval nomi
+     * @return array Foydalanuvchi ball ma'lumotlari
+     */
+    public function calculateUserPointInfo($userId, $tableName)
+    {
+        // Asosiy ballarni hisoblash
+        $userPointInfo = [
+            'total_points' => PointUserDeportament::where('user_id', $userId)
+                ->where('status', 1)
+                ->where(function ($query) use ($tableName) {
+                    $query->where(function ($q) use ($tableName) {
+                        $columns = Schema::getColumnListing('point_user_deportaments');
+                        foreach ($columns as $column) {
+                            if (strpos($column, $tableName) !== false) {
+                                $q->orWhereNotNull($column);
+                            }
+                        }
+                    });
+                })
+                ->sum('point')
+        ];
+
+        // Departament ballarini qo'shish
+        $userPointInfo['total_points'] += DepartPoints::whereIn('point_user_deport_id', function ($query) use ($userId, $tableName) {
+            $query->select('id')
+                ->from('point_user_deportaments')
+                ->where('user_id', $userId)
+                ->where('status', 1)
+                ->where(function ($q) use ($tableName) {
+                    $columns = Schema::getColumnListing('point_user_deportaments');
+                    foreach ($columns as $column) {
+                        if (strpos($column, $tableName) !== false) {
+                            $q->orWhereNotNull($column);
+                        }
+                    }
+                });
+        })->sum('point');
+
+        return $userPointInfo;
+    }
+
+    /**
+     * Berilgan ID uchun departament balini olish.
+     *
+     * @param int $id PointUserDeportament ID si
+     * @return float Departament bali
+     */
+    public function getDepartmentPoint($id)
+    {
+        return DepartPoints::where('point_user_deport_id', $id)->value('point') ?? 0;
+    }
 
     /**
      * Munosabat uchun model sinfini olish.
@@ -77,8 +162,7 @@ class PointCalculationController extends Controller
         // Relationship nomini katta harf bilan boshlash
         $className = ucfirst($relationship);
 
-        // Model nomini yaratish. Masalan, 'user' uchun 'App\Models\User' qaytaradi
-        return "App\\Models\\{$className}";
+        // Tegishli model uchun to'liq class nomini tuzish
+        return "\\App\\Models\\Tables\\" . $className . "_";
     }
-
 }
