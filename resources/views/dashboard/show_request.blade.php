@@ -43,7 +43,7 @@
                                             <span class="font-medium"></span> <span
                                                 class=" text-lg font-medium me-2 px-2.5 py-0.5 rounded-full ">Ushbu
                                                 yuborilgan ma'lumot uchun olgan bali:
-                                                {{ $totalPoint }}</span>
+                                                {{ $information->point }}</span>
                                         @else
                                             <span class="font-medium"></span> <span
                                                 class=" text-lg font-medium me-2 px-2.5 py-0.5 rounded-full ">Baholanmagan!</span>
@@ -74,17 +74,7 @@
                                     <dd class="mt-1 text-md leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
                                         <span
                                             class="bg-blue-100 text-blue-800 text-md font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                                            O'qituvchiga berilgan: {{ $totalPointsWithDeportament }} ball
-                                        </span>
-                                        +
-                                        <span
-                                            class="bg-blue-100 text-blue-800 text-md font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                                           Kafedraga o'tgan: {{ $totalDepartmentPoints }} ball
-                                        </span>
-                                        =
-                                        <span
-                                            class="bg-blue-100 text-blue-800 text-md font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                                           Umumiy: {{ $totalPoints }} ball
+                                            {{ $totalPoints }} ball
                                         </span>
                                     </dd>
                                 </div>
@@ -117,6 +107,8 @@
                         <input type="hidden" name="id" value="{{ $information->id }}">
                         <div class="px-4 py-6 ml-8 sm:grid sm:grid-cols-2 sm:gap-4 sm:px-0 ">
                             <dd class="mt-2 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
+
+
                                 <ol
                                     class="relative text-gray-500 border-s border-gray-200 dark:border-gray-700 dark:text-gray-400">
                                     <li class="mb-10 ms-6">
@@ -389,62 +381,50 @@
                                             </svg>
                                             <span class="sr-only">Info</span>
                                             @php
-                                            // Umumiy ballar (o'qituvchi + kafedra)
-                                            $totalPoints = $totalPoints;
-
-                                            // O'qituvchining sof ballari (departamentga o'tmaganlar)
-                                            $totalPointsWithoutDepartment = $totalPointsWithDeportament;
-
-                                            // Aynan shu ma'lumot uchun departamentga o'tgan ballar
-                                            $currentDepartmentPoints = $totalDepartmentPoints;
-
-                                            // Joriy yozuv uchun o'qituvchi va kafedra bali yig'indisi
-                                            $currentTotalPoint = $totalPoint;
-
-                                            // Foydalanuvchining shu table uchun umumiy ballari
-                                            $userTotalPoints = $userPointInfo['total_points']; //togirla
-
-                                            // Maksimal ruxsat etilgan ball
-                                            $maxPoint = $userPointInfo['max_point'];
-
-                                            // Ortiqcha ballarni hisoblash
-                                            $extraPoints = max(0, $userTotalPoints - $maxPoint);
-
-                                            // Kiritish maydoni uchun boshlang'ich qiymat
-                                            $initialInputValue = old('point', $currentTotalPoint);
-
-                                            // Qo'shimcha ballar kiritish mumkinmi?
-                                            $isDisabled = $userTotalPoints >= $maxPoint;
-
-                                            // Qo'shish mumkin bo'lgan ball
-                                            $truePoint = max(0, $maxPoint - $userTotalPoints);
-
-
-
-                                        @endphp
-
-                                        <input type="text" id="extraPointsInput" name="extra_point" value="{{ $extraPoints }}" hidden>
-                                        <input type="text"  name="max_point" value="{{ $maxPoint }}" hidden>
-
-                                        <div id="pointInfo">
-                                            <span class="font-medium">DIQQAT!</span> Foydalanuvchi <b>{{ $userPointInfo['table_name'] }}</b>
-                                            yo'nalishidan ball olgan bo'lishi mumkin!
-                                            <ul class="mb-4 mt-3">
-                                                <li>Bu yo'nalish kodi: <b>{{ $userPointInfo['table_name'] }}</b></li>
-                                                <li>Bu yo'nalish uchun belgilangan maksimal ball: <b id="maxPoint">{{ $maxPoint }}</b> ballni tashkil etadi!</li>
-
-                                                <li><b class="text-green-600" id="remainingPoints">Siz yana {{ number_format($truePoint, 2) }} ball bera olasiz!</b></li>
-                                                <li id="teacherPoints" class="{{ $userTotalPoints > $maxPoint ? 'text-yellow-800 font-bold' : '' }}">
-                                                    Bu yo'nalish uchun o'qituvchi olgan ball: <b>{{ $userTotalPoints }}</b> ballni tashkil etadi!
-                                                    <span id="exceedWarning" class="ml-2 text-red-600 {{ $userTotalPoints <= $maxPoint ? 'hidden' : '' }}">
-                                                        Maksimal balldan oshib ketdi!
-                                                    </span>
-                                                </li>
-                                                <li id="extraPointsInfo" class="text-indigo-600 font-semibold {{ $extraPoints <= 0 ? 'hidden' : '' }}">
-                                                    Ortiqcha <span id="extraPointsValue">{{ $extraPoints }}</span> ballni tizim avtomatik ravishda kafedra hisobiga o'tqazadi!
-                                                </li>
-                                            </ul>
-                                        </div>
+                                                $extraPoints = max(
+                                                    0,
+                                                    $userPointInfo['total_points'] - $userPointInfo['max_point'],
+                                                );
+                                                $isDisabled =
+                                                    $userPointInfo['total_points'] <= $userPointInfo['max_point'];
+                                                $truePoint =
+                                                    max($userPointInfo['total_points'], $userPointInfo['max_point']) -
+                                                    $userPointInfo['total_points'];
+                                                $initialInputValue = old('point', $information->point);
+                                            @endphp
+                                            <input type="text" id="extraPointsInput" name="extra_point"
+                                                value="{{ $extraPoints }}" hidden>
+                                            <div id="pointInfo">
+                                                <span class="font-medium">DIQQAT!</span> Foydalanuvchi <b></b>
+                                                yo'nalishidan ball olgan bo'lishi mumkin!.
+                                                <ul class="mb-4 mt-3">
+                                                    <li>Bu yo'nalish kodi: <b>{{ $userPointInfo['table_name'] }}!</b>
+                                                    </li>
+                                                    <li>Bu yo'nalish uchun belgilangan maksimal ball: <b
+                                                            id="maxPoint">{{ $userPointInfo['max_point'] }}</b>
+                                                        ballni tashkil etadi!</li>
+                                                    <li><b class="text-green-600" id="remainingPoints">Bu yerdagi gap
+                                                            JS</b></li>
+                                                    <li id="teacherPoints"
+                                                        class="@if ($userPointInfo['total_points'] > $userPointInfo['max_point']) text-red-600 font-bold @endif">
+                                                        Bu yo'nalish uchun o'qituvchi olgan ball:
+                                                        <b>{{ $userPointInfo['total_points'] }}</b> ballni tashkil
+                                                        etadi!
+                                                        <span id="exceedWarning"
+                                                            class="ml-2 text-red-600 @if ($userPointInfo['total_points'] <= $userPointInfo['max_point']) hidden @endif">
+                                                            (Diqqat: Olingan ball maksimal balldan oshib ketdi!)
+                                                        </span>
+                                                    </li>
+                                                    <li id="extraPointsInfo"
+                                                        class="text-indigo-600 font-semibold @if ($extraPoints <= 0) hidden @endif">
+                                                        Ortiqcha <span
+                                                            id="extraPointsValue">{{ $extraPoints }}</span> ballni
+                                                        kafedra hisobiga o'tkazish kerak! (Buning uchun "Ortiqcha balni
+                                                        kafedra hisobiga o'tqazish") ga belgilang shunda ortiqcha ball
+                                                        kafedra hisobiga o'tadi!
+                                                    </li>
+                                                </ul>
+                                            </div>
                                         </div>
                                     </li>
                                     <li class="mb-10 ms-6">
@@ -480,7 +460,7 @@
                                                     </div>
                                                 @endif
                                                 @if (session('success'))
-                                                    <div class="fixed top-3 mb-5 right-3 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
+                                                    <div class="fixed top-3 right-3 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
                                                         role="alert">
                                                         <strong class="font-bold">Muvaffaqiyat!</strong>
                                                         <span class="block sm:inline">{{ session('success') }}</span>
@@ -500,7 +480,7 @@
 
 
                                                 <!-- Category Item -->
-                                                <div class="mt-8 flex mb-4">
+                                                <div class="mt-4 flex mb-4">
                                                     <div class="label-box" style="width: 300px;">
                                                         <i class="fas fa-tags text-blue-500"></i>
                                                         <span class="ml-2 text-lg font-medium">Ma'lumot holati:</span>
@@ -558,6 +538,22 @@
                                                             </div>
 
 
+                                                            <div x-show="!isDisabled" class="flex items-center">
+                                                                <div
+                                                                    class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
+                                                                    <input type="checkbox" name="kafedra_uchun"
+                                                                        id="toggle" :disabled="isDisabled"
+                                                                        class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                                                        :class="{ 'opacity-50 cursor-not-allowed': isDisabled }" />
+                                                                    <label for="toggle"
+                                                                        class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
+                                                                        :class="{ 'opacity-50 cursor-not-allowed': isDisabled }"></label>
+                                                                </div>
+                                                                <label for="toggle" class="text-sm text-gray-700"
+                                                                    :class="{ 'opacity-50': isDisabled }">
+                                                                    Bu yerni tanlashiz uchun ortiqcha ball yetarli emas.
+                                                                </label>
+                                                            </div>
 
                                                             <script>
                                                                 document.addEventListener('DOMContentLoaded', function() {
@@ -567,10 +563,12 @@
                                                                     const exceedWarningElement = document.getElementById('exceedWarning');
                                                                     const extraPointsInfoElement = document.getElementById('extraPointsInfo');
                                                                     const extraPointsValueElement = document.getElementById('extraPointsValue');
-                                                                    const extraPointsInput = document.getElementById('extraPointsInput');
+                                                                    const kafedraHisobiCheckbox = document.getElementById('kafedra-hisobi');
+                                                                    const toggleCheckbox = document.getElementById('toggle');
+                                                                    const extraPointsInput = document.getElementById('extraPointsInput'); // Yangi qo'shilgan element
 
-                                                                    const maxPoint = {{ $maxPoint }};
-                                                                    const initialTotalPoints = {{ $userTotalPoints }};
+                                                                    const maxPoint = {{ $userPointInfo['max_point'] }};
+                                                                    const initialTotalPoints = {{ $userPointInfo['total_points'] }};
                                                                     const initialInputValue = {{ $initialInputValue }};
 
                                                                     function updatePointInfo() {
@@ -579,23 +577,46 @@
                                                                         const truePoint = Math.max(0, maxPoint - newTotalPoints);
                                                                         const extraPoints = Math.max(0, newTotalPoints - maxPoint);
 
-                                                                        remainingPointsElement.textContent = `Siz yana ${truePoint.toFixed(2)} ball bera olasiz!`;
+                                                                        remainingPointsElement.textContent =
+                                                                            `Siz yana ${truePoint.toFixed(2)} bal bera olasiz! Qolgan ortiqcha ballar kafedra hisobiga o'tadi.`;
 
                                                                         teacherPointsElement.querySelector('b').textContent = newTotalPoints.toFixed(2);
-                                                                        teacherPointsElement.classList.toggle('text-yellow-800', newTotalPoints > maxPoint);
+                                                                        teacherPointsElement.classList.toggle('text-red-600', newTotalPoints > maxPoint);
                                                                         teacherPointsElement.classList.toggle('font-bold', newTotalPoints > maxPoint);
 
                                                                         exceedWarningElement.classList.toggle('hidden', newTotalPoints <= maxPoint);
 
                                                                         extraPointsInfoElement.classList.toggle('hidden', extraPoints <= 0);
                                                                         extraPointsValueElement.textContent = extraPoints.toFixed(2);
+
+                                                                        // Yangi qo'shilgan qismlar
                                                                         extraPointsInput.value = extraPoints.toFixed(2);
+
+                                                                        // Update the disabled state of checkboxes
+                                                                        const isDisabled = currentInputValue <= maxPoint;
+                                                                        kafedraHisobiCheckbox.disabled = isDisabled;
+                                                                        toggleCheckbox.disabled = isDisabled;
+
+                                                                        // Update classes for visual feedback
+                                                                        [kafedraHisobiCheckbox, toggleCheckbox].forEach(checkbox => {
+                                                                            checkbox.classList.toggle('opacity-50', isDisabled);
+                                                                            checkbox.classList.toggle('cursor-not-allowed', isDisabled);
+                                                                        });
+
+                                                                        [kafedraHisobiCheckbox.nextElementSibling, toggleCheckbox.nextElementSibling].forEach(label => {
+                                                                            label.classList.toggle('opacity-50', isDisabled);
+                                                                        });
+
+                                                                        // Update Alpine.js state
+                                                                        if (window.Alpine) {
+                                                                            Alpine.store('pointInfo').isDisabled = isDisabled;
+                                                                        }
                                                                     }
 
                                                                     murojaatBaliInput.addEventListener('input', updatePointInfo);
                                                                     updatePointInfo(); // Initial call to set correct values
                                                                 });
-                                                                </script>
+                                                            </script>
                                                             <style>
                                                                 .toggle-checkbox:checked {
                                                                     @apply: right-0 border-green-400;

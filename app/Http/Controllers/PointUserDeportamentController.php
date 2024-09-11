@@ -127,146 +127,152 @@ class PointUserDeportamentController extends Controller
         // Yuborilgan faylni qidirish
         $information = PointUserDeportament::findOrFail($id);
 
+        // Default surat buni o'zgartirsa bo'ladi
+        $default_image = 'https://cspu.uz/storage/app/media/2023/avgust/i.webp';
+
         if (!$information) {
             return response()->json(['error' => 'Item not found'], 404);
         }
 
-        // Kafedra hisobiga o'tgan balni olish
-        $departmentPoint = $this->pointCalculationController->getDepartmentPoint($id);
+        $relatedData = [];
+        $userPointInfo = [
+            'table_name' => '',
+            'max_point' => 0,
+            'total_points' => 0
+        ];
+        $relationships = $information->getRelationships();
 
-        // O'qituvchi bali va kafedra bali yig'indisi
-        $totalPoint = $information->point + $departmentPoint;
+        // Config faylidan ma'lumotlarni olish
+        $maxPointsConfig = config('max_points_dep_emp');
 
-        // Default surat
-        $default_image = 'https://cspu.uz/storage/app/media/2023/avgust/i.webp';
+        $foundRelation = false;
+        if (is_array($relationships)) {
+            foreach ($relationships as $relationship) {
+                $foreignKey = $relationship . '_id';
+                if (isset($information->{$foreignKey}) && !is_null($information->{$foreignKey})) {
+                    $relatedModelClass = $this->getModelClassForRelation($relationship);
+                    $relatedData[$relationship] = $relatedModelClass::find($information->{$foreignKey});
 
-        // Related ma'lumotlarni va user point info'ni olish
-        [$relatedData, $userPointInfo, $foundRelation] = $this->pointCalculationController->getRelatedData($information);
+                    $tableName = $relatedData[$relationship]->getTable();
+                    $userPointInfo['table_name'] = $tableName;
 
-        if (!$foundRelation) {
+                    foreach (['department', 'employee'] as $category) {
+                        if (isset($maxPointsConfig[$category][$tableName])) {
+                            $userPointInfo['max_point'] = $maxPointsConfig[$category][$tableName]['max'];
+                            $foundRelation = true;
+                            break 2;
+                        }
+                    }
+                } else {
+                    $relatedData[$relationship] = null;
+                }
+            }
+        } else {
             return response()->json(['error' => 'No relationships defined'], 500);
         }
 
-        // Foydalanuvchining barcha ballarini hisoblash
-        $pointsData = $this->pointCalculationController->calculateTotalPoints($information->user_id);
+        // Foydalanuvchining barcha pointlarini hisoblash
+        $totalPoints = PointUserDeportament::where('user_id', $information->user_id)
+            ->where('status', 1)
+            ->sum('point');
 
-        // Barcha ballarni qo'shganda + Departament ballariniham!
-        $totalPoints = $pointsData['totalPoints'];
-
-        // Departamentga o'tmagan sof ballari
-        $totalPointsWithDeportament = $pointsData['totalPointsWithoutDepartment'];
-
-        // Departamentga o'tgan ballar (Aynan shu yuborilgan ma'lumot bo'yicha!) Hamma ballar emas!
-        $totalDepartmentPoints = $pointsData['totalDepartmentPoints'];
-
-        // Umumiy kafedraga o'tgan ballarni hisoblash
-        // $totalDepartmentPoints = '0';
-
-        // Foydalanuvchining faqat shu table uchun ballarini hisoblash
+        // Foydalanuvchining faqat shu table uchun pointlarini hisoblash
         if ($foundRelation && $userPointInfo['table_name']) {
-            $tablePointInfo = $this->pointCalculationController->calculateUserPointInfo($information->user_id, $userPointInfo['table_name']);
-            $userPointInfo['total_points'] = $tablePointInfo['total_points'];
-            // dd( $userPointInfo['total_points']);
+            $userPointInfo['total_points'] = PointUserDeportament::where('user_id', $information->user_id)
+                ->where('status', 1)
+                ->where(function ($query) use ($userPointInfo) {
+                    $query->where(function ($q) use ($userPointInfo) {
+                        $columns = Schema::getColumnListing('point_user_deportaments');
+                        foreach ($columns as $column) {
+                            if (strpos($column, $userPointInfo['table_name']) !== false) {
+                                $q->orWhereNotNull($column);
+                            }
+                        }
+                    });
+                })
+                ->sum('point');
         }
 
         // $item->year ni ko'rinishga uzatamiz
         $year = $information->year;
 
-        return view('dashboard.show_request', compact(
-            'information',
-            'default_image',
-            'totalPoints',
-            'relatedData',
-            'year',
-            'userPointInfo',
-            'departmentPoint',
-            'totalPoint',
-            'totalPointsWithDeportament',
-            'totalDepartmentPoints'
-        ));
+        return view('dashboard.show_request', compact('information', 'default_image', 'totalPoints', 'relatedData', 'year', 'userPointInfo'));
     }
 
 
+    private function getModelClassForRelation($relation)
+    {
+        // Tegishli model uchun to'liq class nomini tuzish
+        return "\\App\\Models\\Tables\\" . ucfirst($relation) . "_";
+    }
 
     public function murojatniTasdiqlash(Request $request)
     {
-        $model = PointUserDeportament::findOrFail($request->id);
 
+        $model = PointUserDeportament::findOrFail($request->id); // Modelni topish
+
+        // Validatsiya qoidalari
         $validator = Validator::make($request->all(), [
-            'murojaat_holati' => 'required|integer|between:0,3',
-            'murojaat_bali' => 'nullable|numeric|min:0|max:9999.99',
-            'murojaat_izohi' => 'nullable|string|max:1000',
-
-            'max_point' => 'required|numeric|min:0|max:9999.99'
+            'murojaat_holati' => 'required|numeric|max:3',
+            'murojaat_bali' => 'nullable|numeric',
+            'murojaat_izohi' => 'nullable|string'
         ], [
             'murojaat_holati.required' => 'Ma\'lumot holatini kiritish majburiy.',
-            'murojaat_holati.integer' => 'Ma\'lumot holati butun son bo\'lishi kerak.',
-            'murojaat_holati.between' => 'Ma\'lumot holati 0 dan 3 gacha bo\'lishi kerak.',
-            'murojaat_bali.numeric' => 'Ma\'lumot bali son bo\'lishi kerak.',
-            'murojaat_bali.min' => 'Ma\'lumot bali 0 dan kichik bo\'lmasligi kerak.',
-            'murojaat_bali.max' => 'Ma\'lumot bali 9999.99 dan oshmasligi kerak.',
-            'murojaat_izohi.string' => 'Ma\'lumot izohi matn ko\'rinishida bo\'lishi kerak.',
-            'murojaat_izohi.max' => 'Ma\'lumot izohi 1000 belgidan oshmasligi kerak.',
-            'max_point.required' => 'Maksimal ball kiritish majburiy.',
-            'max_point.numeric' => 'Maksimal ball son bo\'lishi kerak.',
-            'max_point.min' => 'Maksimal ball 0 dan kichik bo\'lmasligi kerak.',
-            'max_point.max' => 'Maksimal ball 9999.99 dan oshmasligi kerak.'
+            'murojaat_holati.string' => 'Ma\'lumot holati matn ko\'rinishida bo\'lishi kerak.',
+            'murojaat_holati.max' => 'Ma\'lumot holati eng ko\'pi bilan 3 belgidan iborat bo\'lishi kerak.',
+            'murojaat_bali.numeric' => 'Ma\'lumot bali raqam bo\'lishi kerak.',
+            'murojaat_izohi.string' => 'Ma\'lumot izohi matn ko\'rinishida bo\'lishi kerak.'
         ]);
 
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
+        // Agar murojaat_holati "maqullandi" ga teng bo'lsa, murojaat_bali majburiy bo'ladi
+        $validator->sometimes('murojaat_bali', 'required|numeric', function ($input) {
+            return $input->murojaat_holati == '1';
+        }, [
+            'murojaat_bali.required' => 'Ma\'lumot holati "maqullandi" bo\'lganida, Ma\'lumot bali kiritish majburiy.'
+        ]);
 
-        $inputPoint = floatval($request->input('murojaat_bali', 0));
-        $maxPoint = floatval($request->input('max_point', 0));
+        // // Formadan kelgan ma'lumotlarni olish
+        $inputPoint = floatval($request->input('murojaat_bali'));
+        $extraPoints = floatval($request->input('extra_point'));
 
-        // Foydalanuvchining barcha itemlari bo'yicha umumiy ballarni hisoblash
-        $totalUserPoints = PointUserDeportament::where('user_id', $model->user_id)
-            ->where('id', '!=', $model->id) // Joriy itemni hisobga olmaslik
-            ->sum('point');
 
-        $totalDepartmentPoints = DepartPoints::whereIn('point_user_deport_id', function($query) use ($model) {
-            $query->select('id')
-                ->from('point_user_deportaments')
-                ->where('user_id', $model->user_id)
-                ->where('id', '!=', $model->id); // Joriy itemni hisobga olmaslik
-        })->sum('point');
+        // Yangi soddalashtirilgan logika
+        if ($request->murojaat_holati == '1') { // Faqat "maqullandi" holatida
+            $teacherPoints = $inputPoint - $extraPoints;
+            // O'qituvchi balini yangilash
+            $model->point = $teacherPoints; // Manfiy qiymatni oldini olish
 
-        $totalPoints = $totalUserPoints + $totalDepartmentPoints;
+            // Kafedra balini yangilash
+            if ($extraPoints > 0) {
+                 $model->department_points = ($model->department_points ?? 0) + $extraPoints;
 
-        $model->status = $request->murojaat_holati;
-        $model->arizaga_javob = $request->murojaat_izohi;
-
-        if ($request->murojaat_holati == 1) { // Maqullandi
-            $availablePoints = max(0, $maxPoint - $totalPoints);
-            $teacherPoint = min($inputPoint, $availablePoints);
-            $departmentPoint = max(0, $inputPoint - $teacherPoint);
-
-            $model->point = $teacherPoint;
-
-            if ($departmentPoint > 0) {
-                DepartPoints::updateOrCreate(
-                    ['point_user_deport_id' => $model->id],
-                    [
-                        'point' => $departmentPoint,
-                        'status' => true
-                    ]
-                );
-            } else {
-                DepartPoints::where('point_user_deport_id', $model->id)->delete();
             }
-        } elseif (in_array($request->murojaat_holati, [0, 3])) { // Rad etildi yoki Bekor qilindi
-            $model->point = 0.00;
-            DepartPoints::where('point_user_deport_id', $model->id)->delete();
-        } else { // Boshqa holatlar
-            $model->point = $inputPoint;
-            DepartPoints::where('point_user_deport_id', $model->id)->delete();
+        } else {
+            // Eski logika
+            if ($request->murojaat_holati == 0 || $request->murojaat_holati == 3) {
+                $model->point = 0.00;
+
+            } else {
+                $model->point = $request->murojaat_bali;
+            }
         }
 
+        // Eski kod
+        // Ma'lumotlarni yangilash
+        $model->status = $request->murojaat_holati;
+        if ($request->murojaat_holati == 0 || $request->murojaat_holati == 3) {
+            $model->point = 0.00;
+        } else {
+            $model->point = $request->murojaat_bali;
+        }
+
+        $model->arizaga_javob = $request->murojaat_izohi;
         $model->save();
 
+        // Bajarilganidan so'ng, foydalanuvchini kerakli sahifaga yo'naltiring
         return redirect()->back()->with('success', 'Ma\'lumot muvaffaqiyatli saqlandi');
     }
+
 
     public function destroy($fileId)
     {

@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use Log;
 use App\Models\DepartPoints;
+use Illuminate\Http\Request;
 use App\Models\PointUserDeportament;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -102,6 +103,56 @@ class PointCalculationController extends Controller
      * @param string $tableName Jadval nomi
      * @return array Foydalanuvchi ball ma'lumotlari
      */
+    public function calculateUserPointInfoSingle($userId, $tableName)
+{
+    // O'qituvchi ballarini hisoblash (departament ballari kirmagan holda)
+    $teacherPoints = PointUserDeportament::where('user_id', $userId)
+        ->where('status', 1)
+        ->where(function ($query) use ($tableName) {
+            $columns = Schema::getColumnListing('point_user_deportaments');
+            foreach ($columns as $column) {
+                if (strpos($column, $tableName) !== false) {
+                    $query->orWhereNotNull($column);
+                }
+            }
+        })
+        ->sum('point');
+
+    // Departament ballarini hisoblash
+    $departmentPoints = DepartPoints::whereIn('point_user_deport_id', function ($query) use ($userId, $tableName) {
+        $query->select('id')
+            ->from('point_user_deportaments')
+            ->where('user_id', $userId)
+            ->where('status', 1)
+            ->where(function ($q) use ($tableName) {
+                $columns = Schema::getColumnListing('point_user_deportaments');
+                foreach ($columns as $column) {
+                    if (strpos($column, $tableName) !== false) {
+                        $q->orWhereNotNull($column);
+                    }
+                }
+            });
+    })->sum('point');
+
+    // Debug uchun
+    Log::info("User ID: $userId, Table: $tableName");
+    \Log::info("Teacher Points (before correction): $teacherPoints");
+    \Log::info("Department Points: $departmentPoints");
+
+    // Hisoblash natijalarini qaytarish
+    $result = [
+        'total_points_for_teacher' => $teacherPoints,
+        'total_department_points' => $departmentPoints
+    ];
+
+    \Log::info("Final Result: " . json_encode($result));
+
+    return $result;
+}
+
+
+
+
     public function calculateUserPointInfo($userId, $tableName)
     {
         // Asosiy ballarni hisoblash
