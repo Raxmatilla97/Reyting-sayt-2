@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use DateTime;
 
+use App\Models\departPoints;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\PointUserDeportament;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
-use App\Models\departPoints;
 use App\Http\Controllers\PointCalculationController;
-use App\Models\PointUserDeportament;
 
 class PointUserDeportamentController extends Controller
 {
@@ -188,70 +189,84 @@ class PointUserDeportamentController extends Controller
 
 
     public function murojatniTasdiqlash(Request $request)
-{
-    $model = PointUserDeportament::findOrFail($request->id);
+    {
+        $model = PointUserDeportament::findOrFail($request->id);
 
-    $validator = Validator::make($request->all(), [
-        'murojaat_holati' => 'required|integer|between:0,3',
-        'murojaat_bali' => 'nullable|numeric|between:0,9999.99',
-        'murojaat_izohi' => 'nullable|string|max:1000',
-        'extra_point' => 'nullable|numeric|between:0,9999.99'
-    ], [
-        'murojaat_holati.required' => 'Ma\'lumot holatini kiritish majburiy.',
-        'murojaat_holati.integer' => 'Ma\'lumot holati butun son bo\'lishi kerak.',
-        'murojaat_holati.between' => 'Ma\'lumot holati 0 dan 3 gacha bo\'lishi kerak.',
-        'murojaat_bali.numeric' => 'Ma\'lumot bali son bo\'lishi kerak.',
-        'murojaat_bali.between' => 'Ma\'lumot bali 0 dan 9999.99 gacha bo\'lishi kerak.',
-        'murojaat_izohi.string' => 'Ma\'lumot izohi matn ko\'rinishida bo\'lishi kerak.',
-        'murojaat_izohi.max' => 'Ma\'lumot izohi 1000 belgidan oshmasligi kerak.',
-        'extra_point.numeric' => 'Qo\'shimcha ball son bo\'lishi kerak.',
-        'extra_point.between' => 'Qo\'shimcha ball 0 dan 9999.99 gacha bo\'lishi kerak.'
-    ]);
+        $validator = Validator::make($request->all(), [
+            'murojaat_holati' => 'required|integer|between:0,3',
+            'murojaat_bali' => 'nullable|numeric|min:0|max:9999.99',
+            'murojaat_izohi' => 'nullable|string|max:1000',
 
-    $validator->sometimes('murojaat_bali', 'required|numeric|between:0,9999.99', function ($input) {
-        return $input->murojaat_holati == 1;
-    }, [
-        'murojaat_bali.required' => 'Ma\'lumot holati "maqullandi" bo\'lganida, Ma\'lumot bali kiritish majburiy.'
-    ]);
+            'max_point' => 'required|numeric|min:0|max:9999.99'
+        ], [
+            'murojaat_holati.required' => 'Ma\'lumot holatini kiritish majburiy.',
+            'murojaat_holati.integer' => 'Ma\'lumot holati butun son bo\'lishi kerak.',
+            'murojaat_holati.between' => 'Ma\'lumot holati 0 dan 3 gacha bo\'lishi kerak.',
+            'murojaat_bali.numeric' => 'Ma\'lumot bali son bo\'lishi kerak.',
+            'murojaat_bali.min' => 'Ma\'lumot bali 0 dan kichik bo\'lmasligi kerak.',
+            'murojaat_bali.max' => 'Ma\'lumot bali 9999.99 dan oshmasligi kerak.',
+            'murojaat_izohi.string' => 'Ma\'lumot izohi matn ko\'rinishida bo\'lishi kerak.',
+            'murojaat_izohi.max' => 'Ma\'lumot izohi 1000 belgidan oshmasligi kerak.',
+            'max_point.required' => 'Maksimal ball kiritish majburiy.',
+            'max_point.numeric' => 'Maksimal ball son bo\'lishi kerak.',
+            'max_point.min' => 'Maksimal ball 0 dan kichik bo\'lmasligi kerak.',
+            'max_point.max' => 'Maksimal ball 9999.99 dan oshmasligi kerak.'
+        ]);
 
-    if ($validator->fails()) {
-        return redirect()->back()->withErrors($validator)->withInput();
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        $inputPoint = floatval($request->input('murojaat_bali', 0));
+        $maxPoint = floatval($request->input('max_point', 0));
+
+        // Foydalanuvchining barcha itemlari bo'yicha umumiy ballarni hisoblash
+        $totalUserPoints = PointUserDeportament::where('user_id', $model->user_id)
+            ->where('id', '!=', $model->id) // Joriy itemni hisobga olmaslik
+            ->sum('point');
+
+        $totalDepartmentPoints = DepartPoints::whereIn('point_user_deport_id', function($query) use ($model) {
+            $query->select('id')
+                ->from('point_user_deportaments')
+                ->where('user_id', $model->user_id)
+                ->where('id', '!=', $model->id); // Joriy itemni hisobga olmaslik
+        })->sum('point');
+
+        $totalPoints = $totalUserPoints + $totalDepartmentPoints;
+
+        $model->status = $request->murojaat_holati;
+        $model->arizaga_javob = $request->murojaat_izohi;
+
+        if ($request->murojaat_holati == 1) { // Maqullandi
+            $availablePoints = max(0, $maxPoint - $totalPoints);
+            $teacherPoint = min($inputPoint, $availablePoints);
+            $departmentPoint = max(0, $inputPoint - $teacherPoint);
+
+            $model->point = $teacherPoint;
+
+            if ($departmentPoint > 0) {
+                DepartPoints::updateOrCreate(
+                    ['point_user_deport_id' => $model->id],
+                    [
+                        'point' => $departmentPoint,
+                        'status' => true
+                    ]
+                );
+            } else {
+                DepartPoints::where('point_user_deport_id', $model->id)->delete();
+            }
+        } elseif (in_array($request->murojaat_holati, [0, 3])) { // Rad etildi yoki Bekor qilindi
+            $model->point = 0.00;
+            DepartPoints::where('point_user_deport_id', $model->id)->delete();
+        } else { // Boshqa holatlar
+            $model->point = $inputPoint;
+            DepartPoints::where('point_user_deport_id', $model->id)->delete();
+        }
+
+        $model->save();
+
+        return redirect()->back()->with('success', 'Ma\'lumot muvaffaqiyatli saqlandi');
     }
-
-    $inputPoint = floatval($request->input('murojaat_bali', 0));
-    $extraPoints = floatval($request->input('extra_point', 0));
-
-    $model->status = $request->murojaat_holati;
-    $model->arizaga_javob = $request->murojaat_izohi;
-
-    if ($request->murojaat_holati == 1) { // Maqullandi
-        $model->point = $inputPoint - $extraPoints;
-
-        DepartPoints::updateOrCreate(
-            ['point_user_deport_id' => $model->id],
-            [
-                'point' => $extraPoints,
-                'status' => $extraPoints > 0
-            ]
-        );
-    } elseif (in_array($request->murojaat_holati, [0, 3])) { // Rad etildi yoki Bekor qilindi
-        $model->point = 0.00;
-        DepartPoints::updateOrCreate(
-            ['point_user_deport_id' => $model->id],
-            [
-                'point' => 0.00,
-                'status' => false
-            ]
-        );
-    } else { // Boshqa holatlar
-        $model->point = $inputPoint;
-        DepartPoints::where('point_user_deport_id', $model->id)->delete();
-    }
-
-    $model->save();
-
-    return redirect()->back()->with('success', 'Ma\'lumot muvaffaqiyatli saqlandi');
-}
 
     public function destroy($fileId)
     {
