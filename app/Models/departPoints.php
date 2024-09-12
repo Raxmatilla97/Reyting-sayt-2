@@ -15,4 +15,8 @@ class departPoints extends Model
         return $this->belongsTo(Department::class, 'point_user_deport_id', 'id', 'departments')
             ->withDefault();
     }
+    public function pointUserDeportament()
+    {
+        return $this->belongsTo(PointUserDeportament::class, 'point_user_deport_id', 'id');
+    }
 }

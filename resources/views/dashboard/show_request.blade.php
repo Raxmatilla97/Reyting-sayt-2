@@ -330,8 +330,11 @@
                                                                                                     </button>
                                                                                                 </a>
                                                                                             @else
-                                                                                                <span
-                                                                                                    class="text-gray-900">{{ $value }}</span>
+                                                                                            <span
+                                                                                            class="text-gray-900 block break-words overflow-wrap-anywhere"
+                                                                                            style="word-break: break-word; hyphens: auto;">
+                                                                                            {{ $value }}
+                                                                                        </span>
                                                                                             @endif
                                                                                         </ul>
                                                                                     </div>
@@ -391,9 +394,9 @@
                                                     max($userPointInfo['total_points'], $userPointInfo['max_point']) -
                                                     $userPointInfo['total_points'];
                                                 $initialInputValue = old('point', $information->point);
+                                                $initialInputValueDepartament = '';
                                             @endphp
-                                            <input type="text" id="extraPointsInput" name="extra_point"
-                                                value="{{ $extraPoints }}" hidden>
+
                                             <div id="pointInfo">
                                                 <span class="font-medium">DIQQAT!</span> Foydalanuvchi <b></b>
                                                 yo'nalishidan ball olgan bo'lishi mumkin!.
@@ -419,9 +422,8 @@
                                                         class="text-indigo-600 font-semibold @if ($extraPoints <= 0) hidden @endif">
                                                         Ortiqcha <span
                                                             id="extraPointsValue">{{ $extraPoints }}</span> ballni
-                                                        kafedra hisobiga o'tkazish kerak! (Buning uchun "Ortiqcha balni
-                                                        kafedra hisobiga o'tqazish") ga belgilang shunda ortiqcha ball
-                                                        kafedra hisobiga o'tadi!
+                                                        kafedra hisobiga o'tkazish kerak! (Buning uchun "Ballni kafedra
+                                                        hisobiga o'tqazish") ga belgilang va ortiqcha balni yozing!
                                                     </li>
                                                 </ul>
                                             </div>
@@ -515,7 +517,7 @@
                                                                 bali:</span>
                                                         </div>
                                                         <div class="flex items-center space-x-4">
-                                                            <div class="relative" style="width: 200px;">
+                                                            <div class="relative" style="width: 150px;">
                                                                 <div
                                                                     class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
                                                                     <svg class="w-4 h-4 text-gray-500 dark:text-gray-400"
@@ -525,97 +527,139 @@
                                                                         <path stroke="currentColor"
                                                                             stroke-linecap="round"
                                                                             stroke-linejoin="round" stroke-width="2"
-                                                                            d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2" />
+                                                                            d="m6.072 10.072 2 2 6-4m3.586 4.314.9-.9a2 2 0 0 0 0-2.828l-.9-.9a2 2 0 0 1-.586-1.414V5.072a2 2 0 0 0-2-2H13.8a2 2 0 0 1-1.414-.586l-.9-.9a2 2 0 0 0-2.828 0l-.9.9a2 2 0 0 1-1.414.586H5.072a2 2 0 0 0-2 2v1.272a2 2 0 0 1-.586 1.414l-.9.9a2 2 0 0 0 0 2.828l.9.9a2 2 0 0 1 .586 1.414v1.272a2 2 0 0 0 2 2h1.272a2 2 0 0 1 1.414.586l.9.9a2 2 0 0 0 2.828 0l.9-.9a2 2 0 0 1 1.414-.586h1.272a2 2 0 0 0 2-2V13.8a2 2 0 0 1 .586-1.414Z" />
                                                                     </svg>
                                                                 </div>
                                                                 <input type="text" id="murojaatBali"
                                                                     value="{{ $initialInputValue }}"
                                                                     name="murojaat_bali"
                                                                     class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                                    placeholder="0-100" required
+                                                                    placeholder="O'qituvchi bali" required
                                                                     pattern="[0-9]*[.,]?[0-9]+"
-                                                                    title="Only numbers and a single decimal point are allowed">
+                                                                    title="O'qituvchiga yo'nalish maximal baligacha bo'lgan ballarni berish uchun">
                                                             </div>
 
-
-                                                            <div x-show="!isDisabled" class="flex items-center">
-                                                                <div
-                                                                    class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in">
-                                                                    <input type="checkbox" name="kafedra_uchun"
-                                                                        id="toggle" :disabled="isDisabled"
-                                                                        class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-                                                                        :class="{ 'opacity-50 cursor-not-allowed': isDisabled }" />
-                                                                    <label for="toggle"
-                                                                        class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
-                                                                        :class="{ 'opacity-50 cursor-not-allowed': isDisabled }"></label>
+                                                            <div x-show="true" class="flex items-center">
+                                                                <div class="relative" style="width: 150px;">
+                                                                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
+                                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2" />
+                                                                        </svg>
+                                                                    </div>
+                                                                    <input type="text" id="smallInput"
+                                                                        value="{{ $userPointInfo['user_point_this_item'] > 0 ? $userPointInfo['user_point_this_item'] : '' }}"
+                                                                        name="kafedra_uchun"
+                                                                        class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                                        placeholder="Kafedra bali"
+                                                                        pattern="[0-9]*[.,]?[0-9]+"
+                                                                        title="O'qituvchining yo'nalish maximal ballaridan ortiq ballarni berish uchun"
+                                                                        {{ $userPointInfo['user_point_this_item'] > 0 ? '' : 'disabled' }}>
                                                                 </div>
-                                                                <label for="toggle" class="text-sm text-gray-700"
-                                                                    :class="{ 'opacity-50': isDisabled }">
-                                                                    Bu yerni tanlashiz uchun ortiqcha ball yetarli emas.
+
+                                                                <div class="relative inline-block w-10 ml-5 mr-2 align-middle select-none transition duration-200 ease-in">
+                                                                    <input type="checkbox" id="toggle"
+                                                                        class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                                                                        {{ $userPointInfo['user_point_this_item'] > 0 ? 'checked' : '' }}>
+                                                                    <label for="toggle"
+                                                                        class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"></label>
+                                                                </div>
+                                                                <label for="toggle" class="text-sm text-gray-700">
+                                                                    Ballni kafedra hisobiga o'tqazish
                                                                 </label>
                                                             </div>
 
                                                             <script>
-                                                                document.addEventListener('DOMContentLoaded', function() {
-                                                                    const murojaatBaliInput = document.getElementById('murojaatBali');
-                                                                    const remainingPointsElement = document.getElementById('remainingPoints');
-                                                                    const teacherPointsElement = document.getElementById('teacherPoints');
-                                                                    const exceedWarningElement = document.getElementById('exceedWarning');
-                                                                    const extraPointsInfoElement = document.getElementById('extraPointsInfo');
-                                                                    const extraPointsValueElement = document.getElementById('extraPointsValue');
-                                                                    const kafedraHisobiCheckbox = document.getElementById('kafedra-hisobi');
-                                                                    const toggleCheckbox = document.getElementById('toggle');
-                                                                    const extraPointsInput = document.getElementById('extraPointsInput'); // Yangi qo'shilgan element
+                                                            document.addEventListener('DOMContentLoaded', function() {
+                                                                const murojaatBaliInput = document.getElementById('murojaatBali');
+                                                                const remainingPointsElement = document.getElementById('remainingPoints');
+                                                                const teacherPointsElement = document.getElementById('teacherPoints');
+                                                                const exceedWarningElement = document.getElementById('exceedWarning');
+                                                                const extraPointsInfoElement = document.getElementById('extraPointsInfo');
+                                                                const extraPointsValueElement = document.getElementById('extraPointsValue');
+                                                                const kafedraHisobiCheckbox = document.getElementById('kafedra-hisobi');
+                                                                const toggleCheckbox = document.getElementById('toggle');
+                                                                const extraPointsInput = document.getElementById('extraPointsInput');
+                                                                const smallInput = document.getElementById('smallInput');
 
-                                                                    const maxPoint = {{ $userPointInfo['max_point'] }};
-                                                                    const initialTotalPoints = {{ $userPointInfo['total_points'] }};
-                                                                    const initialInputValue = {{ $initialInputValue }};
+                                                                const maxPoint = {{ $userPointInfo['max_point'] }};
+                                                                const initialTotalPoints = {{ $userPointInfo['total_points'] }};
+                                                                const initialInputValue = {{ $initialInputValue }};
+                                                                const userPointThisItem = {{ $userPointInfo['user_point_this_item'] }};
 
-                                                                    function updatePointInfo() {
-                                                                        const currentInputValue = parseFloat(murojaatBaliInput.value) || 0;
-                                                                        const newTotalPoints = initialTotalPoints + (currentInputValue - initialInputValue);
-                                                                        const truePoint = Math.max(0, maxPoint - newTotalPoints);
-                                                                        const extraPoints = Math.max(0, newTotalPoints - maxPoint);
+                                                                function updatePointInfo() {
+                                                                    const currentInputValue = parseFloat(murojaatBaliInput.value) || 0;
+                                                                    const newTotalPoints = initialTotalPoints + (currentInputValue - initialInputValue);
+                                                                    const truePoint = Math.max(0, maxPoint - newTotalPoints);
+                                                                    const extraPoints = Math.max(0, newTotalPoints - maxPoint);
 
-                                                                        remainingPointsElement.textContent =
-                                                                            `Siz yana ${truePoint.toFixed(2)} bal bera olasiz! Qolgan ortiqcha ballar kafedra hisobiga o'tadi.`;
+                                                                    remainingPointsElement.textContent =
+                                                                        `Siz yana ${truePoint.toFixed(2)} bal bera olasiz! Qolgan ortiqcha ballar kafedra hisobiga o'tadi.`;
 
-                                                                        teacherPointsElement.querySelector('b').textContent = newTotalPoints.toFixed(2);
-                                                                        teacherPointsElement.classList.toggle('text-red-600', newTotalPoints > maxPoint);
-                                                                        teacherPointsElement.classList.toggle('font-bold', newTotalPoints > maxPoint);
+                                                                    teacherPointsElement.querySelector('b').textContent = newTotalPoints.toFixed(2);
+                                                                    teacherPointsElement.classList.toggle('text-red-600', newTotalPoints > maxPoint);
+                                                                    teacherPointsElement.classList.toggle('font-bold', newTotalPoints > maxPoint);
 
-                                                                        exceedWarningElement.classList.toggle('hidden', newTotalPoints <= maxPoint);
+                                                                    exceedWarningElement.classList.toggle('hidden', newTotalPoints <= maxPoint);
 
-                                                                        extraPointsInfoElement.classList.toggle('hidden', extraPoints <= 0);
-                                                                        extraPointsValueElement.textContent = extraPoints.toFixed(2);
+                                                                    extraPointsInfoElement.classList.toggle('hidden', extraPoints <= 0);
+                                                                    extraPointsValueElement.textContent = extraPoints.toFixed(2);
 
-                                                                        // Yangi qo'shilgan qismlar
-                                                                        extraPointsInput.value = extraPoints.toFixed(2);
+                                                                    extraPointsInput.value = extraPoints.toFixed(2);
 
-                                                                        // Update the disabled state of checkboxes
-                                                                        const isDisabled = currentInputValue <= maxPoint;
-                                                                        kafedraHisobiCheckbox.disabled = isDisabled;
-                                                                        toggleCheckbox.disabled = isDisabled;
+                                                                    updateSmallInputState();
+                                                                }
 
-                                                                        // Update classes for visual feedback
-                                                                        [kafedraHisobiCheckbox, toggleCheckbox].forEach(checkbox => {
-                                                                            checkbox.classList.toggle('opacity-50', isDisabled);
-                                                                            checkbox.classList.toggle('cursor-not-allowed', isDisabled);
-                                                                        });
+                                                                murojaatBaliInput.addEventListener('input', updatePointInfo);
 
-                                                                        [kafedraHisobiCheckbox.nextElementSibling, toggleCheckbox.nextElementSibling].forEach(label => {
-                                                                            label.classList.toggle('opacity-50', isDisabled);
-                                                                        });
-
-                                                                        // Update Alpine.js state
-                                                                        if (window.Alpine) {
-                                                                            Alpine.store('pointInfo').isDisabled = isDisabled;
-                                                                        }
+                                                                smallInput.addEventListener('input', function() {
+                                                                    if (this.value === "" || isNaN(parseFloat(this.value))) {
+                                                                        this.value = "";
                                                                     }
-
-                                                                    murojaatBaliInput.addEventListener('input', updatePointInfo);
-                                                                    updatePointInfo(); // Initial call to set correct values
                                                                 });
+
+                                                                // Boshlang'ich holatni o'rnatish
+                                                                updatePointInfo();
+                                                            });
+                                                            </script>
+
+                                                            <script>
+                                                            document.addEventListener('DOMContentLoaded', function() {
+                                                                const toggleCheckbox = document.getElementById('toggle');
+                                                                const smallInput = document.getElementById('smallInput');
+                                                                const extraPointsInput = document.getElementById('extraPointsInput');
+
+                                                                const userPointThisItem = {{ $userPointInfo['user_point_this_item'] }};
+
+                                                                function updateSmallInputState() {
+                                                                    smallInput.disabled = !toggleCheckbox.checked;
+
+                                                                    if (toggleCheckbox.checked) {
+                                                                        if (smallInput.value === "" || parseFloat(smallInput.value) === 0) {
+                                                                            const extraPoints = parseFloat(extraPointsInput.value) || 0;
+                                                                            smallInput.value = Math.max(extraPoints, userPointThisItem).toFixed(2);
+                                                                        }
+                                                                    } else {
+                                                                        smallInput.value = "";
+                                                                    }
+                                                                }
+
+                                                                // Toggle o'zgarishini kuzatish
+                                                                toggleCheckbox.addEventListener('change', updateSmallInputState);
+
+                                                                // Boshlang'ich holatni o'rnatish
+                                                                if (userPointThisItem > 0) {
+                                                                    toggleCheckbox.checked = true;
+                                                                    smallInput.disabled = false;
+                                                                    smallInput.value = userPointThisItem.toFixed(2);
+                                                                } else {
+                                                                    toggleCheckbox.checked = false;
+                                                                    smallInput.disabled = true;
+                                                                    smallInput.value = "";
+                                                                }
+
+                                                                // Boshlang'ich holatni yangilash
+                                                                updateSmallInputState();
+                                                            });
                                                             </script>
                                                             <style>
                                                                 .toggle-checkbox:checked {
