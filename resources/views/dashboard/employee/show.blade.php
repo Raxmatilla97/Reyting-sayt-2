@@ -110,6 +110,8 @@
                                         </span>
 
 
+
+
                                         <br>
                                         <span
                                             class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
@@ -117,6 +119,12 @@
                                             {{ $employee->department->point_user_deportaments->where('user_id', $employee->id)->count() }} ta
 
                                         </span>
+                                        <br>
+                                        <span
+                                        class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
+                                        Kafedraga o'tgan ballari: {{ $departamentPointTotal}} ball
+
+                                    </span>
 
 
                                     </dd>

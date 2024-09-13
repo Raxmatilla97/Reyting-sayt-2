@@ -25,10 +25,21 @@
                         topishingiz mumkin!</h3>
 
 
+
+
+
                 </div>
+                <p class="text-md my-4">Agar siz yuborgan ma'lumotlarga ballar faqat kafedra hisobiga o'tayotgan bo'lsa
+                    demak siz yuborgan ma'lumotning yo'nalishidagi maksimal ballarni yig'gan bo'lasiz undan ortiqcha
+                    yig'ilgan ballar kafedra hisobiga o'tib ketadi!</p>
                 <p class="text-right">
                     Umumiy to'plagan ballaringiz: <span
-                        class="bg-blue-100 text-blue-800 text-md font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{{ $totalPoints }}</span>
+                        class="bg-blue-100 text-blue-800 text-md font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{{ $totalPoints }} ball</span>
+                </p>
+
+                <p class="text-right">
+                    Umumiy kafedraga o'tgan ballaringiz: <span
+                        class="bg-blue-100 text-blue-800 text-md font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">{{ $departamentPointTotal }} ball</span>
                 </p>
 
             </div>
@@ -46,4 +57,3 @@
     </div>
 
 </x-app-layout>
-

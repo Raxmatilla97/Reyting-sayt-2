@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use App\Models\departPoints;
 
 class EmployeeController extends Controller
 {
@@ -51,122 +52,75 @@ class EmployeeController extends Controller
 
 
     public function employeeShow($employee_id)
-{
-    try {
-        // employee_id bo'yicha xodimni topishga harakat qilamiz
-        $employee = Employee::where('employee_id_number', $employee_id)->firstOrFail();
+    {
+        try {
+            // employee_id bo'yicha xodimni topishga harakat qilamiz
+            $employee = Employee::where('employee_id_number', $employee_id)->firstOrFail();
 
-        // Xodimga tegishli point ma'lumotlarini olamiz
-        $pointUserInformations = PointUserDeportament::where('user_id', $employee->id)
-            ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            // Xodimga tegishli point ma'lumotlarini olamiz
+            $pointUserInformations = PointUserDeportament::where('user_id', $employee->id)
+                ->orderBy('created_at', 'desc')
+                ->paginate(15);
 
-        // Department va Employee konfiguratsiyalarini olish
-        $departmentCodlari = Config::get('dep_emp_tables.department');
-        $employeeCodlari = Config::get('dep_emp_tables.employee');
+            // Department va Employee konfiguratsiyalarini olish
+            $departmentCodlari = Config::get('dep_emp_tables.department');
+            $employeeCodlari = Config::get('dep_emp_tables.employee');
 
-        // Ikkala massivni birlashtirish
-        $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
+            // Ikkala massivni birlashtirish
+            $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
 
-        // Config fayllaridan label nomlarini olish
-        $employeeLabels = Config::get('employee_form_fields');
-        $departmentLabels = Config::get('department_forms_fields');
-        $allLabels = array_merge($employeeLabels, $departmentLabels);
+            // Config fayllaridan label nomlarini olish
+            $employeeLabels = Config::get('employee_form_fields');
+            $departmentLabels = Config::get('department_forms_fields');
+            $allLabels = array_merge($employeeLabels, $departmentLabels);
 
-        // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
-        $arrayKey = [];
-        foreach ($jadvallarCodlari as $key => $value) {
-            $arrayKey[$key . 'id'] = $key;
-        }
+            // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
+            $arrayKey = [];
+            foreach ($jadvallarCodlari as $key => $value) {
+                $arrayKey[$key . 'id'] = $key;
+            }
 
-        // Ma'lumotlar massivini tekshirish
-        foreach ($pointUserInformations as $item) {
-            foreach ($arrayKey as $column => $originalKey) {
-                if (isset($item->$column)) {
-                    // Config faylidan label nomini olish
-                    $labelKey = $originalKey . '_';
-                    $label = isset($allLabels[$labelKey]) ? $allLabels[$labelKey]['label'] : $jadvallarCodlari[$originalKey];
+            // Ma'lumotlar massivini tekshirish
+            foreach ($pointUserInformations as $item) {
+                foreach ($arrayKey as $column => $originalKey) {
+                    if (isset($item->$column)) {
+                        // Config faylidan label nomini olish
+                        $labelKey = $originalKey . '_';
+                        $label = isset($allLabels[$labelKey]) ? $allLabels[$labelKey]['label'] : $jadvallarCodlari[$originalKey];
 
-                    $item->murojaat_nomi = $label;
-                    $item->murojaat_codi = $originalKey;
-                    break;
+                        $item->murojaat_nomi = $label;
+                        $item->murojaat_codi = $originalKey;
+                        break;
+                    }
                 }
             }
+
+            // Umumiy ballarni hisoblash
+            $totalPoints = PointUserDeportament::where('user_id', $employee->id)
+                ->where('status', 1)
+                ->sum('point');
+
+
+            // O'qituvchining barcha departamentga o'tib ketgan ballari yi'gindisi
+            $pointUserInformation = PointUserDeportament::where('user_id', $employee->id)
+            ->where('status', 1)->get();
+
+            $departamentPointTotal = 0;
+            foreach ($pointUserInformation as $pointEntry) {
+                $departamentPointTotal += DepartPoints::where('point_user_deport_id', $pointEntry->id)->sum('point');
+            }
+
+            // $totalPoints = $employee->department ? $totalPoints : 'N/A';
+
+            return view('dashboard.employee.show', compact('employee', 'pointUserInformations', 'totalPoints', 'departamentPointTotal'));
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            // Xodim topilmasa, xato xabarini ko'rsatamiz
+            return back()->with('error', "ID: $employee_id bo'lgan xodim topilmadi.");
+        } catch (\Exception $e) {
+            // Boshqa xatoliklar uchun
+            \Log::error('Xodim ma\'lumotlarini olishda xatolik: ' . $e->getMessage());
+            return back()->with('error', 'Ma\'lumotlarni olishda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko\'ring.');
         }
-
-       // Umumiy ballarni hisoblash
-        $totalPoints = PointUserDeportament::where('user_id', $employee->id)
-            ->where('status', 1)
-            ->sum('point');
-
-        // $totalPoints = 0;
-        // if ($employee->department) {
-        //     $totalPoints = $employee->department->point_user_deportaments()
-        //         ->where('status', 1)
-        //         ->where('user_id', $employee->id)
-        //         ->selectRaw('ROUND(COALESCE(SUM(CASE WHEN point > 0 THEN point ELSE 0 END), 0), 2) as total_points')
-        //         ->value('total_points');
-        // }
-
-        // $totalPoints = $employee->department ? $totalPoints : 'N/A';
-
-        return view('dashboard.employee.show', compact('employee', 'pointUserInformations', 'totalPoints'));
-    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-        // Xodim topilmasa, xato xabarini ko'rsatamiz
-        return back()->with('error', "ID: $employee_id bo'lgan xodim topilmadi.");
-    } catch (\Exception $e) {
-        // Boshqa xatoliklar uchun
-        \Log::error('Xodim ma\'lumotlarini olishda xatolik: ' . $e->getMessage());
-        return back()->with('error', 'Ma\'lumotlarni olishda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko\'ring.');
-    }
-}
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 
 
@@ -209,12 +163,14 @@ class EmployeeController extends Controller
                 if (isset($pointUserInformation->point)) {
                     $totalPoints += $pointUserInformation->point;
                 }
+
+                $departamentPointTotal = DepartPoints::where('point_user_deport_id', $pointUserInformation->id)->sum('point');
             }
         }
 
         // $totalPoints;
 
-        return view('dashboard.my_submited_info', compact('pointUserInformations', 'totalPoints'));
+        return view('dashboard.my_submited_info', compact('pointUserInformations', 'totalPoints', 'departamentPointTotal'));
     }
 
     public function list(Request $request)
@@ -238,5 +194,4 @@ class EmployeeController extends Controller
         // Natijani ko'rsatish uchun ko'rinishni qaytarish
         return view('dashboard.employee.index', compact('employees'));
     }
-
 }

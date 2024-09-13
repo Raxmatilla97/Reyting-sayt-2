@@ -121,7 +121,7 @@
                                                         </div>
                                                     </td>
                                                     <td class="px-6 py-4">
-                                                        {{ round($item->point_user_deportaments()->where('status', 1)->sum('point'), 2) }}
+                                                        {{ round($item->totalPoints, 2) }}
                                                     </td>
                                                     <td class="px-6 py-4">
                                                         <a href="{{ route('dashboard.departmentShow', ['slug' => $item->slug]) }}" class="font-medium text-blue-600 hover:underline">

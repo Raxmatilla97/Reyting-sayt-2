@@ -96,8 +96,9 @@ class ApiHemisController extends Controller
 
         if (!$user) {
             $employeeData = $this->getEmployeeDataFromHemis($userDetails['employee_id_number']);
-            $departmentId = $this->getDepartmentId($userDetails['departments']);
 
+            $departmentId = $this->getDepartmentId($userDetails['departments']);
+            // dd( $departmentId);
             if (!$departmentId) {
                 throw new \Exception('Siz Hemis tizimida hechqaysi kafedraga birlashtirilmagansiz!');
             }
@@ -154,10 +155,22 @@ class ApiHemisController extends Controller
     private function getDepartmentId($departments)
     {
         foreach ($departments as $department) {
-            if (isset($department['employmentForm']['code']) && $department['employmentForm']['code'] == 11) {
+            if (isset($department['employmentForm']['code'])) {
+                $code = $department['employmentForm']['code'];
                 $departmentId = $department['department']['id'];
-                if (Department::where('id', $departmentId)->exists()) {
-                    return $departmentId;
+
+                // 11-kod uchun tekshirish
+                if ($code == 11) {
+                    if (Department::where('id', $departmentId)->exists()) {
+                        return $departmentId;
+                    }
+                }
+
+                // Agar 11-kod mos kelmasa, 12-kodni tekshirish
+                elseif ($code == 12) {
+                    if (Department::where('id', $departmentId)->exists()) {
+                        return $departmentId;
+                    }
                 }
             }
         }

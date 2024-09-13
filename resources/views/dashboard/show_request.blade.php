@@ -425,6 +425,11 @@
                                                         kafedra hisobiga o'tkazish kerak! (Buning uchun "Ballni kafedra
                                                         hisobiga o'tqazish") ga belgilang va ortiqcha balni yozing!
                                                     </li>
+                                                    <li
+                                                        class="text-indigo-600 font-semibold @if ($userPointInfo['user_point_this_item'] <= 0) hidden @endif">
+                                                        Ushbu ma'lumot uchun <span
+                                                            id="extraPointsValue">{{ $userPointInfo['user_point_this_item'] }}</span> ball kafedra hisobiga o'tqazilgan.
+                                                    </li>
                                                 </ul>
                                             </div>
                                         </div>

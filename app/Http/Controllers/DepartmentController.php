@@ -14,25 +14,42 @@ class DepartmentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
-    {
-        // Query builderni yaratish va point_user_deportaments bilan bog'lanish
-        $departments = Department::with('point_user_deportaments')->where('status', 1);
 
-        // Agar 'name' parametri mavjud bo'lsa, nomga mos keladigan xodimlarni qidirish
-        if ($request->filled('name')) {
-            $name = '%' . $request->name . '%'; // LIKE qidiruvlari uchun qidiruv terminini tayyorlash
-            $departments->where(function ($q) use ($name) {
-                $q->where('name', 'like', $name);
-            });
-        }
 
-        // Tartiblash va paginatsiya qilish
-        $departments = $departments->orderBy('created_at', 'desc')->where('status', 1)->paginate(21);
+     public function index(Request $request)
+     {
+         // Departamentlar uchun so'rov yaratish va point_user_deportaments ma'lumotlarini oldindan yuklash
+         $departments = Department::with(['point_user_deportaments' => function($query) {
+             $query->where('status', 1)->with('departPoint');
+         }])->where('status', 1);
 
-        // Natijani ko'rsatish uchun ko'rinishni qaytarish
-        return view('dashboard.department.index', compact('departments'));
-    }
+         // Agar ism berilgan bo'lsa, qidirish
+         if ($request->filled('name')) {
+             $name = '%' . $request->name . '%';
+             $departments->where('name', 'like', $name);
+         }
+
+         // Tartiblash va sahifalash
+         $departments = $departments->orderBy('created_at', 'desc')->paginate(21);
+
+         // Har bir departament uchun umumiy ballni hisoblash
+         foreach ($departments as $department) {
+             $departmentPointTotal = 0;
+             foreach ($department->point_user_deportaments as $pointEntry) {
+                 // point_user_deportaments jadvalidagi ballni qo'shish
+                 $departmentPointTotal += $pointEntry->point;
+
+                 // departPoint jadvalidagi ballni qo'shish (agar mavjud bo'lsa)
+                 if ($pointEntry->departPoint) {
+                     $departmentPointTotal += $pointEntry->departPoint->point;
+                 }
+             }
+             $department->totalPoints = round($departmentPointTotal, 2);
+         }
+
+         // Ko'rinishni departamentlar ma'lumotlari bilan qaytarish
+         return view('dashboard.department.index', compact('departments'));
+     }
 
 
     public function departmentFormChose()

@@ -27,7 +27,7 @@
                     <h3 class="text-lg font-medium">Kelib tushgan ma'lumotlar tezda ko'rib chiqilishi kerak.</h3>
                 </div>
                 <div class="mt-2 mb-4 text-sm">
-                   Foydalanuvchilardan kelgan ma'lumotlarni ko'rib baholab chiqing.
+                    Foydalanuvchilardan kelgan ma'lumotlarni ko'rib baholab chiqing.
                 </div>
                 <div class="flex justify-end">
                     {{-- <a href="{{ route('moderator.create', ['professor_id' => $professor->id]) }}"><button
@@ -284,7 +284,8 @@
                                                     style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                                     {{ $item->employee->FullName }}
                                                 </div>
-                                                <div class="font-normal text-gray-500 w-[150px] overflow-hidden whitespace-normal">
+                                                <div
+                                                    class="font-normal text-gray-500 w-[150px] overflow-hidden whitespace-normal">
                                                     {{ $item->employee->department->name }}
                                                 </div>
 
@@ -292,7 +293,8 @@
                                         </th>
 
                                         <td class="px-6 py-4">
-                                            <span class="bg-blue-100 text-blue-800 text-md font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                            <span
+                                                class="bg-blue-100 text-blue-800 text-md font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
                                                 {{ $item->murojaat_codi ?? 'Noma’lum' }}
                                             </span>
 
@@ -315,36 +317,23 @@
                                                 @endif
                                             </div>
                                         </td>
+                                        @include('frogments.ball_korsatadigan')
                                         <td class="px-6 py-4">
-                                            @if ($item->status == '1')
-                                                <span
-                                                    class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
-                                                    {{round($item->point, 2);}}
-                                                    - ball</span>
-                                            @elseif($item->status == '0')
-                                                <span
-                                                    class="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">Hisoblanmadi!</span>
-                                            @else
-                                                <span
-                                                    class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Baholanmagan!</span>
-                                            @endif
-
+                                            {{ $item->created_at->diffForHumans() }}
                                         </td>
                                         <td class="px-6 py-4">
-                                            {{  $item->created_at->diffForHumans() }}
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            @if(Auth::user()->id == 17)
+                                            @if (Auth::user()->id == 17)
+                                                <button data-tooltip-target="tooltip-default" type="button"
+                                                    class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 text-sm dark:focus:ring-blue-800">Ko'rish</button>
 
-                                                <button data-tooltip-target="tooltip-default" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 text-sm dark:focus:ring-blue-800">Ko'rish</button>
-
-                                                <div id="tooltip-default" role="tooltip" class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
+                                                <div id="tooltip-default" role="tooltip"
+                                                    class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700">
                                                     Sizga ma'lumotlarga ball berish huquqi berilmagan!
                                                     <div class="tooltip-arrow" data-popper-arrow></div>
                                                 </div>
                                             @else
-                                            <a href="{{ route('murojatlar.show', ['id' => $item->id]) }}"
-                                                class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Ko'rish</a>
+                                                <a href="{{ route('murojatlar.show', ['id' => $item->id]) }}"
+                                                    class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Ko'rish</a>
                                             @endif
                                         </td>
                                     </tr>

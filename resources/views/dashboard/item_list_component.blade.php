@@ -15,7 +15,7 @@
                     <th scope="col" class="px-6 py-3" style="    min-width: 150px;">
                         Ma'lumot holati
                     </th>
-                    <th scope="col" class="px-6 py-3">
+                    <th scope="col" class="px-6 py-3" style="min-width: 185px;">
                         Berilgan ball
                     </th>
                     <th scope="col" class="px-6 py-3">
@@ -85,20 +85,7 @@
                                 @endif
                             </div>
                         </td>
-                        <td class="px-6 py-4">
-                            @if ($item->status == 1)
-                                <span
-                                    class="bg-green-100 text-green-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">{{ $item->point }}
-                                    - ball</span>
-                            @elseif($item->status == 0)
-                                <span
-                                    class="bg-red-100 text-red-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-red-900 dark:text-red-300">Hisoblanmadi!</span>
-                            @else
-                                <span
-                                    class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">Baholanmagan!</span>
-                            @endif
-
-                        </td>
+                        @include('frogments.ball_korsatadigan')
                         <td class="px-6 py-4">
                             {{ $item->created_at->diffForHumans() }}
                         </td>
@@ -106,9 +93,9 @@
                             <div class="mr-3 flex-shrink-0 item">
                                 <button data-modal-target="default-modal-{{ $item->id }}"
                                     data-modal-toggle="default-modal-{{ $item->id }}"
-                                    class="view-details-btn block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-sm rounded-lg text-sm px-3 py-1.5 text-center"
+                                    class="view-details-btn block text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-sm rounded-lg text-sm px-2 py-1.5 text-center"
                                     type="button" data-id="{{ $item->id }}">
-                                    KO'RISH
+                                    Ko'rish
                                 </button>
 
 
