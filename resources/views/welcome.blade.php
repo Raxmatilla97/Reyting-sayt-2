@@ -104,7 +104,7 @@
                     <h3 class="text-lg font-bold text-center mb-4 text-blue-600">TOP-5 KAFEDRA REYTINGI</h3>
                     <ol class="list-decimal pl-5 space-y-2">
                         @foreach ($topDepartments as $topDepartment)
-                            <li class="text-sm sm:text-base md:text-lg font-bold">{{$topDepartment->name}} - <span class="text-blue-600">{{$topDepartment->total_points}}</span></li>
+                            <li class="text-sm sm:text-base md:text-lg font-bold">{{$topDepartment->name}} - <span class="text-blue-600">{{ $topDepartment->average_points}}</span></li>
                         @endforeach
                     </ol>
                 </div>
@@ -113,7 +113,7 @@
                     <h3 class="text-lg font-bold text-center mb-4 text-blue-600">TOP-3 FAKULTETLAR REYTINGI</h3>
                     <ol class="list-decimal pl-5 space-y-2">
                         @foreach ($topFaculties as $topFaculty)
-                            <li class="text-sm sm:text-base md:text-lg font-bold">{{$topFaculty->name}} - <span class="text-blue-600">{{$topFaculty->total_points}}</span></li>
+                            <li class="text-sm sm:text-base md:text-lg font-bold">{{$topFaculty->name}} - <span class="text-blue-600">{{$topFaculty->average_points}}</span></li>
                         @endforeach
                     </ol>
                 </div>

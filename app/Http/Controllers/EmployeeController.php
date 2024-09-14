@@ -142,8 +142,9 @@ class EmployeeController extends Controller
             $arrayKey[$key . 'id'] = $key; // $key . 'id' qiymatini o'rnating
         }
 
-        // Umumiy ballar yig'indisini saqlash uchun o'zgaruvchi
+        // Umumiy ballar yig'indisini saqlash uchun o'zgaruvchilar
         $totalPoints = 0;
+        $departamentPointTotal = 0;
 
         // Ma'lumotlar massivini tekshirish
         foreach ($pointUserInformations as $pointUserInformation) {
@@ -158,17 +159,16 @@ class EmployeeController extends Controller
             }
 
             // Foydalanuvchining har bir itemidagi ballarni yig'indiga qo'shish
-
             if ($pointUserInformation->status === 1) {
                 if (isset($pointUserInformation->point)) {
                     $totalPoints += $pointUserInformation->point;
                 }
-
-                $departamentPointTotal = DepartPoints::where('point_user_deport_id', $pointUserInformation->id)->sum('point');
             }
+
+            // DepartPoints ballarini qo'shish (statusdan qat'i nazar)
+            $departamentPointTotal += DepartPoints::where('point_user_deport_id', $pointUserInformation->id)->sum('point');
         }
 
-        // $totalPoints;
 
         return view('dashboard.my_submited_info', compact('pointUserInformations', 'totalPoints', 'departamentPointTotal'));
     }

@@ -43,11 +43,27 @@
                                             Assalomu alaykum, {{ $department->name }}ga oid ma'lumotlar keyinchalik to'ldirilib boyitilib borilishi mumkin!
                                         </p>
                                         <ul class="space-y-3 text-lg text-gray-600">
-                                            <li><span class="font-semibold">Kafedra o'qituvchilar soni:</span> {{ $totalEmployees }} nafar</li>
-                                            <li><span class="font-semibold">Kafedra to'plangan umumiy ballar:</span> {{ $totalPoints }}</li>
+                                            <li><span class="font-semibold">Kafedra o'qituvchilar soni:</span>
+                                                <span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                                    Saytga kirgan: {{ $totalEmployees }} nafar
+                                                </span>
+
+                                                <span class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
+                                                    Hemis bo'yicha: {{$unregisteredEmployees }} nafar
+                                                </span>
+                                            </li>
+                                            <li><span class="font-semibold">Kafedra to'plangan umumiy ballar:</span>
+                                                <span class="bg-green-100 text-green-800 text-md font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
+                                                    {{ $totalPoints }} ball
+                                                </span>
+                                            </li>
                                             <li><span class="font-semibold">Kafedra hisobidagi yuborilgan ma'lumotlar soni:</span> {{ $totalInfos }} ta</li>
                                             <li><span class="font-semibold">Oxirgi yuborilgan ma'lumot vaqti:</span> {{ $timeAgo }}</li>
-                                            <li><span class="font-semibold">Oxirgi yuborgan ma'lumot egasi:</span> {{ $fullName }}</li>
+                                            <li><span class="font-semibold">Oxirgi yuborgan ma'lumot egasi:</span>
+                                                <span class="bg-indigo-100 text-indigo-800 text-lg font-medium me-2 px-2.5 py-0.5 rounded dark:bg-indigo-900 dark:text-indigo-300">
+                                                    {{ $fullName }}
+                                                </span>
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>

@@ -206,7 +206,7 @@
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     Jami ball: <span class="bg-indigo-100 text-indigo-800 text-md font-medium me-2 px-2.5 py-0.5 rounded dark:bg-indigo-900 dark:text-indigo-300">
-                                                        {{ $item->totalPoints }}
+                                                        {{ $item->average_points }}
                                                     </span>
                                                 </td>
                                                 <td class="px-6 py-4">

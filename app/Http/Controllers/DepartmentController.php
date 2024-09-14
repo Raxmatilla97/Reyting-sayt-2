@@ -16,40 +16,68 @@ class DepartmentController extends Controller
      */
 
 
-     public function index(Request $request)
-     {
-         // Departamentlar uchun so'rov yaratish va point_user_deportaments ma'lumotlarini oldindan yuklash
-         $departments = Department::with(['point_user_deportaments' => function($query) {
-             $query->where('status', 1)->with('departPoint');
-         }])->where('status', 1);
+    public function index(Request $request)
+    {
+        // Departamentlar uchun so'rov yaratish va point_user_deportaments ma'lumotlarini oldindan yuklash
+        $departments = Department::with(['point_user_deportaments' => function ($query) {
+            $query->where('status', 1)->with('departPoint');
+        }])->where('status', 1);
 
-         // Agar ism berilgan bo'lsa, qidirish
-         if ($request->filled('name')) {
-             $name = '%' . $request->name . '%';
-             $departments->where('name', 'like', $name);
-         }
+        // Agar ism berilgan bo'lsa, qidirish
+        if ($request->filled('name')) {
+            $name = '%' . $request->name . '%';
+            $departments->where('name', 'like', $name);
+        }
 
-         // Tartiblash va sahifalash
-         $departments = $departments->orderBy('created_at', 'desc')->paginate(21);
+        // Tartiblash va sahifalash
+        $departments = $departments->orderBy('created_at', 'desc')->paginate(21);
 
-         // Har bir departament uchun umumiy ballni hisoblash
-         foreach ($departments as $department) {
-             $departmentPointTotal = 0;
-             foreach ($department->point_user_deportaments as $pointEntry) {
-                 // point_user_deportaments jadvalidagi ballni qo'shish
-                 $departmentPointTotal += $pointEntry->point;
+        // Kafedrada nechta o'qituvchi borligi haqidagi massiv
+        $departmentCounts = config('departament_tichers_count');
 
-                 // departPoint jadvalidagi ballni qo'shish (agar mavjud bo'lsa)
-                 if ($pointEntry->departPoint) {
-                     $departmentPointTotal += $pointEntry->departPoint->point;
-                 }
-             }
-             $department->totalPoints = round($departmentPointTotal, 2);
-         }
+        if ($departmentCounts === null) {
+            $departmentCounts = include(config_path('departament_tichers_count.php'));
+        }
 
-         // Ko'rinishni departamentlar ma'lumotlari bilan qaytarish
-         return view('dashboard.department.index', compact('departments'));
-     }
+        // Har bir departament uchun hisoblarni amalga oshirish
+        foreach ($departments as $department) {
+            $departmentPointTotal = 0;
+            // Departamentga tegishli barcha balllarni hisoblab chiqish
+            foreach ($department->point_user_deportaments as $pointEntry) {
+                // point_user_deportaments jadvalidagi ballni qo'shish
+                $departmentPointTotal += $pointEntry->point;
+
+                // Agar qo'shimcha departPoint mavjud bo'lsa, uni ham qo'shish
+                if ($pointEntry->departPoint) {
+                    $departmentPointTotal += $pointEntry->departPoint->point;
+                }
+            }
+
+            // Departamentdagi o'qituvchilar sonini olish
+            $teacherCount = null;
+            foreach ($departmentCounts as $facultyId => $facultyDepartments) {
+                if (isset($facultyDepartments[$department->id])) {
+                    $teacherCount = $facultyDepartments[$department->id];
+                    break;
+                }
+            }
+
+            // Agar o'qituvchilar soni mavjud bo'lsa, o'rtacha ballni hisoblash
+            if ($teacherCount) {
+                // Umumiy ballni o'qituvchilar soniga bo'lib, 2 xonagacha yaxlitlash
+                $department->totalPoints = round($departmentPointTotal / $teacherCount, 2);
+            } else {
+                // Agar o'qituvchilar soni ma'lum bo'lmasa, 'N/A' qiymatini berish
+                $department->totalPoints = 'N/A';
+            }
+
+            // O'qituvchilar sonini saqlash
+            $department->teacherCount = $teacherCount ?? 'N/A';
+        }
+
+        // Ko'rinishni departamentlar ma'lumotlari bilan qaytarish
+        return view('dashboard.department.index', compact('departments'));
+    }
 
 
     public function departmentFormChose()
@@ -65,10 +93,7 @@ class DepartmentController extends Controller
     {
         $department = Department::where('slug', $slug)->firstOrFail();
 
-
-
         $pointUserInformations = PointUserDeportament::where('departament_id', $department->id)->orderBy('created_at', 'desc')->paginate(15);
-
 
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');
@@ -99,8 +124,52 @@ class DepartmentController extends Controller
         // Fakultetda nechta o'qituvchi borligi
         $totalEmployees = $department->employee()->count();
 
-        // Fakultet umumiy ballari soni
-        $totalPoints = round($department->point_user_deportaments()->where('status', 1)->sum('point'), 2);
+        // Kafedrada nechta o'qituvchi borligi haqidagi massiv
+        $departmentCounts = config('departament_tichers_count');
+
+        if ($departmentCounts === null) {
+            $departmentCounts = include(config_path('departament_tichers_count.php'));
+        }
+
+      // Kafedradagi o'qituvchilar sonini olish
+        $totalDepartmentEmployees = null;
+        foreach ($departmentCounts as $facultyId => $facultyDepartments) {
+            if (isset($facultyDepartments[$department->id])) {
+                $totalDepartmentEmployees = $facultyDepartments[$department->id];
+                break;
+            }
+        }
+
+        // Agar kafedraning o'qituvchilar soni topilmasa, 0 ga tenglashtiramiz
+        $totalDepartmentEmployees = $totalDepartmentEmployees ?? 0;
+
+        // Ro'yxatdan o'tmagan, ammo kafedrada ishlayotgan o'qituvchilar soni
+        $unregisteredEmployees = $totalDepartmentEmployees;
+
+        // Fakultet umumiy ballari va o'rtacha ballni hisoblash
+        $departmentPointTotal = 0;
+
+        // point_user_deportaments jadvalidagi barcha tasdiqlangan (status = 1) balllarni qo'shish
+        $departmentPointTotal += $department->point_user_deportaments()
+            ->where('status', 1)
+            ->sum('point');
+
+        // departPoint jadvalidagi qo'shimcha balllarni qo'shish (agar mavjud bo'lsa)
+        $departmentPointTotal += $department->point_user_deportaments()
+            ->where('status', 1)
+            ->whereHas('departPoint')
+            ->with('departPoint')
+            ->get()
+            ->sum(function ($pointEntry) {
+                return $pointEntry->departPoint->point;
+            });
+
+        // Agar o'qituvchilar soni mavjud bo'lsa, o'rtacha ballni hisoblash
+        if ($totalDepartmentEmployees > 0) {
+            $totalPoints = round($departmentPointTotal / $totalDepartmentEmployees, 2);
+        } else {
+            $totalPoints = 'N/A';
+        }
 
         // Fakultet umumiy ma'lumotlar soni
         $totalInfos = $department->point_user_deportaments()->count();
@@ -143,59 +212,11 @@ class DepartmentController extends Controller
             'totalPoints',
             'totalInfos',
             'timeAgo',
-            'fullName'
+            'fullName',
+            'unregisteredEmployees'
 
 
 
         ));
-    }
-
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Department $department)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Department $department)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Department $department)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Department $department)
-    {
-        //
     }
 }
