@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
-use App\Models\departPoints;
+use App\Models\DepartPoints;
 
 class EmployeeController extends Controller
 {

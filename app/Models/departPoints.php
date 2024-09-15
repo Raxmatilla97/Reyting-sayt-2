@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class departPoints extends Model
+class DepartPoints extends Model
 {
     use HasFactory;
     protected $fillable = ['point_user_deport_id', 'point', 'status'];

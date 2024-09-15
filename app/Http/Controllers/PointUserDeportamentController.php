@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use DateTime;
 
-use App\Models\departPoints;
+use App\Models\DepartPoints;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\PointUserDeportament;

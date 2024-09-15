@@ -107,7 +107,7 @@ class PointUserDeportament extends Model
 
     public function departPoint()
     {
-        return $this->hasOne(\App\Models\departPoints::class, 'point_user_deport_id');
+        return $this->hasOne(\App\Models\DepartPoints::class, 'point_user_deport_id');
     }
 
     public function employee()
