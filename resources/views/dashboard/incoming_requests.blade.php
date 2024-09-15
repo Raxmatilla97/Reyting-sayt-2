@@ -171,45 +171,19 @@
                                         </select>
 
                                         <div date-rangepicker class="flex items-center ml-4 mr-6">
-                                            <div class="relative">
-                                                <div
-                                                    class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                                        fill="currentColor" viewBox="0 0 20 20">
-                                                        <path
-                                                            d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                                                    </svg>
-                                                </div>
 
-                                                <script>
-                                                    $('#start_data').change(function() {
-                                                        var originalDate = $(this).val(); // Get the date from the input
-                                                        var formattedDate = moment(originalDate, "MM/DD/YYYY").format(
-                                                            "YYYY-MM-DD"); // Convert to desired format
-                                                        $(this).val(formattedDate); // Update the input value with the formatted date
-                                                    });
-                                                </script>
+                                            <select id="countries" name="yonalish"
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                                                <option value="all"
+                                                    {{ request('yonalish') == 'all' ? 'selected' : '' }}>Barcha
+                                                    yo'nalishlar</option>
+                                                @foreach ($selectOptions as $key => $value)
+                                                    <option value="{{ $key }}"
+                                                        {{ request('yonalish') == $key ? 'selected' : '' }}>
+                                                        {{ $value }}</option>
+                                                @endforeach
 
-                                                <input name="start_data" type="text" disabled
-                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                    placeholder="Boshlanish">
-                                            </div>
-                                            <span class="mx-4 text-gray-500">gacha</span>
-                                            <div class="relative">
-                                                <div
-                                                    class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400"
-                                                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
-                                                        fill="currentColor" viewBox="0 0 20 20">
-                                                        <path
-                                                            d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z" />
-                                                    </svg>
-                                                </div>
-                                                <input name="end_data" type="text" disabled
-                                                    class="bg-gray-50 border border-gray-300 text-gray-900 text-md rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5  dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                    placeholder="Tugash">
-                                            </div>
+                                            </select>
                                         </div>
 
 

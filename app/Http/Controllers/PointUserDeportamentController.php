@@ -27,7 +27,7 @@ class PointUserDeportamentController extends Controller
 
     public function list(Request $request)
     {
-        // Check if the 'category' field is filled and set the appropriate 'status'
+        // "Kategoriya" maydoni to'ldirilganligini tekshiring va tegishli "holat" ni o'rnatish
         if ($request->filled('category')) {
             switch ($request->category) {
                 case 'all':
@@ -47,13 +47,14 @@ class PointUserDeportamentController extends Controller
 
         $form_info = [
             'category'   => $request->get('category'),
+            'yonalish'   => $request->get('yonalish'),
             'name'       => $request->get('name'),
             'sort'       => $request->get('sort'),
             'start_data' => $request->get('start_data'),
             'end_data'   => $request->get('end_data'),
         ];
 
-        // Handle date formatting, ensuring correct input and avoiding potential null value issues
+        // Sana formatlash bilan shug'ullaning, to'g'ri kiritilishini ta'minlash va mumkin bo'lgan null qiymat muammolaridan qochish
         $start_date = $request->filled('start_data')
             ? DateTime::createFromFormat('m/d/Y', $request->input('start_data'))
             : null;
@@ -61,34 +62,8 @@ class PointUserDeportamentController extends Controller
             ? DateTime::createFromFormat('m/d/Y', $request->input('end_data'))
             : null;
 
-        // Apply filters only if necessary fields are filled
+        // Filtrlarni faqat kerakli maydonlar to'ldirilgan bo'lsa qo'llang
         $filter = PointUserDeportament::whereNotNull('status')->get();
-
-        if ($request->filled('name') || $request->filled('category') || $request->filled('sort') || ($request->filled('start_data') && $request->filled('end_data'))) {
-            $murojatlar = PointUserDeportament::when($request->filled('category') && $request->status !== 'all', function (Builder $query) use ($request) {
-                $query->where('status', $request->status);
-            })
-                ->when($request->filled('name'), function (Builder $query) use ($request) {
-                    $name = '%' . $request->name . '%'; // Prepare the search term for LIKE queries
-                    $query->where(function (Builder $q) use ($name) {
-                        $q->whereHas('employee', function (Builder $q) use ($name) {
-                            $q->where('first_name', 'like', $name)
-                                ->orWhere('second_name', 'like', $name)
-                                ->orWhere('third_name', 'like', $name);
-                        });
-                    });
-                })
-                ->when($request->filled('sort'), function (Builder $query) use ($request) {
-                    $query->orderBy('created_at', $request->sort);
-                })
-                ->when($start_date && $end_date, function (Builder $query) use ($start_date, $end_date) {
-                    $query->whereBetween('created_at', [$start_date->format('Y-m-d'), $end_date->format('Y-m-d')]);
-                })
-                ->paginate(15);
-        } else {
-            // If no filters are applied, return all records ordered by creation date
-            $murojatlar = PointUserDeportament::orderBy('created_at', 'desc')->paginate(15);
-        }
 
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');
@@ -100,16 +75,65 @@ class PointUserDeportamentController extends Controller
         // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
         $arrayKey = [];
         foreach ($jadvallarCodlari as $key => $value) {
-            $arrayKey[$key . 'id'] = $key; // $key . 'id' qiymatini o'rnating
+            $arrayKey[$key . 'id'] = $key;
         }
 
+        // Select uchun variantlarni tayyorlash
+        $selectOptions = [];
+        foreach ($jadvallarCodlari as $key => $value) {
+            $value = str_replace("Chirchiq davlat pedagogika universitetida", "CHDPUda", $value);
+            $truncatedValue = mb_strlen($value) > 70 ? mb_substr($value, 0, 67) . '...' : $value;
+            $selectOptions[$key] = "$key - $truncatedValue";
+        }
+
+        // Key bo'yicha asc tartibda saralash
+        ksort($selectOptions);
+
+        // Yo'nalish bo'yicha filtrlash
+        $query = PointUserDeportament::query();
+
+        if ($request->filled('yonalish') && $request->yonalish !== 'all') {
+            $selectedYonalish = $request->yonalish;
+            $query->where(function ($q) use ($selectedYonalish, $arrayKey) {
+                foreach ($arrayKey as $column => $key) {
+                    if ($key === $selectedYonalish) {
+                        $q->orWhereNotNull($column);
+                    }
+                }
+            });
+        }
+
+        // Boshqa filtrlar
+        $query->when($request->filled('category') && $request->category !== 'all', function ($q) use ($request) {
+            $q->where('status', $request->status);
+        })
+            ->when($request->filled('name'), function ($q) use ($request) {
+                $searchTerms = explode(' ', $request->name);
+                $q->where(function ($subQ) use ($searchTerms) {
+                    $subQ->whereHas('employee', function ($employeeQ) use ($searchTerms) {
+                        foreach ($searchTerms as $term) {
+                            $employeeQ->where(function ($termQ) use ($term) {
+                                $termQ->where('first_name', 'like', '%' . $term . '%')
+                                    ->orWhere('second_name', 'like', '%' . $term . '%')
+                                    ->orWhere('third_name', 'like', '%' . $term . '%');
+                            });
+                        }
+                    });
+                });
+            })
+            ->when($request->filled('sort'), function ($q) use ($request) {
+                $q->orderBy('created_at', $request->sort);
+            })
+            ->when($start_date && $end_date, function ($q) use ($start_date, $end_date) {
+                $q->whereBetween('created_at', [$start_date->format('Y-m-d'), $end_date->format('Y-m-d')]);
+            });
+
+        $murojatlar = $query->paginate(15);
 
         // Ma'lumotlar massivini tekshirish
         foreach ($murojatlar as $item) {
             foreach ($arrayKey as $column => $originalKey) {
-                // column tekshiriladi
                 if (isset($item->$column)) {
-                    // $murojaat_nomi o'rnatiladi
                     $item->murojaat_nomi = $jadvallarCodlari[$originalKey];
                     $item->murojaat_codi = $originalKey;
                     break;
@@ -118,7 +142,7 @@ class PointUserDeportamentController extends Controller
         }
 
         // Natijani ko'rsatish uchun ko'rinishni qaytarish
-        return view('dashboard.incoming_requests', compact('murojatlar', 'filter', 'form_info'));
+        return view('dashboard.incoming_requests', compact('murojatlar', 'filter', 'form_info', 'selectOptions'));
     }
 
 
@@ -208,7 +232,7 @@ class PointUserDeportamentController extends Controller
         })->sum('point');
 
         // Foydalanuvchining barcha yo'nalishlar bo'yicha departamentga o'tgan pointlarini hisoblash
-         // Success function
+        // Success function
         $userPointInfo['user_points_all_departs_items'] = DepartPoints::whereHas('pointUserDeportament', function ($query) use ($information) {
             $query->where('user_id', $information->user_id);
         })->sum('point');
