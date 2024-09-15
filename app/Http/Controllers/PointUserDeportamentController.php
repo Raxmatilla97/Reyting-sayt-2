@@ -240,7 +240,22 @@ class PointUserDeportamentController extends Controller
         // $item->year ni ko'rinishga uzatamiz
         $year = $information->year;
 
-        return view('dashboard.show_request', compact('information', 'default_image', 'totalPoints', 'relatedData', 'year', 'userPointInfo'));
+        // O'xshash ma'lumotlarni tekshirish
+        $query = PointUserDeportament::where('user_id', $information->user_id)
+            ->where('id', '!=', $id);
+
+        $userData = $query->get();
+
+        // O'xshash ma'lumotlarni aniqlash
+        $similarData = $userData->filter(function ($item) use ($information) {
+            // Yil bir xil va table_1_1_id mavjud bo'lsa
+            return $item->year == $information->year && !is_null($item->table_1_1_id);
+        });
+
+        $hasSimilarData = $similarData->isNotEmpty();
+        $similarDataId = $hasSimilarData ? $similarData->first()->id : null;
+
+        return view('dashboard.show_request', compact('information', 'default_image', 'totalPoints', 'relatedData', 'year', 'userPointInfo', 'hasSimilarData', 'similarDataId'));
     }
 
     private function getModelClassForRelation($relation)

@@ -430,6 +430,17 @@
                                                         Ushbu ma'lumot uchun <span
                                                             id="extraPointsValue">{{ $userPointInfo['user_point_this_item'] }}</span> ball kafedra hisobiga o'tqazilgan.
                                                     </li>
+                                                    <hr class="my-4">
+                                                    <li class="@if($hasSimilarData)text-red-600 @else text-green-600 @endif font-semibold">
+                                                        @if($hasSimilarData)
+                                                            O'xshash ma'lumot mavjud!
+                                                            <a href="{{ route('murojatlar.show', $similarDataId) }}" class="btn btn-primary ml-2 text-blue-500">
+                                                                Ko'rish
+                                                            </a>
+                                                        @else
+                                                            O'xshash ma'lumot mavjud emas!
+                                                        @endif
+                                                    </li>
                                                 </ul>
                                             </div>
                                         </div>
