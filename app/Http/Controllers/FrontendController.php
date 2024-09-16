@@ -47,19 +47,17 @@ class FrontendController extends Controller
                  $teacherCount = $departmentCounts[$faculty->id][$department->id] ?? 0;
                  $faculty->total_teachers += $teacherCount;
 
-                 if ($teacherCount > 0) {
-                     $departmentPoints = $department->point_user_deportaments
-                         ->where('status', 1)
-                         ->reduce(function ($carry, $pointEntry) {
-                             return $carry + $pointEntry->point + ($pointEntry->departPoint ? $pointEntry->departPoint->point : 0);
-                         }, 0);
+                 $departmentPoints = $department->point_user_deportaments
+                     ->where('status', 1)
+                     ->reduce(function ($carry, $pointEntry) {
+                         return $carry + $pointEntry->point + ($pointEntry->departPoint ? $pointEntry->departPoint->point : 0);
+                     }, 0);
 
-                     $faculty->total_points += $departmentPoints / $teacherCount;
-                 }
+                 $faculty->total_points += $departmentPoints;
              }
 
              $faculty->average_points = $faculty->total_teachers > 0
-                 ? round($faculty->total_points, 2)
+                 ? round($faculty->total_points / $faculty->total_teachers, 2)
                  : 0;
 
              return $faculty;

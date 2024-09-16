@@ -64,7 +64,7 @@
                                                 <li><span class="font-semibold">Fakultet o'qituvchilar soni:</span>
                                                     {{ $totalEmployees }} nafar</li>
                                                 <li><span class="font-semibold">Fakultet to'plangan umumiy
-                                                        ballar:</span> {{ $totalPoints }}</li>
+                                                        ballar:</span> {{ $averagePoints }}</li>
                                                 <li><span class="font-semibold">Fakultet hisobidagi yuborilgan
                                                         ma'lumotlar soni:</span> {{ $totalInfos }} ta</li>
                                                 <li><span class="font-semibold">Oxirgi yuborilgan ma'lumot vaqti:</span>

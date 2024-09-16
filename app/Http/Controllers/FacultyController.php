@@ -16,47 +16,45 @@ class FacultyController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-    {
-        $faculties = Faculty::with('departments.point_user_deportaments.departPoint')
-            ->where('status', 1)
-            ->paginate(15);
+{
+    $faculties = Faculty::with('departments.point_user_deportaments.departPoint')
+        ->where('status', 1)
+        ->paginate(15);
 
-        $departmentCounts = config('departament_tichers_count');
+    $departmentCounts = config('departament_tichers_count');
 
-        if ($departmentCounts === null) {
-            $departmentCounts = include(config_path('departament_tichers_count.php'));
-        }
-
-        foreach ($faculties as $faculty) {
-            $faculty->totalPoints = 0;
-            $faculty->totalTeachers = 0;
-
-            foreach ($faculty->departments as $department) {
-                // Har bir departament uchun o'qituvchilar sonini hisoblash
-                $teacherCount = $departmentCounts[$faculty->id][$department->id] ?? 0;
-                $faculty->totalTeachers += $teacherCount;
-
-                if ($teacherCount > 0) {
-                    // Departament uchun umumiy ballarni hisoblash
-                    $departmentPoints = $department->point_user_deportaments
-                        ->where('status', 1)
-                        ->reduce(function ($carry, $pointEntry) {
-                            return $carry + $pointEntry->point + ($pointEntry->departPoint ? $pointEntry->departPoint->point : 0);
-                        }, 0);
-
-                    // Departament o'rtacha ballini fakultet umumiy balliga qo'shish
-                    $faculty->totalPoints += $departmentPoints / $teacherCount;
-                }
-            }
-
-            // Fakultet o'rtacha ballini hisoblash
-            $faculty->average_points = $faculty->totalTeachers > 0
-                ? round($faculty->totalPoints, 2)
-                : 'N/A';
-        }
-
-        return view('dashboard.faculty.index', compact('faculties'));
+    if ($departmentCounts === null) {
+        $departmentCounts = include(config_path('departament_tichers_count.php'));
     }
+
+    foreach ($faculties as $faculty) {
+        $faculty->totalPoints = 0;
+        $faculty->totalTeachers = 0;
+
+        foreach ($faculty->departments as $department) {
+            // Har bir departament uchun o'qituvchilar sonini hisoblash
+            $teacherCount = $departmentCounts[$faculty->id][$department->id] ?? 0;
+            $faculty->totalTeachers += $teacherCount;
+
+            // Departament uchun umumiy ballarni hisoblash
+            $departmentPoints = $department->point_user_deportaments
+                ->where('status', 1)
+                ->reduce(function ($carry, $pointEntry) {
+                    return $carry + $pointEntry->point + ($pointEntry->departPoint ? $pointEntry->departPoint->point : 0);
+                }, 0);
+
+            // Departament ballarini fakultet umumiy balliga qo'shish
+            $faculty->totalPoints += $departmentPoints;
+        }
+
+        // Fakultet o'rtacha ballini hisoblash
+        $faculty->average_points = $faculty->totalTeachers > 0
+            ? round($faculty->totalPoints / $faculty->totalTeachers, 2)
+            : 'N/A';
+    }
+
+    return view('dashboard.faculty.index', compact('faculties'));
+}
 
     public function facultyShow($slug)
     {
@@ -102,7 +100,7 @@ class FacultyController extends Controller
             $departmentCounts = include(config_path('departament_tichers_count.php'));
         }
 
-        // Fakultet umumiy ballari va o'rtacha ballni hisoblash
+        // Fakultet umumiy ballari va o'qituvchilar sonini hisoblash
         $totalPoints = 0;
         $totalTeachers = 0;
 
@@ -111,6 +109,8 @@ class FacultyController extends Controller
 
         foreach ($faculty->departments as $department) {
             $departmentPointTotal = 0;
+            $teacherCount = $facultyDepartments[$department->id] ?? 0;
+            $totalTeachers += $teacherCount;
 
             // point_user_deportaments jadvalidagi barcha tasdiqlangan (status = 1) balllarni qo'shish
             $departmentPointTotal += $department->point_user_deportaments()
@@ -131,16 +131,11 @@ class FacultyController extends Controller
             $totalPoints += $departmentPointTotal;
         }
 
-        // Fakultetdagi barcha kafedralar uchun o'qituvchilar sonini hisoblash
-        foreach ($facultyDepartments as $departmentId => $teacherCount) {
-            $totalTeachers += $teacherCount;
-        }
-
         // Agar o'qituvchilar soni mavjud bo'lsa, o'rtacha ballni hisoblash
         if ($totalTeachers > 0) {
-            $totalPoints = round($totalPoints / $totalTeachers, 2);
+            $averagePoints = round($totalPoints / $totalTeachers, 2);
         } else {
-            $totalPoints = 'N/A';
+            $averagePoints = 'N/A';
         }
 
         $totalEmployees = $totalTeachers;
@@ -193,7 +188,8 @@ class FacultyController extends Controller
             'totalPoints',
             'totalInfos',
             'timeAgo',
-            'fullName'
+            'fullName',
+            'averagePoints'
 
 
         ));
