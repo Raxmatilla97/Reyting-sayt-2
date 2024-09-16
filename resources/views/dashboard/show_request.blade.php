@@ -692,23 +692,24 @@
                                                         </div>
                                                     </div>
 
-                                                    <!-- File Upload Info -->
-                                                    <div class="flex mt-4">
-                                                        <div class="label-box" style="width: 300px;">
-                                                            <i class="fas fa-file-upload text-red-500"></i>
-                                                            <span class="ml-2 text-lg font-medium">Ma'lumot holati
-                                                                izohi:</span>
-                                                        </div>
-                                                        <div class="w-full">
-                                                            <label for="message"
-                                                                class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                                                Agar foydalanuvchi ma'lumotiga izoh yozmoqchi bo'lsangiz
-                                                                yoki maqullanmagan bo'lsa nima uchunligini yozing.
-                                                            </label>
-                                                            <textarea id="message" rows="4" name="murojaat_izohi"
-                                                                class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                                placeholder="Assalomu alaykum, sizning ....">{{ old('arizaga_javob', $information->arizaga_javob) }}</textarea>
-                                                        </div>
+
+                                                </div>
+                                                <!-- File Upload Info -->
+                                                <div class="flex mt-4">
+                                                    <div class="label-box" style="width: 300px;">
+                                                        <i class="fas fa-file-upload text-red-500"></i>
+                                                        <span class="ml-2 text-lg font-medium">Ma'lumot holati
+                                                            izohi:</span>
+                                                    </div>
+                                                    <div class="w-full">
+                                                        <label for="message"
+                                                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                                            Agar foydalanuvchi ma'lumotiga izoh yozmoqchi bo'lsangiz
+                                                            yoki maqullanmagan bo'lsa nima uchunligini yozing.
+                                                        </label>
+                                                        <textarea id="message" rows="4" name="murojaat_izohi"
+                                                            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                            placeholder="Assalomu alaykum, sizning ....">{{ old('arizaga_javob', $information->arizaga_javob) }}</textarea>
                                                     </div>
                                                 </div>
 
