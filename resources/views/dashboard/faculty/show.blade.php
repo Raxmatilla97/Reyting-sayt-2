@@ -10,7 +10,7 @@
             <div class="bg-white overflow-hidden shadow-lg rounded-lg">
                 <div class="p-6 sm:p-8 bg-white border-b border-gray-200">
                     <div class="mb-8">
-                        <div x-data="{ activeTab: 'about_us' }" class="container mx-auto">
+                        <div x-data="{ activeTab: 'yuborilgan' }" class="container mx-auto">
                             <!-- Mobile Tab Dropdown -->
                             <div class="sm:hidden mb-6">
                                 <select x-model="activeTab"
