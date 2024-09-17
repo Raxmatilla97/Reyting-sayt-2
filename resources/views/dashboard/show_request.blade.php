@@ -330,11 +330,11 @@
                                                                                                     </button>
                                                                                                 </a>
                                                                                             @else
-                                                                                            <span
-                                                                                            class="text-gray-900 block break-words overflow-wrap-anywhere"
-                                                                                            style="word-break: break-word; hyphens: auto;">
-                                                                                            {{ $value }}
-                                                                                        </span>
+                                                                                                <span
+                                                                                                    class="text-gray-900 block break-words overflow-wrap-anywhere"
+                                                                                                    style="word-break: break-word; hyphens: auto;">
+                                                                                                    {{ $value }}
+                                                                                                </span>
                                                                                             @endif
                                                                                         </ul>
                                                                                     </div>
@@ -428,13 +428,16 @@
                                                     <li
                                                         class="text-indigo-600 font-semibold @if ($userPointInfo['user_point_this_item'] <= 0) hidden @endif">
                                                         Ushbu ma'lumot uchun <span
-                                                            id="extraPointsValue">{{ $userPointInfo['user_point_this_item'] }}</span> ball kafedra hisobiga o'tqazilgan.
+                                                            id="extraPointsValue">{{ $userPointInfo['user_point_this_item'] }}</span>
+                                                        ball kafedra hisobiga o'tqazilgan.
                                                     </li>
                                                     <hr class="my-4">
-                                                    <li class="@if($hasSimilarData)text-red-600 @else text-green-600 @endif font-semibold">
-                                                        @if($hasSimilarData)
+                                                    <li
+                                                        class="@if ($hasSimilarData) text-red-600 @else text-green-600 @endif font-semibold">
+                                                        @if ($hasSimilarData)
                                                             O'xshash ma'lumot mavjud!
-                                                            <a href="{{ route('murojatlar.show', $similarDataId) }}" class="btn btn-primary ml-2 text-blue-500">
+                                                            <a href="{{ route('murojatlar.show', $similarDataId) }}"
+                                                                class="btn btn-primary ml-2 text-blue-500">
                                                                 Ko'rish
                                                             </a>
                                                         @else
@@ -478,7 +481,7 @@
                                                     </div>
                                                 @endif
                                                 @if (session('success'))
-                                                    <div class="fixed top-3 right-3 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
+                                                    <div class="fixed top-3 mb-4 right-3 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
                                                         role="alert">
                                                         <strong class="font-bold">Muvaffaqiyat!</strong>
                                                         <span class="block sm:inline">{{ session('success') }}</span>
@@ -557,9 +560,17 @@
 
                                                             <div x-show="true" class="flex items-center">
                                                                 <div class="relative" style="width: 150px;">
-                                                                    <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
-                                                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 18 20">
-                                                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2" />
+                                                                    <div
+                                                                        class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                                                        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                                                            aria-hidden="true"
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            fill="none" viewBox="0 0 18 20">
+                                                                            <path stroke="currentColor"
+                                                                                stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                stroke-width="2"
+                                                                                d="M3 5v10M3 5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm0 10a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm12 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm0 0V6a3 3 0 0 0-3-3H9m1.5-2-2 2 2 2" />
                                                                         </svg>
                                                                     </div>
                                                                     <input type="text" id="smallInput"
@@ -572,7 +583,8 @@
                                                                         {{ $userPointInfo['user_point_this_item'] > 0 ? '' : 'disabled' }}>
                                                                 </div>
 
-                                                                <div class="relative inline-block w-10 ml-5 mr-2 align-middle select-none transition duration-200 ease-in">
+                                                                <div
+                                                                    class="relative inline-block w-10 ml-5 mr-2 align-middle select-none transition duration-200 ease-in">
                                                                     <input type="checkbox" id="toggle"
                                                                         class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
                                                                         {{ $userPointInfo['user_point_this_item'] > 0 ? 'checked' : '' }}>
@@ -585,97 +597,97 @@
                                                             </div>
 
                                                             <script>
-                                                            document.addEventListener('DOMContentLoaded', function() {
-                                                                const murojaatBaliInput = document.getElementById('murojaatBali');
-                                                                const remainingPointsElement = document.getElementById('remainingPoints');
-                                                                const teacherPointsElement = document.getElementById('teacherPoints');
-                                                                const exceedWarningElement = document.getElementById('exceedWarning');
-                                                                const extraPointsInfoElement = document.getElementById('extraPointsInfo');
-                                                                const extraPointsValueElement = document.getElementById('extraPointsValue');
-                                                                const kafedraHisobiCheckbox = document.getElementById('kafedra-hisobi');
-                                                                const toggleCheckbox = document.getElementById('toggle');
-                                                                const extraPointsInput = document.getElementById('extraPointsInput');
-                                                                const smallInput = document.getElementById('smallInput');
+                                                                document.addEventListener('DOMContentLoaded', function() {
+                                                                    const murojaatBaliInput = document.getElementById('murojaatBali');
+                                                                    const remainingPointsElement = document.getElementById('remainingPoints');
+                                                                    const teacherPointsElement = document.getElementById('teacherPoints');
+                                                                    const exceedWarningElement = document.getElementById('exceedWarning');
+                                                                    const extraPointsInfoElement = document.getElementById('extraPointsInfo');
+                                                                    const extraPointsValueElement = document.getElementById('extraPointsValue');
+                                                                    const kafedraHisobiCheckbox = document.getElementById('kafedra-hisobi');
+                                                                    const toggleCheckbox = document.getElementById('toggle');
+                                                                    const extraPointsInput = document.getElementById('extraPointsInput');
+                                                                    const smallInput = document.getElementById('smallInput');
 
-                                                                const maxPoint = {{ $userPointInfo['max_point'] }};
-                                                                const initialTotalPoints = {{ $userPointInfo['total_points'] }};
-                                                                const initialInputValue = {{ $initialInputValue }};
-                                                                const userPointThisItem = {{ $userPointInfo['user_point_this_item'] }};
+                                                                    const maxPoint = {{ $userPointInfo['max_point'] }};
+                                                                    const initialTotalPoints = {{ $userPointInfo['total_points'] }};
+                                                                    const initialInputValue = {{ $initialInputValue }};
+                                                                    const userPointThisItem = {{ $userPointInfo['user_point_this_item'] }};
 
-                                                                function updatePointInfo() {
-                                                                    const currentInputValue = parseFloat(murojaatBaliInput.value) || 0;
-                                                                    const newTotalPoints = initialTotalPoints + (currentInputValue - initialInputValue);
-                                                                    const truePoint = Math.max(0, maxPoint - newTotalPoints);
-                                                                    const extraPoints = Math.max(0, newTotalPoints - maxPoint);
+                                                                    function updatePointInfo() {
+                                                                        const currentInputValue = parseFloat(murojaatBaliInput.value) || 0;
+                                                                        const newTotalPoints = initialTotalPoints + (currentInputValue - initialInputValue);
+                                                                        const truePoint = Math.max(0, maxPoint - newTotalPoints);
+                                                                        const extraPoints = Math.max(0, newTotalPoints - maxPoint);
 
-                                                                    remainingPointsElement.textContent =
-                                                                        `Siz yana ${truePoint.toFixed(2)} bal bera olasiz! Qolgan ortiqcha ballar kafedra hisobiga o'tadi.`;
+                                                                        remainingPointsElement.textContent =
+                                                                            `Siz yana ${truePoint.toFixed(2)} bal bera olasiz! Qolgan ortiqcha ballar kafedra hisobiga o'tadi.`;
 
-                                                                    teacherPointsElement.querySelector('b').textContent = newTotalPoints.toFixed(2);
-                                                                    teacherPointsElement.classList.toggle('text-red-600', newTotalPoints > maxPoint);
-                                                                    teacherPointsElement.classList.toggle('font-bold', newTotalPoints > maxPoint);
+                                                                        teacherPointsElement.querySelector('b').textContent = newTotalPoints.toFixed(2);
+                                                                        teacherPointsElement.classList.toggle('text-red-600', newTotalPoints > maxPoint);
+                                                                        teacherPointsElement.classList.toggle('font-bold', newTotalPoints > maxPoint);
 
-                                                                    exceedWarningElement.classList.toggle('hidden', newTotalPoints <= maxPoint);
+                                                                        exceedWarningElement.classList.toggle('hidden', newTotalPoints <= maxPoint);
 
-                                                                    extraPointsInfoElement.classList.toggle('hidden', extraPoints <= 0);
-                                                                    extraPointsValueElement.textContent = extraPoints.toFixed(2);
+                                                                        extraPointsInfoElement.classList.toggle('hidden', extraPoints <= 0);
+                                                                        extraPointsValueElement.textContent = extraPoints.toFixed(2);
 
-                                                                    extraPointsInput.value = extraPoints.toFixed(2);
+                                                                        extraPointsInput.value = extraPoints.toFixed(2);
 
-                                                                    updateSmallInputState();
-                                                                }
-
-                                                                murojaatBaliInput.addEventListener('input', updatePointInfo);
-
-                                                                smallInput.addEventListener('input', function() {
-                                                                    if (this.value === "" || isNaN(parseFloat(this.value))) {
-                                                                        this.value = "";
+                                                                        updateSmallInputState();
                                                                     }
-                                                                });
 
-                                                                // Boshlang'ich holatni o'rnatish
-                                                                updatePointInfo();
-                                                            });
+                                                                    murojaatBaliInput.addEventListener('input', updatePointInfo);
+
+                                                                    smallInput.addEventListener('input', function() {
+                                                                        if (this.value === "" || isNaN(parseFloat(this.value))) {
+                                                                            this.value = "";
+                                                                        }
+                                                                    });
+
+                                                                    // Boshlang'ich holatni o'rnatish
+                                                                    updatePointInfo();
+                                                                });
                                                             </script>
 
                                                             <script>
-                                                            document.addEventListener('DOMContentLoaded', function() {
-                                                                const toggleCheckbox = document.getElementById('toggle');
-                                                                const smallInput = document.getElementById('smallInput');
-                                                                const extraPointsInput = document.getElementById('extraPointsInput');
+                                                                document.addEventListener('DOMContentLoaded', function() {
+                                                                    const toggleCheckbox = document.getElementById('toggle');
+                                                                    const smallInput = document.getElementById('smallInput');
+                                                                    const extraPointsInput = document.getElementById('extraPointsInput');
 
-                                                                const userPointThisItem = {{ $userPointInfo['user_point_this_item'] }};
+                                                                    const userPointThisItem = {{ $userPointInfo['user_point_this_item'] }};
 
-                                                                function updateSmallInputState() {
-                                                                    smallInput.disabled = !toggleCheckbox.checked;
+                                                                    function updateSmallInputState() {
+                                                                        smallInput.disabled = !toggleCheckbox.checked;
 
-                                                                    if (toggleCheckbox.checked) {
-                                                                        if (smallInput.value === "" || parseFloat(smallInput.value) === 0) {
-                                                                            const extraPoints = parseFloat(extraPointsInput.value) || 0;
-                                                                            smallInput.value = Math.max(extraPoints, userPointThisItem).toFixed(2);
+                                                                        if (toggleCheckbox.checked) {
+                                                                            if (smallInput.value === "" || parseFloat(smallInput.value) === 0) {
+                                                                                const extraPoints = parseFloat(extraPointsInput.value) || 0;
+                                                                                smallInput.value = Math.max(extraPoints, userPointThisItem).toFixed(2);
+                                                                            }
+                                                                        } else {
+                                                                            smallInput.value = "";
                                                                         }
+                                                                    }
+
+                                                                    // Toggle o'zgarishini kuzatish
+                                                                    toggleCheckbox.addEventListener('change', updateSmallInputState);
+
+                                                                    // Boshlang'ich holatni o'rnatish
+                                                                    if (userPointThisItem > 0) {
+                                                                        toggleCheckbox.checked = true;
+                                                                        smallInput.disabled = false;
+                                                                        smallInput.value = userPointThisItem.toFixed(2);
                                                                     } else {
+                                                                        toggleCheckbox.checked = false;
+                                                                        smallInput.disabled = true;
                                                                         smallInput.value = "";
                                                                     }
-                                                                }
 
-                                                                // Toggle o'zgarishini kuzatish
-                                                                toggleCheckbox.addEventListener('change', updateSmallInputState);
-
-                                                                // Boshlang'ich holatni o'rnatish
-                                                                if (userPointThisItem > 0) {
-                                                                    toggleCheckbox.checked = true;
-                                                                    smallInput.disabled = false;
-                                                                    smallInput.value = userPointThisItem.toFixed(2);
-                                                                } else {
-                                                                    toggleCheckbox.checked = false;
-                                                                    smallInput.disabled = true;
-                                                                    smallInput.value = "";
-                                                                }
-
-                                                                // Boshlang'ich holatni yangilash
-                                                                updateSmallInputState();
-                                                            });
+                                                                    // Boshlang'ich holatni yangilash
+                                                                    updateSmallInputState();
+                                                                });
                                                             </script>
                                                             <style>
                                                                 .toggle-checkbox:checked {
@@ -695,23 +707,61 @@
 
                                                 </div>
                                                 <!-- File Upload Info -->
+
+
                                                 <div class="flex mt-4">
                                                     <div class="label-box" style="width: 300px;">
                                                         <i class="fas fa-file-upload text-red-500"></i>
-                                                        <span class="ml-2 text-lg font-medium">Ma'lumot holati
-                                                            izohi:</span>
+                                                        <span class="ml-2 text-lg font-medium">Ma'lumot holati izohi:</span>
                                                     </div>
                                                     <div class="w-full">
-                                                        <label for="message"
-                                                            class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                                                            Agar foydalanuvchi ma'lumotiga izoh yozmoqchi bo'lsangiz
-                                                            yoki maqullanmagan bo'lsa nima uchunligini yozing.
+                                                        <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                                            Agar foydalanuvchi ma'lumotiga izoh yozmoqchi bo'lsangiz yoki maqullanmagan bo'lsa nima uchunligini yozing.
                                                         </label>
                                                         <textarea id="message" rows="4" name="murojaat_izohi"
                                                             class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                                             placeholder="Assalomu alaykum, sizning ....">{{ old('arizaga_javob', $information->arizaga_javob) }}</textarea>
+
+                                                            <div class="my-4">
+                                                                <div class="flex items-center mb-4">
+                                                                    <input id="radio-1" type="radio" value="Giper xavola noto'g'ri kiritilgan: Ma'lumot uchun berilgan havola ishlamayapti yoki noto'g'ri manzilga yo'naltirilgan." name="default-radio"
+                                                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                                                    <label for="radio-1" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                                                        Giper xavola noto'g'ri kiritilgan: Ma'lumot uchun berilgan havola ishlamayapti yoki noto'g'ri manzilga yo'naltirilgan.
+                                                                    </label>
+                                                                </div>
+                                                                <div class="flex items-center mb-4">
+                                                                    <input id="radio-2" type="radio" value="Asos ma'lumotga mos emas: Taqdim etilgan hujjat yoki ma'lumot so'ralgan ma'lumotni tasdiqlamaydi yoki unga to'g'ri kelmaydi." name="default-radio"
+                                                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                                                    <label for="radio-2" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                                                        Asos ma'lumotga mos emas: Taqdim etilgan hujjat yoki ma'lumot so'ralgan ma'lumotni tasdiqlamaydi yoki unga to'g'ri kelmaydi.
+                                                                    </label>
+                                                                </div>
+                                                                <div class="flex items-center">
+                                                                    <input id="radio-3" type="radio" value="Ma'lumotlar to'liq kiritilmagan: Zarur bo'lgan barcha ma'lumotlar to'ldirilmagan yoki qisman kiritilgan." name="default-radio"
+                                                                        class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                                                    <label for="radio-3" class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">
+                                                                        Ma'lumotlar to'liq kiritilmagan: Zarur bo'lgan barcha ma'lumotlar to'ldirilmagan yoki qisman kiritilgan.
+                                                                    </label>
+                                                                </div>
+                                                            </div>
                                                     </div>
                                                 </div>
+
+                                                <script>
+                                                document.addEventListener('DOMContentLoaded', function() {
+                                                    const radioButtons = document.querySelectorAll('input[name="default-radio"]');
+                                                    const textarea = document.getElementById('message');
+
+                                                    radioButtons.forEach(radio => {
+                                                        radio.addEventListener('change', function() {
+                                                            if (this.checked) {
+                                                                textarea.value = this.value;
+                                                            }
+                                                        });
+                                                    });
+                                                });
+                                                </script>
 
                                                 <script>
                                                     document.querySelector('input[name="murojaat_bali"]').addEventListener('input', function(event) {

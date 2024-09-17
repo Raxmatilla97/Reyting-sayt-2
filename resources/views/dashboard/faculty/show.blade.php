@@ -46,6 +46,9 @@
                             <div class="mt-6">
                                 <div x-show="activeTab === 'about_us'" class="space-y-6">
                                     <h2 class="text-2xl font-bold text-gray-900">Fakultet haqida</h2>
+                                    <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
+                                        <span class="font-medium">INFO!</span> {{$pointsCalculationExplanation}}
+                                      </div>
                                     <div
                                         class="flex flex-col sm:flex-row items-center bg-gray-50 rounded-lg p-6 shadow-sm">
                                         <div class="w-full sm:w-1/3 flex justify-center mb-6 sm:mb-0">

@@ -40,6 +40,11 @@
                         <div class="mt-8">
                             <div x-show="activeTab === 'about_us'" class="space-y-6">
                                 <h2 class="text-2xl font-bold text-gray-900">Kafedra haqida</h2>
+
+                                <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
+                                    <span class="font-medium">INFO!</span> {{$pointsCalculationExplanation}}
+                                  </div>
+
                                 <div class="flex flex-col sm:flex-row items-center bg-gray-50 rounded-lg p-6 shadow-sm">
                                     <div class="w-full sm:w-1/3 flex justify-center mb-6 sm:mb-0">
                                         <img src="https://cdn1.iconfinder.com/data/icons/got-idea-vol-2/128/branches-1024.png"
@@ -68,6 +73,12 @@
                                                 <span
                                                     class="bg-green-100 text-green-800 text-md font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
                                                     {{ $totalPoints }} ball
+                                                </span>
+                                            </li>
+                                            <li><span class="font-semibold">Kafedraga o'tgan ballar:</span>
+                                                <span
+                                                    class="bg-indigo-100 text-indigo-800 text-sm font-sm me-2 px-2 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
+                                                    {{ $departmentExtraPoints }} ball
                                                 </span>
                                             </li>
                                             <li><span class="font-semibold">Kafedra hisobidagi yuborilgan ma'lumotlar

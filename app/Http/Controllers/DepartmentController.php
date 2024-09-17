@@ -131,7 +131,7 @@ class DepartmentController extends Controller
             $departmentCounts = include(config_path('departament_tichers_count.php'));
         }
 
-      // Kafedradagi o'qituvchilar sonini olish
+        // Kafedradagi o'qituvchilar sonini olish
         $totalDepartmentEmployees = null;
         foreach ($departmentCounts as $facultyId => $facultyDepartments) {
             if (isset($facultyDepartments[$department->id])) {
@@ -205,6 +205,38 @@ class DepartmentController extends Controller
         }
 
 
+        $departmentPointTotal = 0;
+        $teacherPoints = 0;
+        $departmentExtraPoints = 0;
+
+        // O'qituvchilar yig'gan balllarni hisoblash
+        $teacherPoints = $department->point_user_deportaments()
+            ->where('status', 1)
+            ->sum('point');
+
+        // Kafedraga o'tgan qo'shimcha balllarni hisoblash
+        $departmentExtraPoints = $department->point_user_deportaments()
+            ->where('status', 1)
+            ->whereHas('departPoint')
+            ->with('departPoint')
+            ->get()
+            ->sum(function ($pointEntry) {
+                return $pointEntry->departPoint->point;
+            });
+
+        $departmentPointTotal = $teacherPoints + $departmentExtraPoints;
+
+        // Agar o'qituvchilar soni mavjud bo'lsa, o'rtacha ballni hisoblash
+        if ($totalDepartmentEmployees > 0) {
+            $totalPoints = round($departmentPointTotal / $totalDepartmentEmployees, 2);
+            $pointsCalculationExplanation = "Kafedra bali hisoblash tartibi: {$teacherPoints} ball O'qituvchilar yig'gan ball + {$departmentExtraPoints} ball kafedraga o'tgan ball = {$departmentPointTotal} ball jami / {$totalDepartmentEmployees} kafedra o'qituvchilar soni = {$totalPoints} ball";
+        } else {
+            $totalPoints = 'N/A';
+            $pointsCalculationExplanation = "Kafedra bali hisoblab bo'lmadi: O'qituvchilar soni 0 ga teng";
+        }
+
+
+
         return view('dashboard.department.show', compact(
             'department',
             'pointUserInformations',
@@ -213,7 +245,9 @@ class DepartmentController extends Controller
             'totalInfos',
             'timeAgo',
             'fullName',
-            'unregisteredEmployees'
+            'unregisteredEmployees',
+            'pointsCalculationExplanation',
+            'departmentExtraPoints'
 
 
 
