@@ -323,7 +323,7 @@
 
                 </div>
                 <div class=" items-center justify-between mt-6">
-                    {{ $murojatlar->appends(['category' => $form_info['category'], 'sort' => $form_info['sort'], 'name' => $form_info['name']])->links() }}
+                    {{ $murojatlar->appends($form_info)->links() }}
                 </div>
             </div>
 

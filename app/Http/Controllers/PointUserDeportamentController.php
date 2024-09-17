@@ -92,6 +92,7 @@ class PointUserDeportamentController extends Controller
         // Yo'nalish bo'yicha filtrlash
         $query = PointUserDeportament::query();
 
+        // Yo'nalish bo'yicha filtrlash
         if ($request->filled('yonalish') && $request->yonalish !== 'all') {
             $selectedYonalish = $request->yonalish;
             $query->where(function ($q) use ($selectedYonalish, $arrayKey) {
@@ -128,7 +129,7 @@ class PointUserDeportamentController extends Controller
                 $q->whereBetween('created_at', [$start_date->format('Y-m-d'), $end_date->format('Y-m-d')]);
             });
 
-        $murojatlar = $query->paginate(15);
+            $murojatlar = $query->paginate(15)->appends($form_info);
 
         // Ma'lumotlar massivini tekshirish
         foreach ($murojatlar as $item) {
@@ -140,6 +141,8 @@ class PointUserDeportamentController extends Controller
                 }
             }
         }
+
+
 
         // Natijani ko'rsatish uchun ko'rinishni qaytarish
         return view('dashboard.incoming_requests', compact('murojatlar', 'filter', 'form_info', 'selectOptions'));
