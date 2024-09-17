@@ -120,6 +120,54 @@ return [
 
 
     ],
+    'table_1_3_1_a_' => [
+        [
+            'name' => 'fan_doktori_serya',
+            'type' => 'text',
+            'label' => "*Fan doktori  (DSc) diplomi seriyasi",
+        ],
+        [
+            'name' => 'fan_doktori_raqam',
+            'type' => 'text',
+            'label' => "*Fan doktori (DSc) diplomi raqami",
+        ],
+        [
+            'name' => 'ishga_raq_sana',
+            'type' => 'text',
+            'label' => "*Ishga qabul qilinganligi to‘g‘risidagi buyruq raqami va sanasi",
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos*",
+        ],
+
+
+    ],
+    'table_1_3_1_b_' => [
+        [
+            'name' => 'prof_dip_serya',
+            'type' => 'text',
+            'label' => "*Professor ilmiy unvonini diplom seriyasi",
+        ],
+        [
+            'name' => 'prof_dip_raqam',
+            'type' => 'text',
+            'label' => "*Professor ilmiy unvonini diplom raqami",
+        ],
+        [
+            'name' => 'ishga_raq_sana',
+            'type' => 'text',
+            'label' => "*Ishga qabul qilinganligi to‘g‘risidagi buyruq raqami va sanasi",
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos*",
+        ],
+
+
+    ],
     'table_1_3_2_' => [
         [
             'name' => 'doktorlik_diplom_seryasi',
@@ -160,6 +208,54 @@ return [
             'type' => 'file',
             'label' => "Asos*",
         ],
+
+    ],
+    'table_1_3_2_a_' => [
+        [
+            'name' => 'fan_doktori_serya',
+            'type' => 'text',
+            'label' => "*Fan doktori (PhD) diplomi seriyasini kiring",
+        ],
+        [
+            'name' => 'fan_doktori_raqam',
+            'type' => 'text',
+            'label' => "*Fan doktori (PhD) diplomi raqami",
+        ],
+        [
+            'name' => 'ishga_raq_sana',
+            'type' => 'text',
+            'label' => "*Ishga qabul qilinganligi to‘g‘risidagi buyruq raqami va sanasi",
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos*",
+        ],
+
+
+    ],
+    'table_1_3_2_b_' => [
+        [
+            'name' => 'dotsent_dip_serya',
+            'type' => 'text',
+            'label' => "*Dotsent ilmiy unvonini yoki unga tenglashtirilgan diplom seriyasi",
+        ],
+        [
+            'name' => 'dotsent_dip_nomer',
+            'type' => 'text',
+            'label' => "*Dotsent ilmiy unvonini yoki unga tenglashtirilgan diplom raqami",
+        ],
+        [
+            'name' => 'ishga_raq_sana',
+            'type' => 'text',
+            'label' => "*Ishga qabul qilinganligi to‘g‘risidagi buyruq raqami va sanasi",
+        ],
+        [
+            'name' => 'asos_file',
+            'type' => 'file',
+            'label' => "Asos*",
+        ],
+
 
     ],
     'table_1_4_' => [

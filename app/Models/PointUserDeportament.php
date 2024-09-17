@@ -16,7 +16,11 @@ class PointUserDeportament extends Model
         'table_1_1_id',
         'table_1_2_id',
         'table_1_3_1_id',
+        'table_1_3_1_a_id',
+        'table_1_3_1_b_id',
         'table_1_3_2_id',
+        'table_1_3_2_a_id',
+        'table_1_3_2_a_id',
         'table_1_4_id',
         'table_1_5_1_id',
         'table_1_5_1_a_id',
@@ -55,7 +59,11 @@ class PointUserDeportament extends Model
         'table_1_1',
         'table_1_2',
         'table_1_3_1',
+        'table_1_3_1_a',
+        'table_1_3_1_b',
         'table_1_3_2',
+        'table_1_3_2_a',
+        'table_1_3_2_b',
         'table_1_4',
         'table_1_5_1',
         'table_1_5_1_a',
@@ -136,10 +144,30 @@ class PointUserDeportament extends Model
         return $this->hasMany(\App\Models\Tables\Table_1_3_1_::class, 'id');
     }
 
+    public function table_1_3_1_a()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_3_1_a_::class, 'id');
+    }
+
+    public function table_1_3_1_b()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_3_1_b_::class, 'id');
+    }
+
 
     public function table_1_3_2()
     {
         return $this->hasMany(\App\Models\Tables\Table_1_3_2_::class, 'id');
+    }
+
+    public function table_1_3_2_a()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_3_2_a_::class, 'id');
+    }
+
+    public function table_1_3_2_b()
+    {
+        return $this->hasMany(\App\Models\Tables\Table_1_3_2_b_::class, 'id');
     }
 
 
