@@ -709,7 +709,7 @@
                                                 <!-- File Upload Info -->
 
 
-                                                <div class="flex mt-4">
+                                                <div class="flex mt-4" id="izoh-section" style="display: none;">
                                                     <div class="label-box" style="width: 300px;">
                                                         <i class="fas fa-file-upload text-red-500"></i>
                                                         <span class="ml-2 text-lg font-medium">Ma'lumot holati izohi:</span>
@@ -747,6 +747,37 @@
                                                             </div>
                                                     </div>
                                                 </div>
+
+                                                <script>
+                                                    document.addEventListener('DOMContentLoaded', function() {
+                                                        const murojaatHolati = document.getElementById('murojaat-holati');
+                                                        const izohSection = document.getElementById('izoh-section');
+                                                        const messageTextarea = document.getElementById('message');
+                                                        const radios = document.querySelectorAll('input[name="default-radio"]');
+
+                                                        function toggleIzohSection() {
+                                                            if (murojaatHolati.value === '0') {
+                                                                izohSection.style.display = 'flex';
+                                                            } else {
+                                                                izohSection.style.display = 'none';
+                                                                messageTextarea.value = '';
+                                                            }
+                                                        }
+
+                                                        murojaatHolati.addEventListener('change', toggleIzohSection);
+
+                                                        radios.forEach(radio => {
+                                                            radio.addEventListener('change', function() {
+                                                                if (this.checked) {
+                                                                    messageTextarea.value = this.value;
+                                                                }
+                                                            });
+                                                        });
+
+                                                        // Initial check
+                                                        toggleIzohSection();
+                                                    });
+                                                    </script>
 
                                                 <script>
                                                 document.addEventListener('DOMContentLoaded', function() {
