@@ -77,49 +77,6 @@ return [
             'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
         ],
     ],
-    'table_1_3_1_' => [
-        [
-            'name' => 'doktorlik_diplom_seryasi',
-            'type' => 'text',
-            'label' => "*Fan doktorlik diplomi seriyasi",
-        ],
-        [
-            'name' => 'doktorlik_diplom_raqami',
-            'type' => 'text',
-            'label' => "*Fan doktorlik diplomi raqami",
-        ],
-
-        [
-            'name' => 'ilmiy_unvon_seryasi',
-            'type' => 'text',
-            'label' => "*Ilmiy darajaga ega bo‘lmay professor ilmiy unvonini olgan yoki unga tenglashtirilgan diplomi seriyasi",
-        ],
-
-        [
-            'name' => 'ilmiy_unvon_raqami',
-            'type' => 'text',
-            'label' => "*Ilmiy darajaga ega bo‘lmay professor ilmiy unvonini olgan yoki unga tenglashtirilgan diplomi raqami",
-        ],
-
-        [
-            'name' => 'mutaxasisligi_nomi',
-            'type' => 'text',
-            'label' => "Mutaxassisligi nomi",
-        ],
-
-        [
-            'name' => 'ishga_buyrug_rqami_seryasi',
-            'type' => 'text',
-            'label' => "Ishga qabul qilinganligi to‘g‘risidagi buyruq raqami va sanasi",
-        ],
-        [
-            'name' => 'asos_file',
-            'type' => 'file',
-            'label' => "Asos*",
-        ],
-
-
-    ],
     'table_1_3_1_a_' => [
         [
             'name' => 'fan_doktori_serya',
@@ -166,48 +123,6 @@ return [
             'label' => "Asos*",
         ],
 
-
-    ],
-    'table_1_3_2_' => [
-        [
-            'name' => 'doktorlik_diplom_seryasi',
-            'type' => 'text',
-            'label' => "*Fan doktorlik diplomi seriyasi",
-        ],
-        [
-            'name' => 'doktorlik_diplom_raqami',
-            'type' => 'text',
-            'label' => "*Fan doktorlik diplomi raqami",
-        ],
-
-        [
-            'name' => 'ilmiy_unvon_seryasi',
-            'type' => 'text',
-            'label' => "*Ilmiy darajaga ega bo‘lmay professor ilmiy unvonini olgan yoki unga tenglashtirilgan diplomi seriyasi",
-        ],
-
-        [
-            'name' => 'ilmiy_unvon_raqami',
-            'type' => 'text',
-            'label' => "*Ilmiy darajaga ega bo‘lmay professor ilmiy unvonini olgan yoki unga tenglashtirilgan diplomi raqami",
-        ],
-
-        [
-            'name' => 'mutaxasisligi_nomi',
-            'type' => 'text',
-            'label' => "Mutaxassisligi nomi",
-        ],
-
-        [
-            'name' => 'ishga_buyrug_rqami_seryasi',
-            'type' => 'text',
-            'label' => "Ishga qabul qilinganligi to‘g‘risidagi buyruq raqami va sanasi",
-        ],
-        [
-            'name' => 'asos_file',
-            'type' => 'file',
-            'label' => "Asos*",
-        ],
 
     ],
     'table_1_3_2_a_' => [

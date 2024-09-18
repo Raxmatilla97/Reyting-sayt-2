@@ -16,8 +16,6 @@ return new class extends Migration
             // Jurnallarni relation orqali bog'lash
             $table->foreignId('table_1_1_id')->nullable()->constrained('table_1_1_')->onDelete('cascade');
             $table->foreignId('table_1_2_id')->nullable()->constrained('table_1_2_')->onDelete('cascade');
-            $table->foreignId('table_1_3_1_id')->nullable()->constrained('table_1_3_1_')->onDelete('cascade');
-            $table->foreignId('table_1_3_2_id')->nullable()->constrained('table_1_3_2_')->onDelete('cascade');
             $table->foreignId('table_1_4_id')->nullable()->constrained('table_1_4_')->onDelete('cascade');
             $table->foreignId('table_1_5_1_id')->nullable()->constrained('table_1_5_1_')->onDelete('cascade');
             $table->foreignId('table_1_5_1_a_id')->nullable()->constrained('table_1_5_1_a_')->onDelete('cascade');

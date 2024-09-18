@@ -51,10 +51,8 @@ class FormsController extends Controller
             $allowedFields = [
                 'table_1_1_' => ['daraja_bergan_otm_nomi', 'phd_diplom_seryasi', 'phd_diplom_raqami', 'dsc_diplom_seryasi', 'dsc_diplom_raqami', 'mutaxasislik_nomi', 'ishga_qabul_raqam_seryasi','asos_file'],
                 'table_1_2_' => ['xorijiy_davlat_nomi', 'otm_nomi', 'mutaxasisligi', 'faoliyat_nomi', 'muddati', 'asos_file'],
-                'table_1_3_1_' => ['doktorlik_diplom_seryasi', 'doktorlik_diplom_raqami', 'ilmiy_unvon_seryasi', 'ilmiy_unvon_raqami', 'mutaxasisligi_nomi', 'ishga_buyrug_rqami_seryasi','asos_file'],
                 'table_1_3_1_a_' => ['fan_doktori_serya', 'fan_doktori_raqam', 'ishga_raq_sana', 'asos_file'],
                 'table_1_3_1_b_' => ['prof_dip_serya', 'prof_dip_raqam', 'ishga_raq_sana', 'asos_file'],
-                'table_1_3_2_' => ['doktorlik_diplom_seryasi', 'doktorlik_diplom_raqami', 'ilmiy_unvon_seryasi', 'ilmiy_unvon_raqami', 'mutaxasisligi_nomi', 'ishga_buyrug_rqami_seryasi','asos_file'],
                 'table_1_3_2_a_' => ['fan_doktori_serya', 'fan_doktori_raqam', 'ishga_raq_sana', 'asos_file'],
                 'table_1_3_2_b_' => ['dotsent_dip_serya', 'dotsent_dip_nomer', 'ishga_raq_sana', 'asos_file'],
                 'table_1_4_' => ['ish_joyi', 'ixtisoslik_shifri', 'ixtisoslik_nomi', 'disertatsiya_mavzusi', 'maxsus_kengash_shifri', 'ilmiy_unvon_olganlar', 'ilmiy_unvon_tasdiqlangan_sana','asos_file'],

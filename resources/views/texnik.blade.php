@@ -15,7 +15,7 @@
                 <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
                     <span class="font-medium">17.09.2024</span> Hurmatli foydalanuvchilar, saytimizda yangi yo'nalishlar
                     qo'shildi! table_1_3_1_a_, table_1_3_1_b_ va table_1_3_2_a_, table_1_3_2_b_ lar uchun ma'lumotlarni
-                    jo'natishingiz mumkin.
+                    qayta jo'natishingiz mumkin.
                 </div>
                 <div class="text-right">
                     <a href="https://t.me/Raxmatilla_Fayziyev" target="_blank" rel="noopener noreferrer"

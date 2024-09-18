@@ -15,10 +15,8 @@ class PointUserDeportament extends Model
         'user_id',
         'table_1_1_id',
         'table_1_2_id',
-        'table_1_3_1_id',
         'table_1_3_1_a_id',
         'table_1_3_1_b_id',
-        'table_1_3_2_id',
         'table_1_3_2_a_id',
         'table_1_3_2_a_id',
         'table_1_4_id',
@@ -58,10 +56,8 @@ class PointUserDeportament extends Model
     protected $relationships = [
         'table_1_1',
         'table_1_2',
-        'table_1_3_1',
         'table_1_3_1_a',
         'table_1_3_1_b',
-        'table_1_3_2',
         'table_1_3_2_a',
         'table_1_3_2_b',
         'table_1_4',
@@ -138,12 +134,6 @@ class PointUserDeportament extends Model
         return $this->hasMany(\App\Models\Tables\Table_1_2_::class, 'id');
     }
 
-
-    public function table_1_3_1()
-    {
-        return $this->hasMany(\App\Models\Tables\Table_1_3_1_::class, 'id');
-    }
-
     public function table_1_3_1_a()
     {
         return $this->hasMany(\App\Models\Tables\Table_1_3_1_a_::class, 'id');
@@ -152,12 +142,6 @@ class PointUserDeportament extends Model
     public function table_1_3_1_b()
     {
         return $this->hasMany(\App\Models\Tables\Table_1_3_1_b_::class, 'id');
-    }
-
-
-    public function table_1_3_2()
-    {
-        return $this->hasMany(\App\Models\Tables\Table_1_3_2_::class, 'id');
     }
 
     public function table_1_3_2_a()

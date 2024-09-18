@@ -17,10 +17,8 @@ return [
     'employee' => [
         'table_1_1_' => ['max' => 3],
         'table_1_2_' => ['max' => 2],
-        'table_1_3_1_' => ['max' => 2],
         'table_1_3_1_a_' => ['max' => 1],
         'table_1_3_1_b_' => ['max' => 1],
-        'table_1_3_2_' => ['max' => 1],
         'table_1_3_2_a_' => ['max' => 1],
         'table_1_3_2_b_' => ['max' => 1],
         'table_1_4_' => ['max' => 6],
