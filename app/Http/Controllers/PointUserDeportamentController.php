@@ -129,7 +129,7 @@ class PointUserDeportamentController extends Controller
                 $q->whereBetween('created_at', [$start_date->format('Y-m-d'), $end_date->format('Y-m-d')]);
             });
 
-            $murojatlar = $query->paginate(15)->appends($form_info);
+            $murojatlar = $query->orderBy('created_at', 'desc')->paginate(15)->appends($form_info);
 
         // Ma'lumotlar massivini tekshirish
         foreach ($murojatlar as $item) {

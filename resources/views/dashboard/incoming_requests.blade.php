@@ -162,11 +162,11 @@
                                             style="width: 500px">
                                         <select id="default" name="sort" style="width: 200px;"
                                             class=" ml-4 bg-gray-50 border border-gray-300 text-gray-900 w-6 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-
-                                            <option value="asc" @if ($form_info['sort'] === 'asc') selected @endif>
-                                                Birinchi yuborilgan</option>
                                             <option value="desc" @if ($form_info['sort'] === 'desc') selected @endif>
                                                 Ohirgi yuborilgan</option>
+                                            <option value="asc" @if ($form_info['sort'] === 'asc') selected @endif>
+                                                Birinchi yuborilgan</option>
+
 
                                         </select>
 
