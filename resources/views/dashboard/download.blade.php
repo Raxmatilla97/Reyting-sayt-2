@@ -59,45 +59,88 @@
                         const progressContainer = document.getElementById('progressContainer');
                         const progressBar = document.getElementById('progressBar');
                         const statusMessage = document.getElementById('statusMessage');
+                        let eventSource;
+                        let lastUpdateTime;
 
                         function startDownload() {
                             console.log('Starting download...');
                             progressContainer.classList.remove('hidden');
-                            const eventSource = new EventSource('/download'); // Sizning download route'ingiz URL'i
+                            connectEventSource();
+                        }
+
+                        function connectEventSource() {
+                            eventSource = new EventSource('/download');
+                            lastUpdateTime = Date.now();
 
                             eventSource.onopen = function(event) {
                                 console.log('SSE connection opened', event);
+                                statusMessage.textContent = 'Ulanish o\'rnatildi...';
                             };
 
                             eventSource.onmessage = function(event) {
                                 console.log('Received message:', event.data);
-                                const data = JSON.parse(event.data);
+                                lastUpdateTime = Date.now();
+                                try {
+                                    const data = JSON.parse(event.data);
 
-                                if (data.type === 'file') {
-                                    // Fayl yuklandi, uni saqlash kerak
-                                    const blob = b64toBlob(data.content, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-                                    const link = document.createElement('a');
-                                    link.href = window.URL.createObjectURL(blob);
-                                    link.download = data.filename;
-                                    link.click();
-                                    eventSource.close();
-                                    progressBar.style.width = '100%';
-                                    progressBar.textContent = '100%';
-                                    statusMessage.textContent = 'Yuklash tugadi!';
-                                } else {
-                                    // Jarayon haqida ma'lumot
-                                    const roundedProgress = Math.round(data.progress); // Raqamni yaxlitlash
-                                    progressBar.style.width = roundedProgress + '%';
-                                    progressBar.textContent = roundedProgress + '%';
-                                    statusMessage.textContent = data.message;
+                                    if (data.type === 'file') {
+                                        handleFileDownload(data);
+                                    } else {
+                                        updateProgress(data);
+                                    }
+                                } catch (error) {
+                                    console.error('Error parsing message:', error);
+                                    statusMessage.textContent = 'Xatolik: Ma\'lumotlarni qayta ishlashda muammo';
                                 }
                             };
 
-                            eventSource.onerror = function() {
+                            eventSource.onerror = function(event) {
                                 console.error('SSE error:', event);
-                                statusMessage.textContent = 'Xatolik yuz berdi';
-                                eventSource.close();
+                                if (Date.now() - lastUpdateTime > 60000) { // 1 daqiqa
+                                    console.error('No updates received for 1 minute. Reconnecting...');
+                                    restartEventSource();
+                                } else {
+                                    statusMessage.textContent = 'Ulanishda xatolik. Qayta ulanishga urinilmoqda...';
+                                }
                             };
+
+                            // Har 30 soniyada serverdan javob kelishini tekshirish
+                            const intervalId = setInterval(() => {
+                                if (Date.now() - lastUpdateTime > 30000) { // 30 soniya
+                                    console.warn('No updates received for 30 seconds');
+                                    statusMessage.textContent = 'Ma\'lumot kelishini kutmoqda...';
+                                }
+                            }, 30000);
+
+                            eventSource.onclose = function() {
+                                clearInterval(intervalId);
+                            };
+                        }
+
+                        function handleFileDownload(data) {
+                            const blob = b64toBlob(data.content, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                            const link = document.createElement('a');
+                            link.href = window.URL.createObjectURL(blob);
+                            link.download = data.filename;
+                            link.click();
+                            eventSource.close();
+                            progressBar.style.width = '100%';
+                            progressBar.textContent = '100%';
+                            statusMessage.textContent = 'Yuklash tugadi!';
+                        }
+
+                        function updateProgress(data) {
+                            const roundedProgress = Math.round(data.progress);
+                            progressBar.style.width = roundedProgress + '%';
+                            progressBar.textContent = roundedProgress + '%';
+                            statusMessage.textContent = data.message;
+                        }
+
+                        function restartEventSource() {
+                            if (eventSource) {
+                                eventSource.close();
+                            }
+                            setTimeout(connectEventSource, 1000); // 1 soniyadan so'ng qayta ulanish
                         }
 
                         // Base64 ni blob ga o'girish uchun funksiya
