@@ -24,6 +24,8 @@ Route::get('/', [FrontendController::class, 'index'])->name('welcome');
 
 // routes/web.php
 Route::get('/sse-test', function () {
+    Log::info('Memory limit: ' . ini_get('memory_limit'));
+    Log::info('Current memory usage: ' . memory_get_usage(true));
     return response()->stream(function () {
         echo "data: " . json_encode(['message' => 'Test message', 'progress' => 50]) . "\n\n";
         ob_flush();
