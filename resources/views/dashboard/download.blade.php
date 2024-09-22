@@ -61,10 +61,16 @@
                         const statusMessage = document.getElementById('statusMessage');
 
                         function startDownload() {
+                            console.log('Starting download...');
                             progressContainer.classList.remove('hidden');
                             const eventSource = new EventSource('/download'); // Sizning download route'ingiz URL'i
 
+                            eventSource.onopen = function(event) {
+                                console.log('SSE connection opened', event);
+                            };
+
                             eventSource.onmessage = function(event) {
+                                console.log('Received message:', event.data);
                                 const data = JSON.parse(event.data);
 
                                 if (data.type === 'file') {
@@ -88,6 +94,7 @@
                             };
 
                             eventSource.onerror = function() {
+                                console.error('SSE error:', event);
                                 statusMessage.textContent = 'Xatolik yuz berdi';
                                 eventSource.close();
                             };
