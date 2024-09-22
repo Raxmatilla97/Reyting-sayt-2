@@ -258,7 +258,7 @@ class ExportInfosController extends Controller
     {
         try {
             // Xotirani oshirish
-            ini_set('memory_limit', '8G'); // 8GB ga oshirildi
+            ini_set('memory_limit', '12G'); // 8GB ga oshirildi
 
             // Ma'lumotlarni qismlab olish
             $chunkSize = 500; // Chunkning hajmi kamaytirildi
@@ -267,7 +267,7 @@ class ExportInfosController extends Controller
 
             foreach ($pointUserDeportaments->chunk($chunkSize) as $chunk) {
                 $currentChunk++;
-                // Log::info("Processing chunk {$currentChunk} of {$totalChunks}");
+                Log::info("Processing chunk {$currentChunk} of {$totalChunks}");
 
                 $callback($sheet, $chunk);
 
@@ -276,12 +276,12 @@ class ExportInfosController extends Controller
 
                 // Progressni log qilish
                 $progress = round(($currentChunk / $totalChunks) * 100, 2);
-                // Log::info("Progress: {$progress}%");
+                Log::info("Progress: {$progress}%");
             }
 
             // Oxirida qo'shimcha xotirani tozalash
             $sheet->garbageCollect();
-            // Log::info("Memory cleanup completed");
+            Log::info("Memory cleanup completed");
         } catch (\Exception $e) {
             Log::error('Error in data processing: ' . $e->getMessage());
             Log::error('Error trace: ' . $e->getTraceAsString());
