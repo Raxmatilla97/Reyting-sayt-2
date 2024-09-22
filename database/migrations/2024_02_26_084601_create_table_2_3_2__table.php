@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('davlati')->nullable();
             $table->string('talim_yonalishi')->nullable();
             $table->string('magister_shifri_nomi')->nullable();
-            $table->string('asos_file')->nullable();           
+            $table->string('asos_file')->nullable();
             $table->timestamps();
         });
     }
