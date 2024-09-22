@@ -172,12 +172,14 @@ class ExportInfosController extends Controller
                     Log::info("Finished processing table: $table");
                 }
 
+                Log::info('Preparing to save Excel file');
                 $this->sendUpdate('Excel fayl tayyorlanmoqda...', 85);
                 $filename = 'all_data_' . time() . '.xlsx';
                 $path = storage_path('app/public/' . $filename);
 
                 $writer = new Xlsx($spreadsheet);
                 $writer->save($path);
+                Log::info("Excel file saved: $path");
 
                 $this->sendUpdate('Excel fayl saqlandi va u endi yuklab olinadi, 1-3 minut kuting...', 95);
 
@@ -216,15 +218,20 @@ class ExportInfosController extends Controller
 
                 // Faylni yuborish
                 $fileContent = file_get_contents($path);
+                Log::info('Preparing file for download');
                 $this->sendUpdate('Fayl yuklanmoqda...', 99);
                 echo "data: " . json_encode(['type' => 'file', 'content' => base64_encode($fileContent), 'filename' => $filename]) . "\n\n";
                 flush();
 
                 // Faylni o'chirish
                 unlink($path);
+                Log::info('File deleted after sending');
 
                 $this->sendUpdate('Yuklash tugadi', 100);
+                Log::info('Excel export completed successfully');
             } catch (\Exception $e) {
+                Log::error('Error in Excel export: ' . $e->getMessage());
+                Log::error('Error trace: ' . $e->getTraceAsString());
                 $this->sendUpdate('Xatolik yuz berdi: ' . $e->getMessage(), 100);
             }
         }, 200, [
