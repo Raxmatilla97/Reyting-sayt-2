@@ -1,3 +1,4 @@
+@ -0,0 +1,121 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -64,12 +65,7 @@
                             progressContainer.classList.remove('hidden');
                             const eventSource = new EventSource('/download'); // Sizning download route'ingiz URL'i
 
-                            eventSource.onopen = function(event) {
-                                console.log('SSE connection opened');
-                            };
-
-                            eventSource.onmessage = function(event)
-                            console.log('Received message:', event.data);{
+                            eventSource.onmessage = function(event) {
                                 const data = JSON.parse(event.data);
 
                                 if (data.type === 'file') {
@@ -93,7 +89,6 @@
                             };
 
                             eventSource.onerror = function() {
-                                console.error('SSE error:', event);
                                 statusMessage.textContent = 'Xatolik yuz berdi';
                                 eventSource.close();
                             };

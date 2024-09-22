@@ -1,3 +1,4 @@
+@ -0,0 +1,551 @@
 <?php
 
 namespace App\Http\Controllers;
@@ -161,14 +162,12 @@ class ExportInfosController extends Controller
                     $this->sendUpdate($table . ' ma\'lumotlari to\'ldirildi', $currentProgress);
                 }
 
-                Log::info('Preparing to save Excel file');
                 $this->sendUpdate('Excel fayl tayyorlanmoqda...', 85);
                 $filename = 'all_data_' . time() . '.xlsx';
                 $path = storage_path('app/public/' . $filename);
 
                 $writer = new Xlsx($spreadsheet);
                 $writer->save($path);
-                Log::info("Excel file saved: $path");
 
                 $this->sendUpdate('Excel fayl saqlandi va u endi yuklab olinadi, 1-3 minut kuting...', 95);
 
@@ -207,20 +206,15 @@ class ExportInfosController extends Controller
 
                 // Faylni yuborish
                 $fileContent = file_get_contents($path);
-                Log::info('Preparing file for download');
                 $this->sendUpdate('Fayl yuklanmoqda...', 99);
                 echo "data: " . json_encode(['type' => 'file', 'content' => base64_encode($fileContent), 'filename' => $filename]) . "\n\n";
                 flush();
 
                 // Faylni o'chirish
                 unlink($path);
-                Log::info('File deleted after sending');
 
                 $this->sendUpdate('Yuklash tugadi', 100);
-                Log::info('Excel export completed successfully');
             } catch (\Exception $e) {
-                Log::error('Error in Excel export: ' . $e->getMessage());
-                Log::error('Error trace: ' . $e->getTraceAsString());
                 $this->sendUpdate('Xatolik yuz berdi: ' . $e->getMessage(), 100);
             }
         }, 200, [
@@ -247,7 +241,7 @@ class ExportInfosController extends Controller
     {
         try {
             // Xotirani oshirish
-            ini_set('memory_limit', '12G'); // 8GB ga oshirildi
+            ini_set('memory_limit', '8G'); // 8GB ga oshirildi
 
             // Ma'lumotlarni qismlab olish
             $chunkSize = 500; // Chunkning hajmi kamaytirildi
@@ -256,7 +250,7 @@ class ExportInfosController extends Controller
 
             foreach ($pointUserDeportaments->chunk($chunkSize) as $chunk) {
                 $currentChunk++;
-                Log::info("Processing chunk {$currentChunk} of {$totalChunks}");
+                // Log::info("Processing chunk {$currentChunk} of {$totalChunks}");
 
                 $callback($sheet, $chunk);
 
@@ -265,12 +259,12 @@ class ExportInfosController extends Controller
 
                 // Progressni log qilish
                 $progress = round(($currentChunk / $totalChunks) * 100, 2);
-                Log::info("Progress: {$progress}%");
+                // Log::info("Progress: {$progress}%");
             }
 
             // Oxirida qo'shimcha xotirani tozalash
             $sheet->garbageCollect();
-            Log::info("Memory cleanup completed");
+            // Log::info("Memory cleanup completed");
         } catch (\Exception $e) {
             // Log::error('Error in data processing: ' . $e->getMessage());
             // Log::error('Error trace: ' . $e->getTraceAsString());
