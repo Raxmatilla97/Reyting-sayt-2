@@ -54,9 +54,12 @@ class ExportInfosController extends Controller
     {
         return new StreamedResponse(function () {
             try {
+                Log::info('Excel export started');
+
                 $this->sendUpdate('Boshlash', 0);
 
                 // Ma'lumotlarni yuklash
+                Log::info('Loading data');
                 $this->sendUpdate('Ma\'lumotlar yuklanmoqda...', 5);
                 $pointUserDeportaments = PointUserDeportament::with([
                     'department',
@@ -94,12 +97,15 @@ class ExportInfosController extends Controller
                 ])
                     ->where('status', 1)
                     ->get();
+                 Log::info('Data loaded. Count: ' . $pointUserDeportaments->count());
                 $this->sendUpdate('Ma\'lumotlar yuklandi', 10);
 
                 // Shablonni yuklash
+                Log::info('Loading template');
                 $this->sendUpdate('Shablon yuklanmoqda...', 15);
                 $templatePath = storage_path('app/templates/base_template.xlsx');
                 $spreadsheet = IOFactory::load($templatePath);
+                Log::info('Template loaded');
                 $this->sendUpdate('Shablon yuklandi', 20);
 
                 $tables = [
@@ -140,25 +146,30 @@ class ExportInfosController extends Controller
                 $currentProgress = 20;
 
                 foreach ($tables as $index => $table) {
+                    Log::info("Processing table: $table");
                     $this->sendUpdate($table . ' ma\'lumotlari to\'ldirilmoqda...', $currentProgress);
 
                     $sheetName = $this->getSheetNameForTable($table);
                     $sheet = $spreadsheet->getSheetByName($sheetName);
 
                     if (!$sheet) {
+                        Log::info("Creating new sheet: $sheetName");
                         $sheet = $spreadsheet->createSheet();
                         $sheet->setTitle($sheetName);
                     }
 
                     $methodName = 'fill' . str_replace('_', '', ucfirst($table)) . 'Data';
                     if (method_exists($this, $methodName)) {
+                        Log::info("Calling method: $methodName");
                         $this->$methodName($sheet, $pointUserDeportaments);
                     } else {
+                        Log::info("Using default fill method for table: $table");
                         $this->fillDefaultData($sheet, $pointUserDeportaments, $table);
                     }
 
                     $currentProgress += $progressPerTable;
                     $this->sendUpdate($table . ' ma\'lumotlari to\'ldirildi', $currentProgress);
+                    Log::info("Finished processing table: $table");
                 }
 
                 $this->sendUpdate('Excel fayl tayyorlanmoqda...', 85);
@@ -265,14 +276,14 @@ class ExportInfosController extends Controller
             $sheet->garbageCollect();
             // Log::info("Memory cleanup completed");
         } catch (\Exception $e) {
-            // Log::error('Error in data processing: ' . $e->getMessage());
-            // Log::error('Error trace: ' . $e->getTraceAsString());
+            Log::error('Error in data processing: ' . $e->getMessage());
+            Log::error('Error trace: ' . $e->getTraceAsString());
             throw $e;
         } finally {
             // Xotirani tozalash
             $this->clearMemory($sheet);
-            // Log::info("Final memory cleanup completed");
-            // Log::info("Peak memory usage: " . $this->formatBytes(memory_get_peak_usage(true)));
+            Log::info("Final memory cleanup completed");
+            Log::info("Peak memory usage: " . $this->formatBytes(memory_get_peak_usage(true)));
         }
     }
 
