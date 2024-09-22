@@ -22,6 +22,23 @@ use App\Http\Middleware\IsAdmin;
 
 Route::get('/', [FrontendController::class, 'index'])->name('welcome');
 
+// routes/web.php
+Route::get('/sse-test', function () {
+    return response()->stream(function () {
+        echo "data: " . json_encode(['message' => 'Test message', 'progress' => 50]) . "\n\n";
+        ob_flush();
+        flush();
+        sleep(2);
+        echo "data: " . json_encode(['message' => 'Test complete', 'progress' => 100]) . "\n\n";
+        ob_flush();
+        flush();
+    }, 200, [
+        'Content-Type' => 'text/event-stream',
+        'Cache-Control' => 'no-cache',
+        'Connection' => 'keep-alive',
+    ]);
+});
+
 Route::middleware('auth')->group(function () {
 
 
