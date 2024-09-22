@@ -225,7 +225,7 @@ class ExportInfosController extends Controller
 
     private function sendUpdate($message, $progress)
     {
-        $this->progress = $progress;
+        Log::info("Sending update: $message, Progress: $progress");
         echo "data: " . json_encode(['message' => $message, 'progress' => $progress]) . "\n\n";
         ob_flush();
         flush();
