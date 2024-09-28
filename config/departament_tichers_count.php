@@ -1,7 +1,7 @@
 <?php
 return [
     '1' => [ // Gumanitar fanlar fakulteti
-        '8' => 11, // O'zbekiston tarixi kafedrasi
+        //'8' => 11, // O'zbekiston tarixi kafedrasi
         '9' => 9,  // Fakultetlar'aro ijtimoiy fanlar kafedrasi
         '10' => 13, // O'zbek tilshunosligi kafedrasi
         '11' => 14, // O'zbek adabiyotshunosligi kafedrasi
@@ -9,7 +9,8 @@ return [
         '13' => 8,  // O'zga tilli guruhlarda rus tili va adabiyoti ta'limi metodikasi kafedrasi
         '14' => 8,  // Fakultetlar'aro rus tili kafedrasi
         '100' => 4, // Rus tili va adabiyoti ta'limi metodikasi kafedrasi
-        '101' => 7, // Umumiy tarix va ta'lim metodikasi kafedrasi
+        //'101' => 7, // Umumiy tarix va ta'lim metodikasi kafedrasi
+        '107' => 7, // Tarix kafedrasi yangi
     ],
     '2' => [ // Pedagogika fakulteti
         '15' => 10, // Pedagogika kafedrasi
@@ -19,9 +20,11 @@ return [
         '98' => 9,  // Maktab menejmenti kafedrasi
     ],
     '3' => [ // Boshlang'ich ta'lim fakulteti
-        '20' => 11, // Boshlang'ich ta'lim nazariyasi kafedrasi
+        //'20' => 11, // Boshlang'ich ta'lim nazariyasi kafedrasi
         '21' => 22, // Boshlang'ich ta'lim metodikasi kafedrasi
-    ],
+        '110' => 6, // Boshlang'ich ta'limda matematika va tabiiy fanlar
+        '111' => 8, // Boshlang'iсh ta'lim nazariyasi va amaliyoti
+        ],
     '4' => [ // Matematika va informatika fakulteti
         '22' => 12, // Matematika o'qitish metodikasi va geometriya kafedrasi
         '23' => 8,  // Informatika o'qitish metodikasi kafedrasi
@@ -43,6 +46,8 @@ return [
         '29' => 14, // Jismoniy madaniyat nazariyasi kafedrasi
         '30' => 8,  // Jismoniy madaniyat va sport kafedrasi
         '31' => 11, // Texnologik ta'lim kafedrasi
+        '109' => 6, //Sport o'yinlari va uni o'qitish metodikasi
+
     ],
     '43' => [ // Turizm fakulteti
         '55' => 4,  // Umumkasbiy va ixtisoslik fanlari kafedrasi
@@ -60,6 +65,7 @@ return [
     '45' => [ // Maktabgacha ta'lim fakulteti
         '51' => 20, // Maktabgacha ta'lim metodikasi kafedrasi
         '52' => 12, // Bolalar sporti kafedrasi
+        '108' => 5, // Maktabgacha ta'lim pedagogikasi
     ],
 
     // Umumiy son: 407
