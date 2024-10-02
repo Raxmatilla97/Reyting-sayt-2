@@ -15,7 +15,7 @@
                         <li>Saytda o'z suratingizni o'zgartirmoqchi bo'lsangiz <a href="{{ route('profile.edit') }}" class="text-blue-600 hover:underline">profil</a> sahifasiga o'tib o'zgartirish imkoniyati qo'shildi.</li>
                         <li>Kafedrangizni va oldindan yuklagan ma'lumotlaringiz hamda unga qo'yilgan ballarni boshqa kafedraga o'tkazish imkoniyati yaratildi. Buning uchun <a href="{{ route('profile.edit') }}" class="text-blue-600 hover:underline">profil</a> sahifasiga kirib, kerakli kafedrani tanlang.</li>
                         <li>Kafedradagi o'qituvchilar soni yangilandi. So'nggi yangilanishlar 27.09.2024 sanasiga ko'ra ro'yxat bo'yicha sonlar yangilangan.</li>
-                        <li>Boshqa kichik sayt stillari va chart qismi tuzatildi.</li>
+                        <li>"Men yuborgan ma'lumotlar" sahifasida ballarni to'g'ri ko'rsatish funksiyasi tuzatildi. Bundan tashqari, saytning boshqa kichik stillari va diagramma (chart) qismi ham takomillashtirildi.</li>
                     </ul>
                 </div>
 

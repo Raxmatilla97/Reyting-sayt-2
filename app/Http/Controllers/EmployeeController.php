@@ -103,7 +103,7 @@ class EmployeeController extends Controller
 
             // O'qituvchining barcha departamentga o'tib ketgan ballari yi'gindisi
             $pointUserInformation = PointUserDeportament::where('user_id', $employee->id)
-            ->where('status', 1)->get();
+                ->where('status', 1)->get();
 
             $departamentPointTotal = 0;
             foreach ($pointUserInformation as $pointEntry) {
@@ -127,7 +127,9 @@ class EmployeeController extends Controller
     public function mySubmittedInformation()
     {
         $user = auth()->user();
-        $pointUserInformations = PointUserDeportament::where('user_id', $user->id)->orderBy('created_at', 'desc')->paginate('15');
+        $pointUserInformations = PointUserDeportament::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
 
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');
@@ -139,12 +141,20 @@ class EmployeeController extends Controller
         // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
         $arrayKey = [];
         foreach ($jadvallarCodlari as $key => $value) {
-            $arrayKey[$key . 'id'] = $key; // $key . 'id' qiymatini o'rnating
+            $arrayKey[$key . 'id'] = $key;
         }
 
-        // Umumiy ballar yig'indisini saqlash uchun o'zgaruvchilar
-        $totalPoints = 0;
-        $departamentPointTotal = 0;
+        // Umumiy ballar yig'indisini hisoblash (pagination dan tashqari)
+        $totalPoints = PointUserDeportament::where('user_id', $user->id)
+            ->where('status', 1)
+            ->sum('point');
+
+        // DepartPoints ballarini hisoblash (pagination dan tashqari)
+        $departamentPointTotal = DepartPoints::whereIn('point_user_deport_id', function ($query) use ($user) {
+            $query->select('id')
+                ->from('point_user_deportaments')
+                ->where('user_id', $user->id);
+        })->sum('point');
 
         // Ma'lumotlar massivini tekshirish
         foreach ($pointUserInformations as $pointUserInformation) {
@@ -157,18 +167,7 @@ class EmployeeController extends Controller
                     break;
                 }
             }
-
-            // Foydalanuvchining har bir itemidagi ballarni yig'indiga qo'shish
-            if ($pointUserInformation->status === 1) {
-                if (isset($pointUserInformation->point)) {
-                    $totalPoints += $pointUserInformation->point;
-                }
-            }
-
-            // DepartPoints ballarini qo'shish (statusdan qat'i nazar)
-            $departamentPointTotal += DepartPoints::where('point_user_deport_id', $pointUserInformation->id)->sum('point');
         }
-
 
         return view('dashboard.my_submited_info', compact('pointUserInformations', 'totalPoints', 'departamentPointTotal'));
     }
