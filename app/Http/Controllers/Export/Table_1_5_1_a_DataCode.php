@@ -12,6 +12,7 @@ class Table_1_5_1_a_DataCode
 {
     public function exportTableData($sheet, $pointUserDeportaments)
     {
+
         $row = 8; // Ma'lumotlar yozilishi kerak bo'lgan boshlang'ich qator
         $writtenRows = 0;
         $orderNumber = 1; // Tartib raqami uchun o'zgaruvchi

@@ -54,92 +54,33 @@ class ExportInfosController extends Controller
     {
         return new StreamedResponse(function () {
             try {
+                ini_set('memory_limit', '40G');
+                set_time_limit(6000);
+
                 $this->sendUpdate('Boshlash', 0);
 
                 // Ma'lumotlarni yuklash
                 $this->sendUpdate('Ma\'lumotlar yuklanmoqda...', 5);
-                $pointUserDeportaments = PointUserDeportament::with([
-                    'department',
-                    'employee',
-                    'table_1_1',
-                    'table_1_2',
-                    'table_1_3_1_a',
-                    'table_1_3_1_b',
-                    'table_1_3_2_a',
-                    'table_1_3_2_b',
-                    'table_1_4',
-                    'table_1_5_1',
-                    'table_1_5_1_a',
-                    'table_1_6_1',
-                    'table_1_6_2',
-                    'table_1_7_1',
-                    'table_1_7_2',
-                    'table_1_7_3',
-                    'table_1_9_1',
-                    'table_1_9_2',
-                    'table_1_9_3',
-                    'table_2_2_1',
-                    'table_2_2_2',
-                    'table_2_3_1',
-                    'table_2_3_2',
-                    'table_2_4_1',
-                    'table_2_4_2',
-                    'table_2_4_2_b',
-                    'table_2_5',
-                    'table_3_4_1',
-                    'table_3_4_2',
-                    'table_4_1',
-
-
-                ])
-                    ->where('status', 1)
-                    ->get();
-                $this->sendUpdate('Ma\'lumotlar yuklandi', 10);
-
-                // Shablonni yuklash
-                $this->sendUpdate('Shablon yuklanmoqda...', 15);
-                $templatePath = storage_path('app/templates/base_template.xlsx');
-                $spreadsheet = IOFactory::load($templatePath);
-                $this->sendUpdate('Shablon yuklandi', 20);
 
                 $tables = [
-                    'table_1_1',
-                    'table_1_2',
-                    'table_1_3_1_a',
-                    'table_1_3_1_b',
-                    'table_1_3_2_a',
-                    'table_1_3_2_b',
-                    'table_1_4',
-                    'table_1_5_1',
-                    'table_1_5_1_a',
-                    'table_1_6_1',
-                    'table_1_6_1_a',
-                    'table_1_6_2',
-                    'table_1_7_1',
-                    'table_1_7_2',
-                    'table_1_7_3',
-                    'table_1_9_1',
-                    'table_1_9_2',
-                    'table_1_9_3',
-                    'table_2_2_1',
-                    'table_2_2_2',
-                    'table_2_3_1',
-                    'table_2_3_2',
-                    'table_2_4_1',
-                    'table_2_4_2',
-                    'table_2_4_2_b',
-                    'table_2_5',
-                    'table_3_4_1',
-                    'table_3_4_2',
-                    'table_4_1',
-
-
+                    'table_1_1', 'table_1_2', 'table_1_3_1_a', 'table_1_3_1_b', 'table_1_3_2_a',
+                    'table_1_3_2_b', 'table_1_4', 'table_1_5_1', 'table_1_5_1_a', 'table_1_6_1',
+                    'table_1_6_1_a', 'table_1_6_2', 'table_1_7_1', 'table_1_7_2', 'table_1_7_3',
+                    'table_1_9_1', 'table_1_9_2', 'table_1_9_3', 'table_2_2_1', 'table_2_2_2',
+                    'table_2_3_1', 'table_2_3_2', 'table_2_4_1', 'table_2_4_2', 'table_2_4_2_b',
+                    'table_2_5', 'table_3_4_1', 'table_3_4_2', 'table_4_1',
                 ];
 
-                $progressPerTable = 60 / count($tables);
-                $currentProgress = 20;
+                // Shablonni yuklash
+                $this->sendUpdate('Shablon yuklanmoqda...', 10);
+                $templatePath = storage_path('app/templates/base_template.xlsx');
+                $spreadsheet = IOFactory::load($templatePath);
+                $this->sendUpdate('Shablon yuklandi', 15);
 
-                foreach ($tables as $index => $table) {
+                $progressPerTable = 80 / count($tables);
+                $currentProgress = 15;
+
+                foreach ($tables as $table) {
                     $this->sendUpdate($table . ' ma\'lumotlari to\'ldirilmoqda...', $currentProgress);
 
                     $sheetName = $this->getSheetNameForTable($table);
@@ -152,56 +93,31 @@ class ExportInfosController extends Controller
 
                     $methodName = 'fill' . str_replace('_', '', ucfirst($table)) . 'Data';
                     if (method_exists($this, $methodName)) {
-                        $this->$methodName($sheet, $pointUserDeportaments);
+                        PointUserDeportament::with([$table])
+                            ->where('status', 1)
+                            ->chunk(500, function($chunk) use ($sheet, $methodName) {
+                                $this->$methodName($sheet, $chunk);
+                            });
                     } else {
-                        $this->fillDefaultData($sheet, $pointUserDeportaments, $table);
+                        PointUserDeportament::with([$table])
+                            ->where('status', 1)
+                            ->chunk(500, function($chunk) use ($sheet, $table) {
+                                $this->fillDefaultData($sheet, $chunk, $table);
+                            });
                     }
 
                     $currentProgress += $progressPerTable;
                     $this->sendUpdate($table . ' ma\'lumotlari to\'ldirildi', $currentProgress);
                 }
 
-                $this->sendUpdate('Excel fayl tayyorlanmoqda...', 85);
+                $this->sendUpdate('Excel fayl tayyorlanmoqda...', 95);
                 $filename = 'all_data_' . time() . '.xlsx';
                 $path = storage_path('app/public/' . $filename);
 
                 $writer = new Xlsx($spreadsheet);
                 $writer->save($path);
 
-                $this->sendUpdate('Excel fayl saqlandi va u endi yuklab olinadi, 1-3 minut kuting...', 95);
-
-                // Excel sahifalarini nomlari tekshirish
-                $this->logExcelData($path, 'Table 1 1'); // Qo'shimcha sahifani ham tekshiramiz
-                $this->logExcelData($path, 'Table 1 2');
-                $this->logExcelData($path, 'Table 1 3 1 a');
-                $this->logExcelData($path, 'Table 1 3 1 b');
-                $this->logExcelData($path, 'Table 1 3 2 a');
-                $this->logExcelData($path, 'Table 1 3 2 b');
-                $this->logExcelData($path, 'Table 1 4');
-                $this->logExcelData($path, 'Table 1 5 1');
-                $this->logExcelData($path, 'Table 1 5 1 a');
-                $this->logExcelData($path, 'Table 1 6 1');
-                $this->logExcelData($path, 'Table 1 6 1 a');
-                $this->logExcelData($path, 'Table 1 6 2');
-                $this->logExcelData($path, 'Table 1 7 1');
-                $this->logExcelData($path, 'Table 1 7 2');
-                $this->logExcelData($path, 'Table 1 7 3');
-                $this->logExcelData($path, 'Table 1 9 1');
-                $this->logExcelData($path, 'Table 1 9 2');
-                $this->logExcelData($path, 'Table 1 9 3');
-                $this->logExcelData($path, 'Table 2 2 1');
-                $this->logExcelData($path, 'Table 2 2 2');
-                $this->logExcelData($path, 'Table 2 3 1');
-                $this->logExcelData($path, 'Table 2 3 2');
-                $this->logExcelData($path, 'Table 2 4 1');
-                $this->logExcelData($path, 'Table 2 4 2');
-                $this->logExcelData($path, 'Table 2 4 2 b');
-                $this->logExcelData($path, 'Table 2 5');
-                $this->logExcelData($path, 'Table 3 4 1');
-                $this->logExcelData($path, 'Table 3 4 2');
-                $this->logExcelData($path, 'Table 4 1');
-
-                $this->sendUpdate('Fayl yuklab olishga tayyor', 98);
+                $this->sendUpdate('Excel fayl saqlandi va u endi yuklab olinadi, 1-3 minut kuting...', 98);
 
                 // Faylni yuborish
                 $fileContent = file_get_contents($path);
@@ -225,11 +141,12 @@ class ExportInfosController extends Controller
 
     private function sendUpdate($message, $progress)
     {
-        Log::info("Sending update: $message, Progress: $progress");
+        \Log::info("Sending update: $message, Progress: $progress");
         echo "data: " . json_encode(['message' => $message, 'progress' => $progress]) . "\n\n";
         ob_flush();
         flush();
     }
+
 
     private function getSheetNameForTable($table)
     {
@@ -543,9 +460,16 @@ class ExportInfosController extends Controller
 
     private function logExcelData($path, $sheetName)
     {
-        $spreadsheet = IOFactory::load($path);
-        $sheet = $spreadsheet->getSheetByName($sheetName);
-        $data = $sheet->toArray(null, true, true, true);
-        // Log::info('Excel data after saving: ' . json_encode(array_slice($data, 7, 5)));
+        $reader = IOFactory::createReader('Xlsx');
+        $spreadsheet = $reader->load($path);
+        $worksheet = $spreadsheet->getSheetByName($sheetName);
+
+        if ($worksheet) {
+            $highestRow = $worksheet->getHighestRow();
+            $highestColumn = $worksheet->getHighestColumn();
+            \Log::info("Sheet '$sheetName': Highest row: $highestRow, Highest column: $highestColumn");
+        } else {
+            \Log::warning("Sheet '$sheetName' not found in the Excel file.");
+        }
     }
 }
