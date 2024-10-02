@@ -92,7 +92,8 @@ Route::middleware('auth')->group(function () {
     // O'qituvchi ma'lumotlarini show qilish
     Route::get('/employee/{id_employee}', [EmployeeController::class, 'employeeShow'])->name('dashboard.employeeShow');
 
-    // Murojaatlarni ro'yxati va ko'rish
+    // Kafedrani o'zgartirish
+    Route::patch('/profile/update-department', [ProfileController::class, 'updateDepartment'])->name('profile.update.department');
 
     //Faqat adminlar uchun routelar
     Route::middleware(['auth', 'isadmin'])->group(function () {

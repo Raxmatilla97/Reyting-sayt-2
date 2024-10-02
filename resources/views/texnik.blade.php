@@ -6,20 +6,19 @@
             <i class="fas fa-exclamation-circle text-5xl text-yellow-500 mb-4"></i>
             <h3 class="text-2xl leading-6 font-bold text-gray-900 mb-4">Muhim xabar</h3>
             <div class="mt-2 px-7 py-3">
-                <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
-                    <span class="font-medium">16.09.2024</span> Hurmatli foydalanuvchilar, saytimizda O'qituvchi,
-                    Kafedra va Fakultet ballarini shakllantirish tizimi yangilandi. Hozirda barcha ma'lumotlar uchun
-                    ballar shakllantirilmoqda. Agar tizimda biror xatolik yoki noaniqlik sezsangiz, iltimos, bizga xabar
-                    bering. Sizning fikr-mulohazalaringiz bizga tizimni yanada takomillashtirish imkonini beradi.
+
+                <div class="p-4 mb-4 text-left text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
+                    <p class="font-medium mb-2">2.10.2024</p>
+                    <p class="mb-2">Hurmatli foydalanuvchilar, saytimizda yangilanishlar amalga oshirildi:</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Kafedra ballarini hisoblashda o'zgarish kiritildi. Endi kafedraga o'tkaziladigan ballar 0,10 balldan yuqori qo'yilmaydi va ilgari kiritilgan barcha ballar 0,10 ballga o'zgartirildi.</li>
+                        <li>Saytda o'z suratingizni o'zgartirmoqchi bo'lsangiz <a href="{{ route('profile.edit') }}" class="text-blue-600 hover:underline">profil</a> sahifasiga o'tib o'zgartirish imkoniyati qo'shildi.</li>
+                        <li>Kafedrangizni va oldindan yuklagan ma'lumotlaringiz hamda unga qo'yilgan ballarni boshqa kafedraga o'tkazish imkoniyati yaratildi. Buning uchun <a href="{{ route('profile.edit') }}" class="text-blue-600 hover:underline">profil</a> sahifasiga kirib, kerakli kafedrani tanlang.</li>
+                        <li>Kafedradagi o'qituvchilar soni yangilandi. So'nggi yangilanishlar 27.09.2024 sanasiga ko'ra ro'yxat bo'yicha sonlar yangilangan.</li>
+                        <li>Boshqa kichik sayt stillari va chart qismi tuzatildi.</li>
+                    </ul>
                 </div>
-                <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
-                    <span class="font-medium">17.09.2024</span> Hurmatli foydalanuvchilar, saytimizda yangi yo'nalishlar
-                    qo'shildi! table_1_3_1_a_, table_1_3_1_b_ va table_1_3_2_a_, table_1_3_2_b_ lar uchun ma'lumotlarni
-                    qayta jo'natishingiz mumkin.
-                </div>
-                <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
-                    <span class="font-medium">28.09.2024</span> Hurmatli foydalanuvchilar, saytimizda kafedralar ro'yxatida yangilanishlar bajarildi, o'qituvchilar ro'yxatdan o'tishlari mumkin.
-                </div>
+
                 <div class="text-right">
                     <a href="https://t.me/Raxmatilla_Fayziyev" target="_blank" rel="noopener noreferrer"
                     class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
