@@ -112,7 +112,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/export', [ExportInfosController::class, 'export'])->name('export');
         Route::get('/download', [ExportInfosController::class, 'download'])->name('download');
         Route::get('/test-excel', [ExportInfosController::class, 'testExcelExport'])->name('testExcelExport');
-
     });
 
     // Auth bo'lib kirganlar uchun routes
