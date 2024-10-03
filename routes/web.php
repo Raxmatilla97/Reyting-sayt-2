@@ -64,7 +64,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/show-employee-form/{type}', [FormsController::class, 'employeeShowForm'])->name('dashboard.show_employee_form');
 
     // Formadagi malumotlarni umumiy routerga yuborish
-    // Route::post('/send-employee-form/{tableName}', [FormsController::class, 'employeeStoreForm'])->name('dashboard.employee_store_form');
+    Route::post('/send-employee-form/{tableName}', [FormsController::class, 'employeeStoreForm'])->name('dashboard.employee_store_form');
 
     // Kafedra malumotini bolimini tanlash sahifasi
     Route::get('/department_form_chose', [DepartmentController::class, 'departmentFormChose'])->name('dashboard.department_form_chose');
