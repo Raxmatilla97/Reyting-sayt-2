@@ -65,7 +65,7 @@ return [
     '45' => [ // Maktabgacha ta'lim fakulteti
         '51' => 15, //* Maktabgacha ta'lim metodikasi kafedrasi
         '52' => 12, //* Bolalar sporti kafedrasi
-        '108' => 16, //* Maktabgacha ta'lim pedagogikasi
+        '108' => 12, //* Maktabgacha ta'lim pedagogikasi
     ],
 
     // Umumiy son: 407
