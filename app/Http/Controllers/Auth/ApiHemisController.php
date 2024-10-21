@@ -159,15 +159,8 @@ class ApiHemisController extends Controller
                 $code = $department['employmentForm']['code'];
                 $departmentId = $department['department']['id'];
 
-                // 11-kod uchun tekshirish
-                if ($code == 11) {
-                    if (Department::where('id', $departmentId)->exists()) {
-                        return $departmentId;
-                    }
-                }
-
-                // Agar 11-kod mos kelmasa, 12-kodni tekshirish
-                elseif ($code == 12) {
+                 // 11, 12 va 15 kodlar uchun tekshirish
+                 if (in_array($code, [11, 12, 15])) {
                     if (Department::where('id', $departmentId)->exists()) {
                         return $departmentId;
                     }
