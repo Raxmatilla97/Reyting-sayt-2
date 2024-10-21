@@ -154,6 +154,16 @@ class ApiHemisController extends Controller
 
     private function getDepartmentId($departments)
     {
+        /*
+            $priorityOrder dagi massiv raqamlari manolari
+            ----------------------------------------------
+            11 - Asosiy ish joy,
+            12 - O‘rindoshlik (ichki-qo'shimcha),
+            13 - O‘rindoshlik (tashqi),
+            14 - Soatbay,
+            15 - O‘rindoshlik (ichki-asosiy)
+            -----------------------------------------------
+        */
         $priorityOrder = [11, 12, 15];
 
         foreach ($priorityOrder as $priorityCode) {
