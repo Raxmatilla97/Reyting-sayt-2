@@ -154,19 +154,19 @@ class ApiHemisController extends Controller
 
     private function getDepartmentId($departments)
     {
-        foreach ($departments as $department) {
-            if (isset($department['employmentForm']['code'])) {
-                $code = $department['employmentForm']['code'];
-                $departmentId = $department['department']['id'];
+        $priorityOrder = [11, 12, 15];
 
-                 // 11, 12 va 15 kodlar uchun tekshirish
-                 if (in_array($code, [11, 12, 15])) {
+        foreach ($priorityOrder as $priorityCode) {
+            foreach ($departments as $department) {
+                if (isset($department['employmentForm']['code']) && $department['employmentForm']['code'] == $priorityCode) {
+                    $departmentId = $department['department']['id'];
                     if (Department::where('id', $departmentId)->exists()) {
                         return $departmentId;
                     }
                 }
             }
         }
+
         return null;
     }
 
