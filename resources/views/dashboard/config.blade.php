@@ -107,6 +107,7 @@
             <div class="p-4 md:p-6 bg-white rounded-lg shadow-md flex flex-col items-center justify-center text-center">
                 <h3 class="text-lg md:text-xl font-bold mb-2">Rad etilganlarni o'chirish</h3>
                 <p class="text-gray-600 mb-4 text-sm md:text-base">Barcha rad etilgan ma'lumotlarni o'chirish.</p>
+                <p class="text-green-500 mb-4 text-xs md:text-sm">Ishlamoqda!</p>
                 <button onclick="deleteRejectedData()" id="rejectedDeleteButton"
                     class="w-full md:w-auto bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
                     O'chirish
