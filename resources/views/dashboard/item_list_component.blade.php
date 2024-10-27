@@ -98,6 +98,12 @@
                                     Ko'rish
                                 </button>
 
+                                {{-- <button
+                                    class="view-details-btn block mt-3 text-white bg-yellow-400 hover:bg-yellow-500 focus:ring-4 focus:outline-none focus:ring-yellow-300 font-sm rounded-lg text-sm px-2 py-1.5 text-center"
+                                   >
+                                   O'zgartirish
+                                </button> --}}
+
 
                             </div>
                         </td>

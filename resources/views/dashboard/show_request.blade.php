@@ -574,7 +574,7 @@
                                                                         </svg>
                                                                     </div>
                                                                     <input type="text" id="smallInput"
-                                                                        value="{{ $userPointInfo['user_point_this_item'] > 0 ? number_format($userPointInfo['user_point_this_item'], 2) : '' }}"
+                                                                        value="{{ old('kafedra_uchun', $userPointInfo['user_point_this_item'] > 0 ? number_format($userPointInfo['user_point_this_item'], 2) : '') }}"
                                                                         name="kafedra_uchun"
                                                                         class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                                                         placeholder="Kafedra bali"
@@ -596,7 +596,7 @@
                                                                 </label>
                                                             </div>
 
-                                                            <script>
+                                                            {{-- <script>
                                                                 document.addEventListener('DOMContentLoaded', function() {
                                                                     const murojaatBaliInput = document.getElementById('murojaatBali');
                                                                     const remainingPointsElement = document.getElementById('remainingPoints');
@@ -729,7 +729,117 @@
                                                                     updatePointInfo();
                                                                     updateSmallInputState();
                                                                 });
-                                                            </script>
+                                                            </script> --}}
+
+                                                            <script>
+                                                                document.addEventListener('DOMContentLoaded', function() {
+                                                                    // DOM elementlarini bitta joyda e'lon qilish
+                                                                    const elements = {
+                                                                        murojaatBali: document.getElementById('murojaatBali'),
+                                                                        remainingPoints: document.getElementById('remainingPoints'),
+                                                                        teacherPoints: document.getElementById('teacherPoints'),
+                                                                        exceedWarning: document.getElementById('exceedWarning'),
+                                                                        extraPointsInfo: document.getElementById('extraPointsInfo'),
+                                                                        extraPointsValue: document.getElementById('extraPointsValue'),
+                                                                        toggleCheckbox: document.getElementById('toggle'),
+                                                                        extraPointsInput: document.getElementById('extraPointsInput'),
+                                                                        smallInput: document.getElementById('smallInput')
+                                                                    };
+
+                                                                    // Barcha o'zgarmas qiymatlarni bitta joyda saqlash
+                                                                    const config = {
+                                                                        maxPoint: {{ $userPointInfo['max_point'] }},
+                                                                        initialTotalPoints: {{ $userPointInfo['total_points'] }} - {{ $initialInputValue }},
+                                                                        initialInputValue: {{ $initialInputValue }},
+                                                                        userPointThisItem: {{ $userPointInfo['user_point_this_item'] }},
+                                                                        oldKafedraValue: "{{ old('kafedra_uchun') }}"
+                                                                    };
+
+                                                                    // Ball hisoblovchi asosiy funksiya
+                                                                    function calculatePoints(currentValue) {
+                                                                        const newTotalPoints = config.initialTotalPoints + currentValue;
+                                                                        return {
+                                                                            truePoint: Math.max(0, config.maxPoint - newTotalPoints),
+                                                                            extraPoints: Math.max(0, newTotalPoints - config.maxPoint),
+                                                                            newTotalPoints: newTotalPoints
+                                                                        };
+                                                                    }
+
+                                                                    // UI yangilovchi funksiya
+                                                                    function updateUI(points) {
+                                                                        // Qolgan ballarni yangilash
+                                                                        elements.remainingPoints.textContent =
+                                                                            `Siz yana ${points.truePoint.toFixed(2)} bal bera olasiz! Qolgan ortiqcha ballar kafedra hisobiga o'tadi.`;
+
+                                                                        // O'qituvchi ballarini yangilash
+                                                                        const teacherPointsElement = elements.teacherPoints.querySelector('b');
+                                                                        teacherPointsElement.textContent = points.newTotalPoints.toFixed(2);
+
+                                                                        // Ogohlantirish ranglarini boshqarish
+                                                                        const isExceeded = points.newTotalPoints > config.maxPoint;
+                                                                        elements.teacherPoints.classList.toggle('text-red-600', isExceeded);
+                                                                        elements.teacherPoints.classList.toggle('font-bold', isExceeded);
+                                                                        elements.exceedWarning.classList.toggle('hidden', !isExceeded);
+
+                                                                        // Qo'shimcha ballar ma'lumotini yangilash
+                                                                        elements.extraPointsInfo.classList.toggle('hidden', points.extraPoints <= 0);
+                                                                        elements.extraPointsValue.textContent = points.extraPoints.toFixed(2);
+                                                                        elements.extraPointsInput.value = points.extraPoints.toFixed(2);
+                                                                    }
+
+                                                                    // Kichik input holatini yangilovchi funksiya
+                                                                    function updateSmallInputState() {
+                                                                        const isChecked = elements.toggleCheckbox.checked;
+                                                                        elements.smallInput.disabled = !isChecked;
+
+                                                                        if (isChecked) {
+                                                                            if (config.oldKafedraValue) {
+                                                                                elements.smallInput.value = config.oldKafedraValue;
+                                                                            } else {
+                                                                                elements.smallInput.value = "0.10";
+                                                                            }
+                                                                        } else {
+                                                                            elements.smallInput.value = "";
+                                                                        }
+                                                                    }
+
+                                                                    // Event listener'larni qo'shish
+                                                                    elements.murojaatBali.addEventListener('input', function() {
+                                                                        const currentValue = parseFloat(this.value) || 0;
+                                                                        updateUI(calculatePoints(currentValue));
+                                                                    });
+
+                                                                    elements.smallInput.addEventListener('input', function() {
+                                                                        if (this.value === "" || isNaN(parseFloat(this.value))) {
+                                                                            this.value = "";
+                                                                        }
+                                                                    });
+
+                                                                    elements.toggleCheckbox.addEventListener('change', updateSmallInputState);
+
+                                                                    // Boshlang'ich holatni o'rnatish
+                                                                    const hasExistingPoints = config.userPointThisItem > 0;
+                                                                    const hasOldValue = config.oldKafedraValue && config.oldKafedraValue !== "0.00";
+
+                                                                    // Toggle holatini o'rnatish
+                                                                    if (hasExistingPoints) {
+                                                                        // Agar kafedra bali mavjud bo'lsa
+                                                                        elements.toggleCheckbox.checked = true;
+                                                                        elements.smallInput.value = hasOldValue ? config.oldKafedraValue : String(config.userPointThisItem.toFixed(2));
+                                                                    } else {
+                                                                        // Agar kafedra bali mavjud bo'lmasa
+                                                                        elements.toggleCheckbox.checked = hasOldValue;
+                                                                        elements.smallInput.value = hasOldValue ? config.oldKafedraValue : "";
+                                                                    }
+
+                                                                    // Small input disabled holatini o'rnatish
+                                                                    elements.smallInput.disabled = !elements.toggleCheckbox.checked;
+
+                                                                    // Boshlang'ich UI holatini yangilash
+                                                                    updateUI(calculatePoints(config.initialInputValue));
+                                                                    updateSmallInputState();
+                                                                });
+                                                                </script>
                                                             <style>
                                                                 .toggle-checkbox:checked {
                                                                     @apply: right-0 border-green-400;
@@ -874,6 +984,8 @@
 
                                                         selectElement.addEventListener('change', toggleDivVisibility);
                                                     });
+
+
                                                 </script>
                                             </div>
                                     </li>

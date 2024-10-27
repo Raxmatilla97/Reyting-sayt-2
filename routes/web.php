@@ -11,6 +11,7 @@ use App\Http\Controllers\Auth\ApiHemisController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PointUserDeportamentController;
 use App\Http\Controllers\ExportInfosController;
+use App\Http\Controllers\ConfigurationController;
 use App\Http\Middleware\IsAdmin;
 
 /*
@@ -109,9 +110,12 @@ Route::middleware('auth')->group(function () {
         Route::post('/update-faculties', [FacultyController::class, 'update'])->name('update.faculties');
 
         // Ma'lumotlarni excelga export qilish
-        Route::get('/export', [ExportInfosController::class, 'export'])->name('export');
+        Route::get('/config', [ExportInfosController::class, 'export'])->name('export');
         Route::get('/download', [ExportInfosController::class, 'download'])->name('download');
         Route::get('/test-excel', [ExportInfosController::class, 'testExcelExport'])->name('testExcelExport');
+
+        // Hamma rad etilgan ma'lumotlarni o'chirish
+        Route::post('/delete-rejected-data', [ConfigurationController::class, 'delete'])->name('delete.rejected.data')->middleware('web');
     });
 
     // Auth bo'lib kirganlar uchun routes

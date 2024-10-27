@@ -129,7 +129,7 @@ class PointUserDeportamentController extends Controller
                 $q->whereBetween('created_at', [$start_date->format('Y-m-d'), $end_date->format('Y-m-d')]);
             });
 
-            $murojatlar = $query->orderBy('created_at', 'desc')->paginate(15)->appends($form_info);
+        $murojatlar = $query->orderBy('created_at', 'desc')->paginate(15)->appends($form_info);
 
         // Ma'lumotlar massivini tekshirish
         foreach ($murojatlar as $item) {
@@ -208,34 +208,27 @@ class PointUserDeportamentController extends Controller
 
         // Foydalanuvchining faqat shu table uchun pointlarini hisoblash
         if ($foundRelation && $userPointInfo['table_name']) {
+            $currentColumnName = $userPointInfo['table_name'] . 'id';
+
             $userPointInfo['total_points'] = PointUserDeportament::where('user_id', $information->user_id)
                 ->where('status', 1)
-                ->where(function ($query) use ($userPointInfo) {
-                    $query->where(function ($q) use ($userPointInfo) {
-                        $columns = Schema::getColumnListing('point_user_deportaments');
-                        foreach ($columns as $column) {
-                            if (strpos($column, $userPointInfo['table_name']) !== false) {
-                                $q->orWhereNotNull($column);
-                            }
-                        }
-                    });
+                ->where(function ($query) use ($currentColumnName, $information) {
+                    $query->whereNotNull($currentColumnName)
+                        ->where($currentColumnName, $information->{$currentColumnName});
                 })
                 ->sum('point');
         }
 
         // Foydalanuvchining aynan shu item uchun kafedraga o'tgan balini hisoblash
-        // Success function
         $userPointInfo['user_point_this_item'] = DepartPoints::where('point_user_deport_id', $id)->sum('point');
 
         // Foydalanuvchining aynan shu relationdagi kafedraga o'tgan ballarini hisoblash
-        // Success function
         $userPointInfo['user_points_this_depart_relation'] = DepartPoints::whereHas('pointUserDeportament', function ($query) use ($information, $userPointInfo) {
             $query->where('user_id', $information->user_id)
                 ->where($userPointInfo['table_name'] . 'id', $information->{$userPointInfo['table_name'] . 'id'});
         })->sum('point');
 
         // Foydalanuvchining barcha yo'nalishlar bo'yicha departamentga o'tgan pointlarini hisoblash
-        // Success function
         $userPointInfo['user_points_all_departs_items'] = DepartPoints::whereHas('pointUserDeportament', function ($query) use ($information) {
             $query->where('user_id', $information->user_id);
         })->sum('point');
@@ -260,6 +253,7 @@ class PointUserDeportamentController extends Controller
 
         return view('dashboard.show_request', compact('information', 'default_image', 'totalPoints', 'relatedData', 'year', 'userPointInfo', 'hasSimilarData', 'similarDataId'));
     }
+
 
     private function getModelClassForRelation($relation)
     {
@@ -315,19 +309,24 @@ class PointUserDeportamentController extends Controller
             if ($request->murojaat_holati == '1') { // "Maqullandi" holati
                 $model->point = $inputPoint;
 
-                // Kafedra balini yangilash yoki yaratish
-                if (isset($inputForDepart)) {
-                    DepartPoints::updateOrCreate(
-                        ['point_user_deport_id' => $model->id],
-                        [
-                            'point' => $inputForDepart,
-                            'status' => 1
-                        ]
-                    );
+                // Kafedra balini tekshirish
+                if ($request->has('kafedra_uchun')) {
+                    if ($inputForDepart > 0) {
+                        // Agar ball 0 dan katta bo'lsa yangilaymiz yoki yaratamiz
+                        DepartPoints::updateOrCreate(
+                            ['point_user_deport_id' => $model->id],
+                            [
+                                'point' => $inputForDepart,
+                                'status' => 1
+                            ]
+                        );
+                    } else {
+                        // Agar ball 0 yoki undan kichik bo'lsa o'chiramiz
+                        DepartPoints::where('point_user_deport_id', $model->id)->delete();
+                    }
                 }
             } else { // Boshqa holatlar uchun
                 $model->point = 0.00;
-
                 // Agar murojaat rad etilgan yoki qayta ko'rib chiqilishi kerak bo'lsa, kafedra balini o'chirish
                 if ($request->murojaat_holati == '0' || $request->murojaat_holati == '3') {
                     DepartPoints::where('point_user_deport_id', $model->id)->delete();
@@ -350,6 +349,7 @@ class PointUserDeportamentController extends Controller
             return redirect()->back()->with('error', 'Ma\'lumotni saqlashda xatolik yuz berdi: ' . $e->getMessage());
         }
     }
+
 
     public function destroy($fileId)
     {

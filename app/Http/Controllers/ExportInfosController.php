@@ -47,7 +47,7 @@ class ExportInfosController extends Controller
     public function export()
     {
 
-        return view('dashboard.download');
+        return view('dashboard.config');
     }
 
     public function download()

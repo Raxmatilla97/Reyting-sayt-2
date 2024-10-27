@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use App\Models\DepartPoints;
+use Illuminate\Support\Facades\DB;
 
 class EmployeeController extends Controller
 {
@@ -21,22 +22,31 @@ class EmployeeController extends Controller
         // Employee modelidan queryni boshlash
         $query = Employee::query();
 
-        // Agar 'name' parametri mavjud bo'lsa, nomga mos keladigan xodimlarni qidirish
+        // Agar 'name' parametri mavjud bo'lsa
         if ($request->filled('name')) {
-            $name = '%' . $request->name . '%'; // LIKE qidiruvlari uchun qidiruv terminini tayyorlash
-            $query->where(function ($q) use ($name) {
-                $q->where('first_name', 'like', $name)
-                    ->orWhere('second_name', 'like', $name)
-                    ->orWhere('third_name', 'like', $name);
+            $searchTerms = explode(' ', trim($request->name));
+
+            $query->where(function ($mainQuery) use ($searchTerms) {
+                // Har bir so'z uchun
+                foreach ($searchTerms as $term) {
+                    $term = '%' . $term . '%';
+
+                    $mainQuery->where(function ($q) use ($term) {
+                        $q->where('first_name', 'like', $term)
+                            ->orWhere('second_name', 'like', $term)
+                            ->orWhere('third_name', 'like', $term);
+                    });
+                }
             });
+
+            // To'liq ism bilan qidirish
+            $fullName = '%' . $request->name . '%';
+            $query->orWhere(DB::raw("CONCAT(first_name, ' ', second_name, ' ', third_name)"), 'like', $fullName)
+                  ->orWhere(DB::raw("CONCAT(second_name, ' ', first_name, ' ', third_name)"), 'like', $fullName);
         }
 
         // Tartiblash va paginatsiya qilish
         $employee = $query->orderBy('created_at', 'desc')->paginate(30);
-
-
-
-
 
         return view('dashboard.employee.index', compact('employee'));
     }

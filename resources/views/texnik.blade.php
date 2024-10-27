@@ -8,14 +8,26 @@
             <div class="mt-2 px-7 py-3">
 
                 <div class="p-4 mb-4 text-left text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
-                    <p class="font-medium mb-2">2.10.2024</p>
-                    <p class="mb-2">Hurmatli foydalanuvchilar, saytimizda yangilanishlar amalga oshirildi:</p>
+                    <p class="font-medium mb-2">27.10.2024</p>
+                    <p class="mb-2">Hurmatli foydalanuvchilar, tizimda quyidagi yangilanishlar amalga oshirildi:</p>
                     <ul class="list-disc pl-5 space-y-2">
-                        <li>Kafedra ballarini hisoblashda o'zgarish kiritildi. Endi kafedraga o'tkaziladigan ballar 0,10 balldan yuqori qo'yilmaydi va ilgari kiritilgan barcha ballar 0,10 ballga o'zgartirildi.</li>
-                        <li>Saytda o'z suratingizni o'zgartirmoqchi bo'lsangiz <a href="{{ route('profile.edit') }}" class="text-blue-600 hover:underline">profil</a> sahifasiga o'tib o'zgartirish imkoniyati qo'shildi.</li>
-                        <li>Kafedrangizni va oldindan yuklagan ma'lumotlaringiz hamda unga qo'yilgan ballarni boshqa kafedraga o'tkazish imkoniyati yaratildi. Buning uchun <a href="{{ route('profile.edit') }}" class="text-blue-600 hover:underline">profil</a> sahifasiga kirib, kerakli kafedrani tanlang.</li>
-                        <li>Kafedradagi o'qituvchilar soni yangilandi. So'nggi yangilanishlar 27.09.2024 sanasiga ko'ra ro'yxat bo'yicha sonlar yangilangan.</li>
-                        <li>"Men yuborgan ma'lumotlar" sahifasida ballarni to'g'ri ko'rsatish funksiyasi tuzatildi. Bundan tashqari, saytning boshqa kichik stillari va diagramma (chart) qismi ham takomillashtirildi.</li>
+                        <li>O'qituvchilarni qidiruv tizimi takomillashtirildi</li>
+                        <li>Administrator uchun yangi boshqaruv paneli ishga tushirildi:
+                            <ul class="list-circle pl-5 mt-1 space-y-1">
+                                <li>Ma'lumotlarni Excel formatida yuklab olish</li>
+                                <li>Rad etilgan ma'lumotlarni boshqarish</li>
+                                <li>Fakultet, kafedra va o'qituvchilar ma'lumotlarini yangilash</li>
+                            </ul>
+                        </li>
+                        <li>Ma'lumotlarni tasdiqlash jarayonida ball belgilash funksiyasi takomillashtirildi</li>
+                        <li>Tizimda aniqlangan boshqa xatolar bartaraf etildi</li>
+                    </ul>
+
+                    <p class="mb-2 mt-4">Rejadagi yangilanishlar:</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Rad etilgan ma'lumotlarni tahrirlash va qayta topshirish imkoniyati</li>
+                        <li>HEMIS tizimi bilan integratsiya qilib, kafedra o'qituvchilari sonini kunlik yangilash</li>
+                        <li>KPI reyting tizimiga qo'shimcha funksional imkoniyatlarni joriy etish</li>
                     </ul>
                 </div>
 

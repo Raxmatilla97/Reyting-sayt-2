@@ -256,7 +256,9 @@
                                             <div class="ps-3" style="    width: 300px;">
                                                 <div class="text-base font-semibold"
                                                     style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                                                      <a href="{{ route('dashboard.employeeShow', ['id_employee' => $item->employee->employee_id_number]) }}">
                                                     {{ $item->employee->FullName }}
+                                                      </a>
                                                 </div>
                                                 <div
                                                     class="font-normal text-gray-500 w-[150px] overflow-hidden whitespace-normal">

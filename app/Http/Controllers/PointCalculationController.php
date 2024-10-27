@@ -135,7 +135,7 @@ class PointCalculationController extends Controller
     })->sum('point');
 
     // Debug uchun
-    Log::info("User ID: $userId, Table: $tableName");
+    \Log::info("User ID: $userId, Table: $tableName");
     \Log::info("Teacher Points (before correction): $teacherPoints");
     \Log::info("Department Points: $departmentPoints");
 
