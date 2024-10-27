@@ -95,13 +95,13 @@ class ExportInfosController extends Controller
                     if (method_exists($this, $methodName)) {
                         PointUserDeportament::with([$table])
                             ->where('status', 1)
-                            ->chunk(500, function($chunk) use ($sheet, $methodName) {
+                            ->chunk(5000, function($chunk) use ($sheet, $methodName) {
                                 $this->$methodName($sheet, $chunk);
                             });
                     } else {
                         PointUserDeportament::with([$table])
                             ->where('status', 1)
-                            ->chunk(500, function($chunk) use ($sheet, $table) {
+                            ->chunk(5000, function($chunk) use ($sheet, $table) {
                                 $this->fillDefaultData($sheet, $chunk, $table);
                             });
                     }
@@ -157,10 +157,10 @@ class ExportInfosController extends Controller
     {
         try {
             // Xotirani oshirish
-            ini_set('memory_limit', '8G'); // 8GB ga oshirildi
+            ini_set('memory_limit', '40G'); // 8GB ga oshirildi
 
             // Ma'lumotlarni qismlab olish
-            $chunkSize = 500; // Chunkning hajmi kamaytirildi
+            $chunkSize = 5000; // Chunkning hajmi kamaytirildi
             $totalChunks = ceil($pointUserDeportaments->count() / $chunkSize);
             $currentChunk = 0;
 
