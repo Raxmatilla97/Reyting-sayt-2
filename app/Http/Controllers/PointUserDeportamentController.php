@@ -201,23 +201,29 @@ class PointUserDeportamentController extends Controller
             return response()->json(['error' => 'No relationships defined'], 500);
         }
 
-        // Foydalanuvchining barcha pointlarini hisoblash
         $totalPoints = PointUserDeportament::where('user_id', $information->user_id)
             ->where('status', 1)
             ->sum('point');
 
+
         // Foydalanuvchining faqat shu table uchun pointlarini hisoblash
         if ($foundRelation && $userPointInfo['table_name']) {
-            $currentColumnName = $userPointInfo['table_name'] . 'id';
 
             $userPointInfo['total_points'] = PointUserDeportament::where('user_id', $information->user_id)
                 ->where('status', 1)
-                ->where(function ($query) use ($currentColumnName, $information) {
-                    $query->whereNotNull($currentColumnName)
-                        ->where($currentColumnName, $information->{$currentColumnName});
+                ->where(function ($query) use ($userPointInfo) {
+                    $query->where(function ($q) use ($userPointInfo) {
+                        $columns = Schema::getColumnListing('point_user_deportaments');
+                        foreach ($columns as $column) {
+                            if (strpos($column, $userPointInfo['table_name'] . 'id') !== false) {
+                                $q->orWhereNotNull($column);
+                            }
+                        }
+                    });
                 })
                 ->sum('point');
         }
+
 
         // Foydalanuvchining aynan shu item uchun kafedraga o'tgan balini hisoblash
         $userPointInfo['user_point_this_item'] = DepartPoints::where('point_user_deport_id', $id)->sum('point');
