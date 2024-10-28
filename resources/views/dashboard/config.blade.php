@@ -95,14 +95,34 @@
             <div class="p-4 md:p-6 bg-white rounded-lg shadow-md flex flex-col items-center justify-center text-center">
                 <h3 class="text-lg md:text-xl font-bold mb-2">O'qituvchilar sonini yangilash</h3>
                 <p class="text-gray-600 mb-4 text-sm md:text-base">Kafedradagi o'qituvchilarning sonini yangilanadi va
-                    hisoblash aynan shu sondan olinadi bundan tashqari o'qituvchilarning joriy kafedra id lari
-                    o'zgartirilishi mumkin!</p>
-                <p class="text-red-500 mb-4 text-xs md:text-sm">Ishlab chiqilmoqda!</p>
-                <button
+                    hisoblash aynan shu sondan olinadi.</p>
+                <p class="text-green-500 mb-4 text-xs md:text-sm">Ishlamoqda!</p>
+
+                <button onclick="window.toggleTeachersUpdate()" id="teacherUpdateButton"
                     class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
                     Yangilash
                 </button>
+
+                <!-- Progress Container -->
+                <div id="teacherUpdateProgressContainer" class="w-full hidden mt-4">
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                        <div id="teacherUpdateProgressBar"
+                            class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2 mb-4">
+                        <div id="teacherUpdateCurrentStatus" class="text-left"></div>
+                    </div>
+                </div>
+
+                <!-- Status Message -->
+                <div id="teacherUpdateStatus" class="mb-4">
+                    <p class="text-sm"></p>
+                </div>
+
+
             </div>
+
 
             <div class="p-4 md:p-6 bg-white rounded-lg shadow-md flex flex-col items-center justify-center text-center">
                 <h3 class="text-lg md:text-xl font-bold mb-2">Rad etilganlarni o'chirish</h3>
@@ -242,72 +262,184 @@
 
     <!-- JavaScript Delete all infos -->
 
-<script>
-    function deleteRejectedData() {
-        const button = document.getElementById('rejectedDeleteButton');
-        const progressContainer = document.getElementById('rejectedProgressContainer');
-        const progressBar = document.getElementById('rejectedProgressBar');
-        const progressText = document.getElementById('rejectedProgressText');
-        const statusMessage = document.getElementById('rejectedStatusMessage');
+    <script>
+        function deleteRejectedData() {
+            const button = document.getElementById('rejectedDeleteButton');
+            const progressContainer = document.getElementById('rejectedProgressContainer');
+            const progressBar = document.getElementById('rejectedProgressBar');
+            const progressText = document.getElementById('rejectedProgressText');
+            const statusMessage = document.getElementById('rejectedStatusMessage');
 
-        // Button ni o'chirish
-        button.disabled = true;
-        button.classList.add('opacity-50');
+            // Button ni o'chirish
+            button.disabled = true;
+            button.classList.add('opacity-50');
 
-        // Progress bar ni ko'rsatish
-        progressContainer.classList.remove('hidden');
+            // Progress bar ni ko'rsatish
+            progressContainer.classList.remove('hidden');
 
-        // CSRF token olish
-        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            // CSRF token olish
+            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        // Ajax so'rov
-        fetch('/delete-rejected-data', {
-            method: 'POST',
-            headers: {
-                'X-CSRF-TOKEN': token,
-                'Accept': 'application/json'
-            },
-            credentials: 'same-origin'  // CSRF token uchun
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Server xatosi');
-            }
-            return response.json();
-        })
-        .then(data => {
-            if (data.success) {
-                // Muvaffaqiyatli bajarildi
-                statusMessage.querySelector('p').textContent = data.message;
-                statusMessage.classList.remove('hidden', 'text-red-500');
-                statusMessage.classList.add('text-green-500');
+            // Ajax so'rov
+            fetch('/delete-rejected-data', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': token,
+                        'Accept': 'application/json'
+                    },
+                    credentials: 'same-origin' // CSRF token uchun
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Server xatosi');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        // Muvaffaqiyatli bajarildi
+                        statusMessage.querySelector('p').textContent = data.message;
+                        statusMessage.classList.remove('hidden', 'text-red-500');
+                        statusMessage.classList.add('text-green-500');
 
-                // Progress bar 100% ko'rsatish
-                progressBar.style.width = '100%';
-                progressText.textContent = '100%';
+                        // Progress bar 100% ko'rsatish
+                        progressBar.style.width = '100%';
+                        progressText.textContent = '100%';
 
-                // 2 sekunddan keyin sahifani yangilash
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2000);
+                        // 2 sekunddan keyin sahifani yangilash
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 2000);
+                    } else {
+                        throw new Error(data.message || 'Kutilmagan xatolik');
+                    }
+                })
+                .catch(error => {
+                    // Xatolik yuz berdi
+                    statusMessage.querySelector('p').textContent = error.message;
+                    statusMessage.classList.remove('hidden', 'text-green-500');
+                    statusMessage.classList.add('text-red-500');
+
+                    // Progress bar ni yashirish
+                    progressContainer.classList.add('hidden');
+                })
+                .finally(() => {
+                    // Button ni qayta yoqish
+                    button.disabled = false;
+                    button.classList.remove('opacity-50');
+                });
+        }
+    </script>
+
+    {{-- O'qituvchilarni hemisdan olinadigan sonini yangilaydi! --}}
+
+    <script>
+        window.isProcessing = false;
+        window.eventSource = null;
+
+        window.toggleTeachersUpdate = function() {
+            const button = document.getElementById('teacherUpdateButton');
+            const progressContainer = document.getElementById('teacherUpdateProgressContainer');
+            const progressBar = document.getElementById('teacherUpdateProgressBar');
+            const currentStatus = document.getElementById('teacherUpdateCurrentStatus');
+            const statusMessage = document.getElementById('teacherUpdateStatus');
+
+            if (!window.isProcessing) {
+                // Yangilashni boshlash
+                window.isProcessing = true;
+                button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+                button.classList.add('bg-red-500', 'hover:bg-red-600');
+                button.textContent = "To'xtatish";
+                progressContainer.classList.remove('hidden');
+                statusMessage.querySelector('p').textContent = '';
+
+                // Eski EventSource ni yopish
+                if (window.eventSource) {
+                    window.eventSource.close();
+                }
+
+                // CSRF tokenni olish
+                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                // EventSource yaratish va CSRF tokenni URL parametri sifatida qo'shish
+                window.eventSource = new EventSource(`/update-teachers-count?_token=${token}`);
+
+                window.eventSource.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        console.log('Received data:', data); // Debug uchun
+
+                        // Progress bar ni yangilash
+                        progressBar.style.width = data.progress + '%';
+
+                        // Status ma'lumotlarini yangilash
+                        let statusText = `
+                            <div class="space-y-2">
+                                <div class="text-sm font-semibold text-gray-800">
+                                    Progress: ${data.progress}%
+                                </div>
+                                <div class="text-sm text-gray-600">
+                                    ${data.message}
+                                </div>
+                            </div>
+                        `;
+                        currentStatus.innerHTML = statusText;
+
+                        // Agar progress 100% bo'lsa
+                        if (data.progress >= 100) {
+                            window.eventSource.close();
+                            window.isProcessing = false;
+                            button.textContent = "Sahifani yangilash";
+                            button.onclick = () => window.location.reload();
+                            statusMessage.querySelector('p').textContent = data.message;
+                            statusMessage.querySelector('p').classList.remove('text-red-500');
+                            statusMessage.querySelector('p').classList.add('text-green-500', 'font-medium');
+                        }
+                    } catch (error) {
+                        console.error('Error parsing data:', error);
+                    }
+                };
+
+                window.eventSource.onerror = function(event) {
+                    console.error('SSE Error:', event);
+                    window.eventSource.close();
+                    stopProcess(true);
+                    statusMessage.querySelector('p').textContent = "Xatolik yuz berdi";
+                    statusMessage.querySelector('p').classList.add('text-red-500');
+                };
+
             } else {
-                throw new Error(data.message || 'Kutilmagan xatolik');
+                // To'xtatish
+                if (window.eventSource) {
+                    window.eventSource.close();
+                }
+                stopProcess(true);
+                fetch('/stop-teachers-update', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
+                            'content'),
+                        'Accept': 'application/json'
+                    }
+                });
             }
-        })
-        .catch(error => {
-            // Xatolik yuz berdi
-            statusMessage.querySelector('p').textContent = error.message;
-            statusMessage.classList.remove('hidden', 'text-green-500');
-            statusMessage.classList.add('text-red-500');
+        }
 
-            // Progress bar ni yashirish
-            progressContainer.classList.add('hidden');
-        })
-        .finally(() => {
-            // Button ni qayta yoqish
-            button.disabled = false;
-            button.classList.remove('opacity-50');
-        });
-    }
+        function stopProcess(hideProgress = true) {
+            const button = document.getElementById('teacherUpdateButton');
+            const progressContainer = document.getElementById('teacherUpdateProgressContainer');
+
+            window.isProcessing = false;
+            if (window.eventSource) {
+                window.eventSource.close();
+            }
+
+            if (hideProgress) {
+                progressContainer.classList.add('hidden');
+                button.classList.remove('bg-red-500', 'hover:bg-red-600');
+                button.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                button.textContent = "Yangilash";
+            }
+        }
     </script>
 </x-app-layout>

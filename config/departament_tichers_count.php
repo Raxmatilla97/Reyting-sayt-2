@@ -1,72 +1,67 @@
 <?php
 return [
-    '1' => [ // Gumanitar fanlar fakulteti
-        //'8' => 11, // O'zbekiston tarixi kafedrasi
-        '9' => 32,  //* Fakultetlar'aro ijtimoiy fanlar kafedrasi
-        '10' => 15, //* O'zbek tilshunosligi kafedrasi
-        '11' => 15, //* O'zbek adabiyotshunosligi kafedrasi
-        '12' => 11,  //* Milliy g'oya, ma'naviyat asoslari va huquq ta'limi kafedrasi
-        '13' => 7,  //* O'zga tilli guruhlarda rus tili va adabiyoti ta'limi metodikasi kafedrasi
-        '14' => 11,  //* Fakultetlar'aro rus tili kafedrasi
-        '100' => 6, //* Rus tili va adabiyoti ta'limi metodikasi kafedrasi
-        //'101' => 7, // Umumiy tarix va ta'lim metodikasi kafedrasi
-        '107' => 16, //* Tarix kafedrasi yangi
+    '99' => [ // Filologiya
     ],
-    '2' => [ // Pedagogika fakulteti
-        '15' => 14, //* Pedagogika kafedrasi
-        '16' => 18,  //* Umumiy pedagogika kafedrasi
-        '17' => 28, //* Psixologiya kafedrasi
-        '19' => 16, //* Maxsus pedagogika kafedrasi
-        '98' => 10,  //* Maktab menejmenti kafedrasi
+    '45' => [ // Maktabgacha ta'lim
+        '108' => 17, //* Maktabgacha ta'lim pedagogikasi,
+        '52' => 17, //* Bolalar sporti ,
+        '51' => 25, //* Maktabgacha ta'lim metodikasi,
     ],
-    '3' => [ // Boshlang'ich ta'lim fakulteti
-        //'20' => 11, // Boshlang'ich ta'lim nazariyasi kafedrasi
-        '21' => 16, //* Boshlang'ich ta'lim metodikasi kafedrasi
-        '110' => 14, //* Boshlang'ich ta'limda matematika va tabiiy fanlar
-        '111' => 16, //* Boshlang'iсh ta'lim nazariyasi va amaliyoti
-        ],
-    '4' => [ // Matematika va informatika fakulteti
-        '22' => 17, //* Matematika o'qitish metodikasi va geometriya kafedrasi
-        '23' => 10,  //* Informatika o'qitish metodikasi kafedrasi
-        '48' => 11,  //* Informatika va axborot texnologiyalari kafedrasi
-        '54' => 13, //* Algebra va matematik analiz kafedrasi
+    '44' => [ // San'atshunoslik
+        '102' => 14, //* Muhandislik va kompyuter grafikasi,
+        '32' => 27, //* Tasviriy san'at va dizayn,
+        '18' => 14, //* Musiqa,
     ],
-    '5' => [ // Fizika va kimyo fakulteti
-        '24' => 11, //* Fizika kafedrasi
-        '25' => 10,  //* Kimyo kafedrasi
-        '49' => 11, //* Fizika va astronomiya o'qitish metodikasi kafedrasi
-        '50' => 11, //* Ilmiy va metodologik kimyo kafedrasi
+    '43' => [ // Turizm
+        '106' => 27, //* Lingvistika va ingliz tilini o'qitish metodikasi,
+        '58' => 38, //* Fakultetlar'aro chet tillar,
+        '57' => 12, //* Nemis tili,
+        '56' => 30, //* Ingliz tili nazariyasi va amaliyoti ,
+        '55' => 11, //* Turizm,
     ],
-    '6' => [ // Tabiiy fanlar fakulteti
-        '26' => 11, //* Geografiya kafedrasi
-        '27' => 24, //* Biologiya kafedrasi
-        '28' => 13,  //* Genetika va evolutsion biologiya kafedrasi
+    '7' => [ // Jismoniy madaniyat
+        '109' => 14, //* Sport o'yinlari va uni o'qitish metodikasi,
+        '31' => 12, //* Texnologik ta'lim,
+        '30' => 15, //* Jismoniy madaniyat va sport,
+        '29' => 20, //* Jismoniy madaniyat nazariyasi,
     ],
-    '7' => [ // Jismoniy madaniyat fakulteti
-        '29' => 12, //* Jismoniy madaniyat nazariyasi kafedrasi
-        '30' => 10,  //* Jismoniy madaniyat va sport kafedrasi
-        '31' => 11, //* Texnologik ta'lim kafedrasi
-        '109' => 8, //* Sport o'yinlari va uni o'qitish metodikasi
-
+    '6' => [ // Tabiiy fanlar
+        '28' => 16, //* Genetika va evolutsion biologiya,
+        '27' => 27, //* Biologiya,
+        '26' => 13, //* Geografiya,
     ],
-    '43' => [ // Turizm fakulteti
-        '55' => 7,  //* Turizm kafedrasi
-        '56' => 16, //* Ingliz tili nazariyasi va amaliyoti kafedrasi
-        '57' => 8, //* Nemis tili kafedrasi
-        '58' => 21, //* Fakultetlar'aro chet tillar kafedrasi
-        '106' => 12, //* Lingvistika va ingliz tilini o'qitish metodikasi kafedrasi
+    '5' => [ // Fizika va kimyo
+        '50' => 12, //* Ilmiy va metodologik kimyo ,
+        '49' => 13, //* Fizika va astronomiya o'qitish metodikasi,
+        '25' => 12, //* Kimyo,
+        '24' => 16, //* Fizika,
     ],
-    '44' => [ // San'atshunoslik fakulteti
-        '18' => 12, // Musiqa kafedrasi
-        '32' => 14, // Tasviriy san'at va dizayn kafedrasi
-        '102' => 9, // Muhandislik va kompyuter grafikasi kafedrasi
-
+    '4' => [ // Matematika va informatika
+        '54' => 23, //* Algebra va matematik analiz,
+        '48' => 19, //* Informatika va axborot texnologiyalari,
+        '23' => 15, //* Informatika o'qitish metodikasi,
+        '22' => 20, //* Matematika o'qitish metodikasi va geometriya,
     ],
-    '45' => [ // Maktabgacha ta'lim fakulteti
-        '51' => 15, //* Maktabgacha ta'lim metodikasi kafedrasi
-        '52' => 12, //* Bolalar sporti kafedrasi
-        '108' => 12, //* Maktabgacha ta'lim pedagogikasi
+    '3' => [ // Boshlang'ich ta'lim
+        '111' => 27, //* Boshlang'iсh ta'lim nazariyasi va amaliyoti,
+        '110' => 20, //* Boshlang'ich ta'limda matematika va tabiiy fanlar,
+        '21' => 27, //* Boshlang'ich ta'lim metodikasi,
     ],
-
-    // Umumiy son: 407
+    '2' => [ // Pedagogika
+        '98' => 15, //* Menejment,
+        '19' => 33, //* Maxsus pedagogika,
+        '17' => 47, //* Psixologiya,
+        '16' => 32, //* Umumiy pedagogika,
+        '15' => 15, //* Pedagogika ,
+    ],
+    '1' => [ // Gumanitar fanlar
+        '107' => 20, //* Tarix,
+        '100' => 9, //* Rus tili va adabiyoti ta'limi metodikasi,
+        '14' => 16, //* Fakultetlar'aro rus tili ,
+        '13' => 7, //* O'zga tilli guruhlarda rus tili va adabiyoti ta'limi metodikasi,
+        '12' => 18, //* Milliy g'oya, ma'naviyat asoslari va huquq ta'limi,
+        '11' => 18, //* O'zbek adabiyotshunosligi,
+        '10' => 19, //* O'zbek tilshunosligi,
+        '9' => 48, //* Fakultetlar'aro ijtimoiy fanlar,
+    ],
 ];

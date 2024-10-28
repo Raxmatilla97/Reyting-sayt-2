@@ -116,6 +116,11 @@ Route::middleware('auth')->group(function () {
 
         // Hamma rad etilgan ma'lumotlarni o'chirish
         Route::post('/delete-rejected-data', [ConfigurationController::class, 'delete'])->name('delete.rejected.data')->middleware('web');
+
+        // O'qituvchilar sonini configga yozish
+        Route::get('/update-teachers-count', [ConfigurationController::class, 'updateTeachersCount'])->name('update.teachers.count');
+        Route::post('/stop-teachers-update', [ConfigurationController::class, 'stopTeachersUpdate'])->name('stop.teachers.update');
+        Route::get('/check-progress', [ConfigurationController::class, 'checkProgress'])->name('check.progress');
     });
 
     // Auth bo'lib kirganlar uchun routes
