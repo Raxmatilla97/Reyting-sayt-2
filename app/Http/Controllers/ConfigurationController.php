@@ -2,15 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\PointUserDeportament;
+use App\Models\User;
+use App\Models\Department;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use App\Models\PointUserDeportament;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Cache; // Cache ni import qilamiz
+use App\Traits\ServerSentEventTrait;
 
 class ConfigurationController extends Controller
 {
+    use ServerSentEventTrait;
+
     public function delete()
     {
         try {
@@ -92,14 +98,13 @@ class ConfigurationController extends Controller
             header('Content-Type: text/event-stream');
             header('Cache-Control: no-cache');
             header('Connection: keep-alive');
-            header('X-Accel-Buffering: no'); // NGINX uchun
+            header('X-Accel-Buffering: no');
 
             $this->sendUpdate('Jarayon boshlandi', 0);
 
             $token = env('API_HEMIS_TOKEN');
             $baseUrl = env('API_HEMIS_URL');
 
-            // Fakultetlar ro'yxatini olish
             $this->sendUpdate('Fakultetlar ro\'yxati yuklanmoqda...', 5);
 
             $fakultetlarUrl = $baseUrl . '/rest/v1/data/department-list?limit=200&active=1&_structure_type=11&localityType.name=Mahalliy&structureType.name=Fakultet';
@@ -138,7 +143,6 @@ class ConfigurationController extends Controller
             $currentConfig = include $configPath;
             $newConfig = [];
 
-            // Fakultetlarni filtrlash
             $fakultetlar = array_values(
                 array_filter($fakultetlarResponse['data']['items'], function ($f) {
                     return $f['localityType']['name'] === 'Mahalliy';
@@ -150,11 +154,13 @@ class ConfigurationController extends Controller
 
             $this->sendUpdate('Ma\'lumotlarni qayta ishlash boshlandi', 15);
 
+            // O'qituvchilarning bandlik ma'lumotlarini saqlash uchun
+            $teacherEmployments = [];
+
             foreach ($fakultetlar as $index => $fakultet) {
                 $facultyId = $fakultet['id'];
                 $facultyDepartments = [];
 
-                // Fakultet progress
                 $facultyProgress = 15 + (($index + 1) / $totalFaculties) * 80;
                 $this->sendUpdate("Fakultet qayta ishlanmoqda: {$fakultet['name']}", round($facultyProgress));
 
@@ -162,12 +168,22 @@ class ConfigurationController extends Controller
                     if ($kafedra['parent'] == $facultyId) {
                         try {
                             $teacherCount = 0;
-                            $employmentForms = [11, 12, 15];
+                            /*
+                                $employmentForms dagi massiv raqamlari manolari
+                                ----------------------------------------------
+                                11 - Asosiy ish joy,
+                                12 - O‘rindoshlik (ichki-qo'shimcha),
+                                13 - O‘rindoshlik (tashqi),
+                                14 - Soatbay,
+                                15 - O‘rindoshlik (ichki-asosiy)
+                                -----------------------------------------------
+                            */
+                            $employmentForms = [11, 12, 15]; // Faqat kerakli bandlik turlari
 
                             $this->sendUpdate("Kafedra qayta ishlanmoqda: {$kafedra['name']}", round($facultyProgress));
 
-                            foreach ($employmentForms as $form) {
-                                $employeesUrl = $baseUrl . "/rest/v1/data/employee-list?type=teacher&limit=100&_department={$kafedra['id']}&_employment_form={$form}";
+                            foreach ($employmentForms as $formCode) {
+                                $employeesUrl = $baseUrl . "/rest/v1/data/employee-list?type=teacher&limit=100&_department={$kafedra['id']}&_employment_form={$formCode}";
                                 $employeesResponse = json_decode(
                                     file_get_contents(
                                         $employeesUrl,
@@ -182,8 +198,43 @@ class ConfigurationController extends Controller
                                     true,
                                 );
 
-                                if (isset($employeesResponse['data']['pagination']['totalCount'])) {
-                                    $teacherCount += $employeesResponse['data']['pagination']['totalCount'];
+                                if (isset($employeesResponse['data']['items'])) {
+                                    foreach ($employeesResponse['data']['items'] as $employee) {
+                                        $employeeId = $employee['employee_id_number'];
+
+                                        // Asosiy ish joyi (1.0 stavka)
+                                        if ($formCode == 11) {
+                                            $teacherCount++;
+                                            $teacherEmployments[$employeeId] = [
+                                                'mainDepartment' => $kafedra['id'],
+                                                'employmentForm' => $formCode
+                                            ];
+                                        }
+                                        // Ichki asosiy o'rindoshlik (15)
+                                        else if ($formCode == 15) {
+                                            if (
+                                                !isset($teacherEmployments[$employeeId]) ||
+                                                ($teacherEmployments[$employeeId]['employmentForm'] != 15 &&
+                                                    $teacherEmployments[$employeeId]['mainDepartment'] != $kafedra['id'])
+                                            ) {
+                                                $teacherCount++;
+                                                $teacherEmployments[$employeeId] = [
+                                                    'mainDepartment' => $kafedra['id'],
+                                                    'employmentForm' => $formCode
+                                                ];
+                                            }
+                                        }
+                                        // Ichki qo'shimcha o'rindoshlik (12)
+                                        else if ($formCode == 12) {
+                                            // Faqat agar o'qituvchining asosiy ish joyi boshqa kafedrada bo'lsa
+                                            if (
+                                                !isset($teacherEmployments[$employeeId]) ||
+                                                $teacherEmployments[$employeeId]['mainDepartment'] != $kafedra['id']
+                                            ) {
+                                                $teacherCount++;
+                                            }
+                                        }
+                                    }
                                 }
                             }
 
@@ -208,7 +259,6 @@ class ConfigurationController extends Controller
 
             $this->sendUpdate('Konfiguratsiya fayli yangilanmoqda...', 95);
 
-            // Config faylini yangilash
             $fileContent = "<?php\nreturn [\n";
             foreach ($newConfig as $facultyId => $departments) {
                 $fakultetNomi = '';
@@ -253,5 +303,258 @@ class ConfigurationController extends Controller
             'success' => true,
             'message' => 'Jarayon to\'xtatildi',
         ]);
+    }
+
+
+
+
+ // O'qituvchilarni kafedralarga joylashtirish
+//  Bu boshqa kodlar!!!!
+    public function getEmployeeDataFromHemis($employeeIdNumber)
+    {
+        try {
+            $url = env('API_HEMIS_URL') . "/rest/v1/data/employee-list?type=teacher&search=$employeeIdNumber&limit=200";
+            $response = Http::withToken(env('API_HEMIS_TOKEN'))->get($url)->json();
+
+            if ($response['data']['pagination']['totalCount'] > 0) {
+                // Ma'lumotlarni qayta ishlash
+                $employeeData = $response['data']['items'][0];
+
+                // departments massivini yaratamiz
+                $departments = [];
+                if (isset($employeeData['department']) && isset($employeeData['employmentForm'])) {
+                    $departments[] = [
+                        'department' => $employeeData['department'],
+                        'employmentForm' => $employeeData['employmentForm']
+                    ];
+                }
+
+                // departments massivini qo'shamiz
+                $employeeData['departments'] = $departments;
+
+                Log::info("Xodim ma'lumotlari olindi", [
+                    'employee_id' => $employeeIdNumber,
+                    'departments' => $departments
+                ]);
+
+                return $employeeData;
+            }
+
+            Log::warning("HEMIS da xodim topilmadi: $employeeIdNumber");
+            throw new \Exception("HEMIS dan xodim ma'lumotlari olinmadi.");
+        } catch (\Exception $e) {
+            Log::error("HEMIS API xatolik", [
+                'employee_id' => $employeeIdNumber,
+                'error' => $e->getMessage()
+            ]);
+            throw $e;
+        }
+    }
+
+    public function getDepartmentId($departments)
+    {
+        try {
+            $priorityOrder = [11, 15, 12];
+
+            foreach ($priorityOrder as $priorityCode) {
+                foreach ($departments as $department) {
+                    if (
+                        isset($department['employmentForm']['code']) &&
+                        $department['employmentForm']['code'] == $priorityCode
+                    ) {
+                        $departmentId = $department['department']['id'];
+                        if (Department::where('id', $departmentId)->exists()) {
+                            return $departmentId;
+                        }
+                    }
+                }
+            }
+
+            Log::info("Tegishli bandlik turi bo'yicha kafedra topilmadi", [
+                'departments' => $departments,
+                'priority_order' => $priorityOrder
+            ]);
+
+            return null;
+        } catch (\Exception $e) {
+            Log::error("Kafedra ID ni aniqlashda xatolik", [
+                'error' => $e->getMessage(),
+                'departments' => $departments
+            ]);
+            throw $e;
+        }
+    }
+
+    // O'qituvchilarni kafedralarga joylash
+    public function updateTeacherDepartments()
+    {
+        try {
+            header('Content-Type: text/event-stream');
+            header('Cache-Control: no-cache');
+            header('Connection: keep-alive');
+            header('X-Accel-Buffering: no');
+
+            // CORS headerlarini qo'shamiz
+            header('Access-Control-Allow-Origin: *');
+            header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+            header('Access-Control-Allow-Headers: Content-Type, Authorization');
+            header('Access-Control-Allow-Credentials: true');
+
+            if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+                exit(0);
+            }
+
+            Log::info('O\'qituvchilar kafedralarini yangilash jarayoni boshlandi');
+            $this->sendUpdate('Jarayon boshlandi', 0);
+
+            // Barcha foydalanuvchilarni olish
+            $users = User::whereNotNull('employee_id_number')->get();
+            $totalUsers = $users->count();
+
+            Log::info("Jami {$totalUsers} ta foydalanuvchi topildi");
+            $this->sendUpdate('Foydalanuvchilar ro\'yxati olindi', 5);
+
+            $processed = 0;
+            $successCount = 0;
+            $errorCount = 0;
+            $skippedCount = 0;
+
+            foreach ($users as $user) {
+                try {
+                    $processed++;
+                    $progress = 5 + ($processed / $totalUsers * 90);
+
+                    Log::info("Foydalanuvchi qayta ishlanmoqda: {$user->name} (ID: {$user->id})", [
+                        'employee_id' => $user->employee_id_number,
+                        'current_department' => $user->department_id
+                    ]);
+
+                    $this->sendUpdate("Foydalanuvchi qayta ishlanmoqda: {$user->name}", round($progress));
+
+                    try {
+                        // HEMIS dan ma'lumot olish
+                        $employeeData = $this->getEmployeeDataFromHemis($user->employee_id_number);
+
+                        // API javobini tekshirish
+                        if (empty($employeeData)) {
+                            Log::warning("Foydalanuvchi {$user->name} uchun HEMIS dan ma'lumot olinmadi", [
+                                'employee_id' => $user->employee_id_number
+                            ]);
+                            $skippedCount++;
+                            continue;
+                        }
+
+                        // Departments massivini tekshirish
+                        if (empty($employeeData['departments'])) {
+                            Log::warning("Foydalanuvchi {$user->name} uchun departments ma'lumoti yo'q", [
+                                'employee_id' => $user->employee_id_number,
+                                'hemis_data' => $employeeData
+                            ]);
+                            $skippedCount++;
+                            continue;
+                        }
+
+                        // Yangi department_id ni aniqlash
+                        $newDepartmentId = $this->getDepartmentId($employeeData['departments']);
+
+                        if (!$newDepartmentId) {
+                            Log::warning("Foydalanuvchi {$user->name} uchun mos department topilmadi", [
+                                'employee_id' => $user->employee_id_number,
+                                'departments' => $employeeData['departments']
+                            ]);
+                            $skippedCount++;
+                            continue;
+                        }
+
+                        // Department o'zgarganligini tekshirish
+                        if ($newDepartmentId === $user->department_id) {
+                            Log::info("Foydalanuvchi {$user->name} ning kafedrasi o'zgarmagan", [
+                                'department_id' => $newDepartmentId
+                            ]);
+                            $skippedCount++;
+                            continue;
+                        }
+
+                        // O'zgartirish kiritish
+                        Log::info("Foydalanuvchi {$user->name} uchun yangi kafedra topildi", [
+                            'old_department' => $user->department_id,
+                            'new_department' => $newDepartmentId
+                        ]);
+
+                        $oldDepartmentId = $user->department_id;
+
+                        try {
+                            DB::transaction(function () use ($user, $oldDepartmentId, $newDepartmentId) {
+                                // Foydalanuvchi department_id sini yangilash
+                                $user->department_id = $newDepartmentId;
+                                $user->save();
+
+                                // PointUserDeportament jadvalidagi yozuvlarni yangilash
+                                $updatedCount = PointUserDeportament::where('user_id', $user->id)
+                                    ->where('departament_id', $oldDepartmentId)
+                                    ->update(['departament_id' => $newDepartmentId]);
+
+                                Log::info("PointUserDeportament jadvalida {$updatedCount} ta yozuv yangilandi", [
+                                    'user_id' => $user->id,
+                                    'old_department' => $oldDepartmentId,
+                                    'new_department' => $newDepartmentId
+                                ]);
+                            });
+
+                            $successCount++;
+                            $this->sendUpdate("Foydalanuvchi {$user->name} kafedrasi yangilandi", round($progress));
+
+                        } catch (\Exception $e) {
+                            Log::error("Database yangilashda xatolik: {$user->name}", [
+                                'error' => $e->getMessage(),
+                                'user_id' => $user->id,
+                                'old_department' => $oldDepartmentId,
+                                'new_department' => $newDepartmentId
+                            ]);
+                            $errorCount++;
+                            continue;
+                        }
+
+                    } catch (\Exception $e) {
+                        Log::error("HEMIS so'rovi xatoligi: {$user->name}", [
+                            'error' => $e->getMessage(),
+                            'user_id' => $user->id,
+                            'employee_id' => $user->employee_id_number
+                        ]);
+                        $errorCount++;
+                        continue;
+                    }
+
+                } catch (\Exception $e) {
+                    Log::error("Foydalanuvchini qayta ishlashda xatolik", [
+                        'user_id' => $user->id,
+                        'error' => $e->getMessage(),
+                        'trace' => $e->getTraceAsString()
+                    ]);
+                    $errorCount++;
+                    continue;
+                }
+            }
+
+            $summary = [
+                'total' => $totalUsers,
+                'success' => $successCount,
+                'errors' => $errorCount,
+                'skipped' => $skippedCount
+            ];
+
+            Log::info('Jarayon yakunlandi', $summary);
+
+            $this->sendUpdate("Jarayon yakunlandi. Jami: {$totalUsers}, Yangilandi: {$successCount}, Xatoliklar: {$errorCount}, O'tkazib yuborildi: {$skippedCount}", 100);
+            die();
+
+        } catch (\Exception $e) {
+            Log::error('Umumiy xatolik yuz berdi', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            $this->sendUpdate('Xatolik yuz berdi: ' . $e->getMessage(), 100);
+            die();
+        }
     }
 }

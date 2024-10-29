@@ -224,7 +224,6 @@ class PointUserDeportamentController extends Controller
                 ->sum('point');
         }
 
-
         // Foydalanuvchining aynan shu item uchun kafedraga o'tgan balini hisoblash
         $userPointInfo['user_point_this_item'] = DepartPoints::where('point_user_deport_id', $id)->sum('point');
 

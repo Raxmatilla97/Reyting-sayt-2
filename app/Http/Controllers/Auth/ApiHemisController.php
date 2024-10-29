@@ -164,7 +164,7 @@ class ApiHemisController extends Controller
             15 - O‘rindoshlik (ichki-asosiy)
             -----------------------------------------------
         */
-        $priorityOrder = [11, 12, 15];
+        $priorityOrder = [11, 15, 12];
 
         foreach ($priorityOrder as $priorityCode) {
             foreach ($departments as $department) {

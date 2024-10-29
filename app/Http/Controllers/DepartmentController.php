@@ -209,12 +209,47 @@ class DepartmentController extends Controller
         $teacherPoints = 0;
         $departmentExtraPoints = 0;
 
-        // O'qituvchilar yig'gan balllarni hisoblash
-        $teacherPoints = $department->point_user_deportaments()
-            ->where('status', 1)
-            ->sum('point');
+        // Konfiguratsiya faylidan maksimal ballarni olish
+        $maxPoints = Config::get('max_points_dep_emp');
+        $departmentMaxPoints = $maxPoints['department'];
+        $employeeMaxPoints = $maxPoints['employee'];
 
-        // Kafedraga o'tgan qo'shimcha balllarni hisoblash
+        // Barcha maksimal ballarni birlashtirish
+        $allMaxPoints = array_merge($departmentMaxPoints, $employeeMaxPoints);
+
+        $totalWeightedPoints = 0; // (ball * max_ball) yig'indisi
+        $directionalCalculations = []; // Har bir yo'nalish bo'yicha hisob-kitoblarni saqlash uchun
+
+        // Har bir yo'nalish bo'yicha ballarni hisoblash
+        foreach ($allMaxPoints as $direction => $points) {
+            $columnName = $direction . 'id'; // Bazadagi ustun nomi
+
+            // Yo'nalish bo'yicha umumiy ballarni hisoblash
+            $directionPoints = $department->point_user_deportaments()
+                ->where('status', 1)
+                ->whereNotNull($columnName)
+                ->sum('point');
+
+            if ($directionPoints > 0) {
+                // Yo'nalish ballini max_ball ga ko'paytirish
+                $maxPoint = $points['max'];
+                $weightedPoints = $directionPoints * $maxPoint;
+                $totalWeightedPoints += $weightedPoints;
+
+                // Hisob-kitob ma'lumotlarini saqlash
+                $directionalCalculations[] = [
+                    'direction' => $direction,
+                    'points' => $directionPoints,
+                    'max_point' => $maxPoint,
+                    'weighted_points' => $weightedPoints
+                ];
+            }
+        }
+
+        // Barcha yo'nalishlar yig'indisini o'qituvchilar soniga bo'lish
+        $totalN = $totalDepartmentEmployees > 0 ? $totalWeightedPoints / $totalDepartmentEmployees : 0;
+
+        // Kafedraga o'tgan qo'shimcha ballarni hisoblash
         $departmentExtraPoints = $department->point_user_deportaments()
             ->where('status', 1)
             ->whereHas('departPoint')
@@ -224,16 +259,97 @@ class DepartmentController extends Controller
                 return $pointEntry->departPoint->point;
             });
 
-        $departmentPointTotal = $teacherPoints + $departmentExtraPoints;
+        $departmentPointTotal = $totalN + $departmentExtraPoints;
 
-        // Agar o'qituvchilar soni mavjud bo'lsa, o'rtacha ballni hisoblash
-        if ($totalDepartmentEmployees > 0) {
-            $totalPoints = round($departmentPointTotal / $totalDepartmentEmployees, 2);
-            $pointsCalculationExplanation = "Kafedra bali hisoblash tartibi: {$teacherPoints} ball O'qituvchilar yig'gan ball + {$departmentExtraPoints} ball kafedraga o'tgan ball = {$departmentPointTotal} ball jami / {$totalDepartmentEmployees} kafedra o'qituvchilar soni = {$totalPoints} ball";
+          // Yakuniy natijani hisoblash
+          if ($totalDepartmentEmployees > 0) {
+            $totalWithExtra = $totalWeightedPoints + $departmentExtraPoints;
+            $totalN = $totalWithExtra / $totalDepartmentEmployees;
+            $totalPoints = round($totalN, 2);
+
+            // HTML formatidagi hisobot
+            $pointsCalculationExplanation = '
+            <div class="w-full p-4 bg-gray-50 rounded-lg">
+                <h2 class="text-xl font-bold mb-4 text-gray-800">KAFEDRA BALI HISOBLASH TARTIBI</h2>
+
+                <!-- Ranglar haqida ma\'lumot -->
+                <div class="mb-4 text-sm flex gap-4">
+                    <span class="flex items-center">
+                        <div class="w-4 h-4 bg-green-200 mr-2"></div>
+                        Yig\'ilgan ball
+                    </span>
+                    <span class="flex items-center">
+                        <div class="w-4 h-4 bg-blue-200 mr-2"></div>
+                        Maksimal ball
+                    </span>
+                    <span class="flex items-center">
+                        <div class="w-4 h-4 bg-purple-200 mr-2"></div>
+                        Ko\'paytirilgan ball
+                    </span>
+                </div>
+
+                <!-- Yo\'nalishlar bo\'yicha ballar -->
+                <div class="flex flex-wrap gap-2 mb-6">';
+
+            // Har bir yo'nalish uchun kartochka
+            foreach ($directionalCalculations as $calc) {
+                $points = number_format($calc['points'], 2, '.', '');
+                $weighted = number_format($calc['weighted_points'], 2, '.', '');
+
+                $pointsCalculationExplanation .= "
+                    <div class='bg-white p-2 rounded shadow-sm flex items-center gap-2 text-sm'>
+                        <span class='text-gray-700'>{$calc['direction']}:</span>
+                        <span class='bg-green-200 px-2 py-1 rounded'>{$points}</span>
+                        <span>×</span>
+                        <span class='bg-blue-200 px-2 py-1 rounded'>{$calc['max_point']}</span>
+                        <span>=</span>
+                        <span class='bg-purple-200 px-2 py-1 rounded'>{$weighted}</span>
+                    </div>";
+            }
+
+            // Yakuniy natija
+            $totalWeightedFormatted = number_format($totalWeightedPoints, 2, '.', '');
+            $departmentExtraFormatted = number_format($departmentExtraPoints, 2, '.', '');
+            $totalWithExtraFormatted = number_format($totalWithExtra, 2, '.', '');
+            $totalNFormatted = number_format($totalN, 2, '.', '');
+
+            $pointsCalculationExplanation .= "
+                </div>
+
+                <!-- Yakuniy natija -->
+                <div class='bg-white p-4 rounded shadow-sm'>
+                    <div class='flex flex-wrap gap-4 items-center text-gray-700'>
+                        <span>
+                            Yo'nalishlar yig'indisi:
+                            <span class='bg-purple-200 px-2 py-1 rounded ml-2'>{$totalWeightedFormatted}</span>
+                        </span>
+                        <span>
+                            Qo'shimcha ball:
+                            <span class='bg-green-200 px-2 py-1 rounded ml-2'>+{$departmentExtraFormatted}</span>
+                        </span>
+                        <span>
+                            O'qituvchilar soni:
+                            <span class='bg-blue-200 px-2 py-1 rounded ml-2'>{$totalDepartmentEmployees}</span>
+                        </span>
+                    </div>
+
+                    <div class='mt-4 text-lg font-semibold'>
+                        JAMI: {$totalWithExtraFormatted} / {$totalDepartmentEmployees} =
+                        <span class='bg-yellow-200 px-2 py-1 rounded ml-2'>{$totalNFormatted} ball</span>
+                    </div>
+
+                    <div class='mt-4 text-xl font-bold text-center bg-gray-800 text-white py-2 rounded'>
+                        KAFEDRA REYTINGI: {$totalNFormatted} BALL
+                    </div>
+                </div>
+            </div>";
         } else {
-            $totalPoints = 'N/A';
-            $pointsCalculationExplanation = "Kafedra bali hisoblab bo'lmadi: O'qituvchilar soni 0 ga teng";
+            $pointsCalculationExplanation = "
+            <div class='p-4 bg-red-100 text-red-700 rounded'>
+                Kafedra bali hisoblab bo'lmadi: O'qituvchilar soni 0 ga teng
+            </div>";
         }
+
 
 
 

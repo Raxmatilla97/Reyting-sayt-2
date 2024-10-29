@@ -121,6 +121,15 @@ Route::middleware('auth')->group(function () {
         Route::get('/update-teachers-count', [ConfigurationController::class, 'updateTeachersCount'])->name('update.teachers.count');
         Route::post('/stop-teachers-update', [ConfigurationController::class, 'stopTeachersUpdate'])->name('stop.teachers.update');
         Route::get('/check-progress', [ConfigurationController::class, 'checkProgress'])->name('check.progress');
+
+        // O'qituvchilarni kafedradagi ayni damdagi o'rnga o'tqazish
+
+        Route::get('/update-teacher-departments', [ConfigurationController::class, 'updateTeacherDepartments'])
+        ->name('update.teacher.departments');
+
+
+
+
     });
 
     // Auth bo'lib kirganlar uchun routes

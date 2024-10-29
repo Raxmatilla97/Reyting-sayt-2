@@ -95,7 +95,7 @@
             <div class="p-4 md:p-6 bg-white rounded-lg shadow-md flex flex-col items-center justify-center text-center">
                 <h3 class="text-lg md:text-xl font-bold mb-2">O'qituvchilar sonini yangilash</h3>
                 <p class="text-gray-600 mb-4 text-sm md:text-base">Kafedradagi o'qituvchilarning sonini yangilanadi va
-                    hisoblash aynan shu sondan olinadi.</p>
+                    hisoblash aynan shu sondan (11,15,12) ketmaketlikda olinadi.</p>
                 <p class="text-green-500 mb-4 text-xs md:text-sm">Ishlamoqda!</p>
 
                 <button onclick="window.toggleTeachersUpdate()" id="teacherUpdateButton"
@@ -123,6 +123,35 @@
 
             </div>
 
+            <div class="p-4 md:p-6 bg-white rounded-lg shadow-md flex flex-col items-center justify-center text-center">
+                <h3 class="text-lg md:text-xl font-bold mb-2">O'qituvchilarni kafedradagi o'rnini yangilash</h3>
+                <p class="text-gray-600 mb-4 text-sm md:text-base">Kafedradagi o'qituvchilarning hozirgi o'rnini
+                    o'zgartirish (11,15,12) ketmaketlikda.</p>
+                <p class="text-green-500 mb-4 text-xs md:text-sm">Ishlamoqda!</p>
+
+                <button onclick="window.startTeacherDeptPositionUpdate()" id="teacherPositionUpdateBtn"
+                    class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                    Yangilash
+                </button>
+
+                <!-- Progress Container -->
+                <div id="teacherPositionProgressWrapper" class="w-full hidden mt-4">
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                        <div id="teacherPositionProgressBar"
+                            class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2 mb-4">
+                        <div id="teacherPositionUpdateMsg" class="text-left"></div>
+                    </div>
+                </div>
+
+                <!-- Status Message -->
+                <div id="teacherPositionStatusMsg" class="mb-4">
+                    <p class="text-sm"></p>
+                </div>
+            </div>
+
 
             <div class="p-4 md:p-6 bg-white rounded-lg shadow-md flex flex-col items-center justify-center text-center">
                 <h3 class="text-lg md:text-xl font-bold mb-2">Rad etilganlarni o'chirish</h3>
@@ -146,6 +175,10 @@
                     <p class="text-sm"></p>
                 </div>
             </div>
+
+
+
+
         </div>
     </div>
 
@@ -234,7 +267,7 @@
             if (eventSource) {
                 eventSource.close();
             }
-            setTimeout(connectEventSource, 1000); // 1 soniyadan so'ng qayta ulanish
+            setTimeout(connectEventSource, 6000); // 1 soniyadan so'ng qayta ulanish
         }
 
         // Base64 ni blob ga o'girish uchun funksiya
@@ -442,4 +475,81 @@
             }
         }
     </script>
+
+    {{--  Teacher Position Update in Departments Functionality --}}
+
+    <script>
+        window.startTeacherDeptPositionUpdate = function() {
+            const button = document.getElementById('teacherPositionUpdateBtn');
+            const progressWrapper = document.getElementById('teacherPositionProgressWrapper');
+            const progressBar = document.getElementById('teacherPositionProgressBar');
+            const updateMessage = document.getElementById('teacherPositionUpdateMsg');
+            const statusDiv = document.getElementById('teacherPositionStatusMsg');
+            let eventSource;
+
+            // Disable button during process
+            button.disabled = true;
+            button.classList.add('opacity-50', 'cursor-not-allowed');
+            button.textContent = 'Yangilanmoqda...';
+
+            // Show progress container
+            progressWrapper.classList.remove('hidden');
+
+            // Create EventSource connection
+            eventSource = new EventSource('/update-teacher-departments');
+
+            // Handle incoming messages
+            eventSource.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+
+                    // Update progress bar
+                    progressBar.style.width = `${data.progress}%`;
+
+                    // Update status message
+                    updateMessage.innerHTML = `<p class="text-sm text-gray-600">${data.message}</p>`;
+
+                    // If process is complete
+                    if (data.progress >= 100) {
+                        finishTeacherPositionUpdate();
+                    }
+                } catch (error) {
+                    console.error('Error processing teacher position update:', error);
+                    finishTeacherPositionUpdate('Xatolik yuz berdi');
+                }
+            };
+
+            // Handle errors
+            eventSource.onerror = function() {
+                console.error('Teacher position update EventSource failed');
+                finishTeacherPositionUpdate('Serverda xatolik yuz berdi');
+            };
+
+            function finishTeacherPositionUpdate(errorMessage = null) {
+                // Close EventSource connection
+                if (eventSource) {
+                    eventSource.close();
+                }
+
+                // Reset button
+                button.disabled = false;
+                button.classList.remove('opacity-50', 'cursor-not-allowed');
+                button.textContent = 'Yangilash';
+
+                // Show completion or error message
+                if (errorMessage) {
+                    statusDiv.innerHTML = `<p class="text-sm text-red-500">${errorMessage}</p>`;
+                } else {
+                    statusDiv.innerHTML = '<p class="text-sm text-green-500">Muvaffaqiyatli yakunlandi!</p>';
+                }
+
+                // Hide progress after 3 seconds
+                setTimeout(() => {
+                    progressWrapper.classList.add('hidden');
+                    statusDiv.innerHTML = '';
+                }, 30000);
+            }
+        };
+    </script>
+
 </x-app-layout>

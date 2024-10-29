@@ -41,57 +41,152 @@
                             <div x-show="activeTab === 'about_us'" class="space-y-6">
                                 <h2 class="text-2xl font-bold text-gray-900">Kafedra haqida</h2>
 
-                                <div class="p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400" role="alert">
-                                    <span class="font-medium">INFO!</span> {{$pointsCalculationExplanation}}
-                                  </div>
+                                <!-- Kafedra asosiy ma'lumotlari -->
+                                <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                                    <div class="flex flex-col lg:flex-row">
+                                        <!-- Chap taraf - Rasm va nom -->
+                                        <div
+                                            class="lg:w-1/3 p-8 bg-gradient-to-br from-indigo-500 to-purple-600 text-white">
+                                            <div class="flex flex-col items-center justify-center h-full space-y-4">
+                                                <div class="relative">
+                                                    <div
+                                                        class="absolute inset-0 bg-white rounded-full opacity-10 animate-pulse">
+                                                    </div>
+                                                    <img src="https://cdn1.iconfinder.com/data/icons/got-idea-vol-2/128/branches-1024.png"
+                                                        alt="Kafedra Logo"
+                                                        class="w-48 h-48 object-cover rounded-full border-4 border-white shadow-2xl">
+                                                </div>
+                                                <h1 class="text-3xl font-bold text-center">{{ $department->name }}</h1>
+                                            </div>
+                                        </div>
 
-                                <div class="flex flex-col sm:flex-row items-center bg-gray-50 rounded-lg p-6 shadow-sm">
-                                    <div class="w-full sm:w-1/3 flex justify-center mb-6 sm:mb-0">
-                                        <img src="https://cdn1.iconfinder.com/data/icons/got-idea-vol-2/128/branches-1024.png"
-                                            alt="Logo"
-                                            class="w-40 h-40 object-cover rounded-full border-4 border-indigo-300">
+                                        <!-- O'ng taraf - Statistika -->
+                                        <div class="lg:w-2/3 p-8 bg-gray-50">
+                                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                <!-- O'qituvchilar soni -->
+                                                <div
+                                                    class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                                    <div class="flex items-center gap-4">
+                                                        <div class="p-3 bg-blue-100 rounded-full">
+                                                            <svg class="w-6 h-6 text-blue-600" fill="none"
+                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+                                                                </path>
+                                                            </svg>
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-sm text-gray-500">O'qituvchilar soni</p>
+                                                            <div class="flex gap-2 mt-1">
+                                                                <span
+                                                                    class="bg-blue-100 text-blue-800 text-sm font-medium px-2.5 py-0.5 rounded">
+                                                                    Saytda: {{ $totalEmployees }}
+                                                                </span>
+                                                                <span
+                                                                    class="bg-purple-100 text-purple-800 text-sm font-medium px-2.5 py-0.5 rounded">
+                                                                    Hemisda: {{ $unregisteredEmployees }}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Umumiy ballar -->
+                                                <div
+                                                    class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                                    <div class="flex items-center gap-4">
+                                                        <div class="p-3 bg-green-100 rounded-full">
+                                                            <svg class="w-6 h-6 text-green-600" fill="none"
+                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                                                                </path>
+                                                            </svg>
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-sm text-gray-500">Umumiy ballar</p>
+                                                            <span
+                                                                class="bg-green-100 text-green-800 text-lg font-medium px-2.5 py-0.5 rounded">
+                                                                {{ $totalPoints }} ball
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Kafedraga o'tgan ballar -->
+                                                <div
+                                                    class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                                    <div class="flex items-center gap-4">
+                                                        <div class="p-3 bg-indigo-100 rounded-full">
+                                                            <svg class="w-6 h-6 text-indigo-600" fill="none"
+                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                                </path>
+                                                            </svg>
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-sm text-gray-500">Kafedraga o'tgan ballar</p>
+                                                            <span
+                                                                class="bg-indigo-100 text-indigo-800 text-lg font-medium px-2.5 py-0.5 rounded">
+                                                                {{ $departmentExtraPoints }} ball
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Ma'lumotlar soni -->
+                                                <div
+                                                    class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+                                                    <div class="flex items-center gap-4">
+                                                        <div class="p-3 bg-yellow-100 rounded-full">
+                                                            <svg class="w-6 h-6 text-yellow-600" fill="none"
+                                                                stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
+                                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                                                </path>
+                                                            </svg>
+                                                        </div>
+                                                        <div>
+                                                            <p class="text-sm text-gray-500">Yuborilgan ma'lumotlar</p>
+                                                            <span
+                                                                class="bg-yellow-100 text-yellow-800 text-lg font-medium px-2.5 py-0.5 rounded">
+                                                                {{ $totalInfos }} ta
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Oxirgi ma'lumotlar -->
+                                            <div class="mt-6 bg-white p-6 rounded-lg shadow-sm">
+                                                <div class="flex items-center justify-between">
+                                                    <div>
+                                                        <p class="text-sm text-gray-500">Oxirgi ma'lumot</p>
+                                                        <p class="text-lg font-medium text-gray-800">{{ $timeAgo }}
+                                                        </p>
+                                                    </div>
+                                                    <div class="text-right">
+                                                        <p class="text-sm text-gray-500">Ma'lumot egasi</p>
+                                                        <span
+                                                            class="bg-indigo-100 text-indigo-800 text-lg font-medium px-2.5 py-0.5 rounded">
+                                                            {{ $fullName }}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+
+
                                     </div>
-                                    <div class="w-full sm:w-2/3 sm:pl-8">
-                                        <h1 class="text-3xl font-bold text-indigo-700 mb-4">{{ $department->name }}</h1>
-                                        <p class="text-xl text-gray-700 mb-6">
-                                            Assalomu alaykum, {{ $department->name }}ga oid ma'lumotlar keyinchalik
-                                            to'ldirilib boyitilib borilishi mumkin!
-                                        </p>
-                                        <ul class="space-y-3 text-lg text-gray-600">
-                                            <li><span class="font-semibold">Kafedra o'qituvchilar soni:</span>
-                                                <span
-                                                    class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                                    Saytga kirgan: {{ $totalEmployees }} nafar
-                                                </span>
-
-                                                <span
-                                                    class="bg-blue-100 text-blue-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded dark:bg-blue-900 dark:text-blue-300">
-                                                    Hemis bo'yicha: {{ $unregisteredEmployees }} nafar
-                                                </span>
-                                            </li>
-                                            <li><span class="font-semibold">Kafedra to'plangan umumiy ballar:</span>
-                                                <span
-                                                    class="bg-green-100 text-green-800 text-md font-medium me-2 px-2.5 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
-                                                    {{ $totalPoints }} ball
-                                                </span>
-                                            </li>
-                                            <li><span class="font-semibold">Kafedraga o'tgan ballar:</span>
-                                                <span
-                                                    class="bg-indigo-100 text-indigo-800 text-sm font-sm me-2 px-2 py-0.5 rounded dark:bg-green-900 dark:text-green-300">
-                                                    {{ $departmentExtraPoints }} ball
-                                                </span>
-                                            </li>
-                                            <li><span class="font-semibold">Kafedra hisobidagi yuborilgan ma'lumotlar
-                                                    soni:</span> {{ $totalInfos }} ta</li>
-                                            <li><span class="font-semibold">Oxirgi yuborilgan ma'lumot vaqti:</span>
-                                                {{ $timeAgo }}</li>
-                                            <li><span class="font-semibold">Oxirgi yuborgan ma'lumot egasi:</span>
-                                                <span
-                                                    class="bg-indigo-100 text-indigo-800 text-lg font-medium me-2 px-2.5 py-0.5 rounded dark:bg-indigo-900 dark:text-indigo-300">
-                                                    {{ $fullName }}
-                                                </span>
-                                            </li>
-                                        </ul>
+                                    <!-- Hisob-kitob ma'lumotlari -->
+                                    <div class="p-4 mt-4 text-sm rounded-lg bg-blue-50 shadow-md" role="alert">
+                                        {!! $pointsCalculationExplanation !!}
                                     </div>
                                 </div>
                             </div>
