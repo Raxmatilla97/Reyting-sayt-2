@@ -1,148 +1,163 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-bold text-2xl sm:text-3xl text-gray-900 leading-tight text-center sm:text-left">
-            {{ __("O'qituvchilar ro'yxati") }}
-        </h2>
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg">
+            <h2 class="py-6 text-2xl font-bold text-center text-white">
+                {{ __("O'qituvchilar ro'yxati") }}
+            </h2>
+        </div>
     </x-slot>
 
-    <div class="py-6 sm:py-12">
+    <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-lg rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
-                    <form class="mb-6" action="{{ route('dashboard.employees') }}" method="get">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <!-- Search Bar -->
+                <div class="p-6 border-b border-gray-200">
+                    <form action="{{ route('dashboard.employees') }}" method="get">
                         <div class="relative">
-                            <input type="search" name="name" id="default-search"
-                                class="block w-full p-4 pl-10 text-sm sm:text-base text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500"
+                            <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
+                            <input type="search" name="name"
+                                class="block w-full pl-12 pr-32 py-4 text-gray-900 border border-gray-200 rounded-xl bg-gray-50 focus:ring-2 focus:ring-blue-100 focus:border-blue-400 transition-colors"
                                 placeholder="O'qituvchilarni qidirish...">
                             <button type="submit"
-                                class="text-white absolute right-2.5 bottom-2.5 bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm sm:text-base px-4 py-2">
+                                class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-colors">
                                 Qidirish
                             </button>
                         </div>
                     </form>
+                </div>
 
-                    <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
-                        @if (count($employee) > 0)
-                            <!-- Mobile view -->
-                            <div class="sm:hidden">
-                                @foreach ($employee as $index => $item)
-                                    <div class="bg-white border-b border-gray-200 rounded-lg shadow-sm mb-4 p-4">
-                                        <div class="flex items-center mb-3">
-                                            <img class="w-12 h-12 rounded-full mr-4"
+                @if (count($employee) > 0)
+                    <!-- Mobile Cards -->
+                    <div class="sm:hidden">
+                        <div class="divide-y divide-gray-200">
+                            @foreach ($employee as $index => $item)
+                                <div class="p-6 hover:bg-gray-50 transition-colors">
+                                    <div class="flex items-center space-x-4">
+                                        <div class="flex-shrink-0">
+                                            <img class="h-16 w-16 rounded-xl shadow object-cover" 
                                                 src="{{ $item->image ? asset('storage/users/image/' . $item->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
                                                 alt="">
-                                            <div>
-                                                <div class="font-semibold text-lg text-gray-900">
-                                                    {{ ucwords(strtolower($item->FullName ?? 'Kuzatuvchi')) }}
-                                                </div>
-                                                <div class="text-sm text-gray-600">
-                                                    {{ $item->department ? $item->department->name : 'N/A' }}
-                                                </div>
-                                            </div>
                                         </div>
-                                        <div class="flex justify-between items-center text-sm">
-                                            <div class="flex items-center">
+                                        <div class="flex-1 min-w-0">
+                                            <p class="text-lg font-semibold text-gray-900 truncate">
+                                                {{ ucwords(strtolower($item->FullName ?? 'Kuzatuvchi')) }}
+                                            </p>
+                                            <p class="text-sm text-gray-500 mb-2">
+                                                {{ $item->department ? $item->department->name : 'N/A' }}
+                                            </p>
+                                            <div class="flex items-center space-x-4">
                                                 @if ($item->status)
-                                                    <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
-                                                    <span class="text-green-600">Aktiv</span>
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
+                                                        Aktiv
+                                                    </span>
                                                 @else
-                                                    <div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2"></div>
-                                                    <span class="text-red-600">Aktiv emas</span>
+                                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                        <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
+                                                        Aktiv emas
+                                                    </span>
                                                 @endif
-                                            </div>
-                                            <div>
-                                                Umumiy ball: <span class="font-semibold">
-                                                    @php
-                                                        $totalPoints = $item->department
-                                                            ? $item->department->point_user_deportaments()
-                                                                ->where('status', 1)
-                                                                ->where('user_id', $item->id)
-                                                                ->sum('point')
-                                                            : 0;
-                                                    @endphp
-                                                    {{ $item->department ? round($totalPoints, 2) : 'N/A' }}
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                                    {{ round($item->department ? $item->department->point_user_deportaments()->where('status', 1)->where('user_id', $item->id)->sum('point') : 0, 2) }} ball
                                                 </span>
                                             </div>
                                         </div>
-                                        <div class="mt-3">
-                                            <a href="{{ route('dashboard.employeeShow', ['id_employee' => $item->employee_id_number]) }}"
-                                                class="text-blue-600 hover:underline">Ko'rish</a>
-                                        </div>
+                                        <a href="{{ route('dashboard.employeeShow', ['id_employee' => $item->employee_id_number]) }}" 
+                                           class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 transition-colors">
+                                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                            </svg>
+                                        </a>
                                     </div>
-                                @endforeach
-                            </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
 
-                            <!-- Tablet and Desktop view -->
-                            <table class="w-full text-sm sm:text-base text-left text-gray-500 hidden sm:table">
-                                <thead class="text-xs sm:text-sm text-gray-700 uppercase bg-gray-50">
-                                    <tr>
-                                        <th scope="col" class="p-4">№</th>
-                                        <th scope="col" class="px-6 py-3">O'qituvchi F.I.SH</th>
-                                        <th scope="col" class="px-6 py-3">Kafedrasi</th>
-                                        <th scope="col" class="px-6 py-3">Holati</th>
-                                        <th scope="col" class="px-6 py-3">Umumiy ball</th>
-                                        <th scope="col" class="px-6 py-3">Bajarish</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($employee as $index => $item)
-                                        <tr class="bg-white border-b hover:bg-gray-50">
-                                            <td class="w-4 p-4 font-medium">{{ $index + 1 }}</td>
-                                            <th scope="row" class="flex items-center px-6 py-4 whitespace-nowrap">
-                                                <img class="w-10 h-10 rounded-full"
-                                                    src="{{ $item->image ? asset('storage/users/image/' . $item->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
-                                                    alt="">
-                                                <div class="pl-3">
-                                                    <div class="text-base font-semibold text-gray-900">
+                    <!-- Desktop Table -->
+                    <div class="hidden sm:block">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">№</th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">O'qituvchi</th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kafedra</th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Holat</th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ball</th>
+                                    <th scope="col" class="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                @foreach ($employee as $index => $item)
+                                    <tr class="hover:bg-gray-50 transition-colors">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                            {{ ($employee->currentPage() - 1) * $employee->perPage() + $loop->iteration }}
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="flex items-center">
+                                                <img class="h-10 w-10 rounded-lg object-cover" 
+                                                     src="{{ $item->image ? asset('storage/users/image/' . $item->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}" 
+                                                     alt="">
+                                                <div class="ml-4">
+                                                    <div class="text-sm font-medium text-gray-900">
                                                         {{ ucwords(strtolower($item->FullName ?? 'Kuzatuvchi')) }}
                                                     </div>
                                                 </div>
-                                            </th>
-                                            <td class="px-6 py-4">
-                                                <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded">
-                                                    {{ $item->department ? $item->department->name : 'N/A' }}
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="inline-flex items-center px-2.5 py-1 rounded-md text-sm font-medium bg-blue-50 text-blue-700">
+                                                {{ $item->department ? $item->department->name : 'N/A' }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            @if ($item->status)
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
+                                                    Aktiv
                                                 </span>
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <div class="flex items-center">
-                                                    @if ($item->status)
-                                                        <div class="h-2.5 w-2.5 rounded-full bg-green-500 mr-2"></div>
-                                                        Aktiv
-                                                    @else
-                                                        <div class="h-2.5 w-2.5 rounded-full bg-red-500 mr-2"></div>
-                                                        Aktiv emas
-                                                    @endif
-                                                </div>
-                                            </td>
-                                            <td class="px-6 py-4 font-medium">
-                                                @php
-                                                    $totalPoints = $item->department
-                                                        ? $item->department->point_user_deportaments()
-                                                            ->where('status', 1)
-                                                            ->where('user_id', $item->id)
-                                                            ->sum('point')
-                                                        : 0;
-                                                @endphp
-                                                {{ $item->department ? round($totalPoints, 2) : 'N/A' }}
-                                            </td>
-                                            <td class="px-6 py-4">
-                                                <a href="{{ route('dashboard.employeeShow', ['id_employee' => $item->employee_id_number]) }}"
-                                                    class="font-medium text-blue-600 hover:underline">Ko'rish</a>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        @else
-                            <h1 class="text-center text-xl font-medium my-8 text-gray-400">
-                                O'qituvchilar topilmadi!
-                            </h1>
-                            @include('frogments.skeletonTable')
-                        @endif
+                                            @else
+                                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
+                                                    Aktiv emas
+                                                </span>
+                                            @endif
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="text-sm font-medium">
+                                                {{ round($item->department ? $item->department->point_user_deportaments()->where('status', 1)->where('user_id', $item->id)->sum('point') : 0, 2) }}
+                                            </span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right">
+                                            <a href="{{ route('dashboard.employeeShow', ['id_employee' => $item->employee_id_number]) }}" 
+                                               class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
+                                                Ko'rish
+                                                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                                                </svg>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
-                    <div class="mt-6">
-                        {{ $employee->links() }}
+
+                @else
+                    <div class="text-center py-12">
+                        <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        <h3 class="mt-2 text-sm font-medium text-gray-900">O'qituvchilar topilmadi</h3>
+                        <p class="mt-1 text-sm text-gray-500">Qidiruv natijasida hech qanday o'qituvchi topilmadi.</p>
                     </div>
+                @endif
+
+                <!-- Pagination -->
+                <div class="px-6 py-4 border-t border-gray-200">
+                    {{ $employee->links() }}
                 </div>
             </div>
         </div>

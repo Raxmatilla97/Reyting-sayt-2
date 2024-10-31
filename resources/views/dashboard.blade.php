@@ -10,10 +10,71 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-4 sm:p-6 text-gray-900 flex flex-col sm:flex-row justify-between">
                     <div class="w-full sm:w-1/2 mb-6 sm:mb-0">
-                        @include('dashboard.asosiy-sahifa.card')
+                        <div class="w-full max-w-md mx-auto bg-white border border-gray-200 rounded-lg shadow">
+                            <div class="flex justify-end px-4 pt-8">
+                            </div>
+                            <div class="flex flex-col items-center pb-3">
+                                <img class="w-24 h-24 mb-3 rounded-full shadow-lg"
+                                    src="{{ $auth->image ? asset('storage/users/image/' . $auth->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
+                                    alt="User image" />
+                                <h5 class="mb-1 text-xl font-medium text-gray-900 text-center">
+                                    {{ $auth->second_name ?? 'Kuzatuvchi' }} {{ $auth->first_name ?? '' }}
+                                </h5>
+                                <span class="text-sm text-gray-500">#ID {{ $auth->employee_id_number ?? 'N/A' }}</span>
+                            </div>
+                            <div class="w-full bg-white rounded-lg px-4 pt-1">
+                                @include('frogments.birinchi_chart')
+                            </div>
+                        </div>
+                        
                     </div>
                     <div class="w-full sm:w-1/2">
-                        @include('dashboard.asosiy-sahifa.forma2')
+                        <div class="max-w-xxl w-full space-y-8 p-4 sm:p-10 border border-gray-200 rounded-lg shadow z-10">
+                            <div class="grid gap-8 grid-cols-1">
+                                <div class="flex flex-col ">
+                                    <div class="flex flex-col sm:flex-row items-center">
+                                        <h2 class="font-semibold text-lg mr-auto text-center sm:text-left mb-4 sm:mb-0">Reyting ma'lumotini joylash uchun kerakli yo'nalishni tanlang</h2>
+                                    </div>
+                                    <div class="flex items-center p-4 mt-4 mb-4 text-sm text-blue-800 border border-blue-300 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800" role="alert">
+                                        <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                                          </svg>
+                                          <span class="sr-only">Info</span>
+                                          <div>
+                                            <span class="font-medium">Etibor bering!</span> Ma'lumot yuklashdan oldin uning yo'nalishini belgilang.
+                        
+                                          </div>
+                                    </div>
+                                    <div class="flex items-center p-4 mt-4 mb-4 text-sm text-red-800 border border-red-300 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-blue-400 dark:border-blue-800" role="alert">
+                                        <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                                          </svg>
+                                          <span class="sr-only">Info</span>
+                                          <div>
+                                            <span class="font-medium">Diqqat!</span> Saytdan hozirda faqat kompyuter va noutbuklarda to'liq foydalanish mumkin. Mobil qurilmalar uchun moslashtirish ustida ishlar olib borilmoqda.
+                        
+                                          </div>
+                                    </div>
+                                </div>
+                                <div class="flex flex-col space-y-4">
+                                    <a href="{{ route('dashboard.employee_form_chose')}}" class="flex flex-col sm:flex-row items-center bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
+                                        <img class="object-cover w-full h-48 sm:h-auto sm:w-48 rounded-t-lg sm:rounded-none sm:rounded-s-lg" src="https://mir-s3-cdn-cf.behance.net/project_modules/fs/1fcafd93322439.5e6164ef9bb7f.jpg" alt="">
+                                        <div class="flex flex-col justify-between p-4 leading-normal">
+                                            <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">O'qituvchilar tomonidan yuboriladigan ma'lumotlar uchun</h5>
+                                            <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">Universitet o'qituvchi hodimlari tomonidan ilmiy yo'nalishdagi ma'lumotlarni yuborishlari uchun</p>
+                                        </div>
+                                    </a>
+                                    <a href="{{route('dashboard.department_form_chose')}}" class="flex flex-col sm:flex-row items-center bg-white border border-gray-200 rounded-lg shadow hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-800 dark:hover:bg-gray-700">
+                                        <img class="object-cover w-full h-48 sm:h-auto sm:w-48 rounded-t-lg sm:rounded-none sm:rounded-s-lg" src="https://i.pinimg.com/736x/f4/b2/e9/f4b2e9d31c338e7bc4efd5c83f5af10f.jpg" alt="">
+                                        <div class="flex flex-col justify-between p-4 leading-normal">
+                                            <h5 class="mb-2 text-xl font-bold tracking-tight text-gray-900 dark:text-white">Kafedra ma'lumotlarini yuborish uchun</h5>
+                                            <p class="mb-3 font-normal text-gray-700 dark:text-gray-400">Kafedra ma'lumotlarini yuborish uchun </p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
                     </div>
                 </div>
             </div>

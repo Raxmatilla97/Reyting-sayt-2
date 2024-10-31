@@ -1,162 +1,247 @@
 <x-app-layout>
-
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __("O'qituvchi ma'lumotlarini ko'rish") }}
-        </h2>
-
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg">
+            <h2 class="py-6 text-2xl font-bold text-center text-white">
+                {{ ucwords(strtolower($employee->FullName ?? "Kuzatuvchi")) }}
+            </h2>
+        </div>
     </x-slot>
-    <style>
-        @media only screen and (max-width: 768px) {}
-
-        /* Mobil qurilmalar uchun (masalan, 600px dan kichikroq ekranlar uchun) */
-        @media only screen and (max-width: 600px) {
-            .image_moder {
-                margin-top: 20px;
-            }
-
-            .operator_name {
-                max-width: 200px;
-            }
-        }
-
-        /* Tablet qurilmalar uchun (masalan, 600px dan 1024px gacha) */
-        @media only screen and (min-width: 601px) and (max-width: 1024px) {}
-
-        /* Desktop qurilmalar uchun (1025px dan yuqori) */
-        @media only screen and (min-width: 1025px) {
-
-            .operator_name {
-                width: 370px;
-            }
-
-        }
-    </style>
-
 
     <div class="py-6">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 bg-white border-b border-gray-200">
-
-                    <div>
-
-                        <div class="flex flex-col items-center px-4 sm:px-0 lg:flex-row lg:justify-between">
-                            <div class="mb-4 lg:mb-0">
-                                <h3 class="text-base font-semibold leading-7 text-gray-900">Foydalanuvchi haqida
-                                    ma'lumotlar
-                                </h3>
-                                <p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">Reyting ballari o'zgarib
-                                    turushi
-                                    mumkin!</p>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                <!-- Profile Header Section -->
+                <div class="relative">
+                    <!-- Background Pattern -->
+                    
+                    <div class="absolute inset-0 h-48 bg-cover bg-center bg-no-repeat bg-fixed" 
+                        style="background-image: url('{{'/assets/images/surat_profile.webp'}}'); background-position: center 25%;">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-900/50 to-blue-600/50 backdrop-blur-sm"></div>
+                    </div>
+                    <!-- Profile Content -->
+                    <div class="relative px-8">
+                        <!-- Profile Image and Basic Info -->
+                        <div class="flex flex-col md:flex-row items-center gap-8">
+                            <!-- Profile Image -->
+                            <div class="shrink-0 mt-6">
+                                <img class="w-40  rounded-xl shadow-lg border-4 border-white object-cover" 
+                                     src="{{ $employee->image ? asset('storage/users/image/' . $employee->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}" 
+                                     alt="{{ $employee->FullName }}">
                             </div>
-                            <div class="mb-4 lg:mb-0">
-                                <div class="flex items-center p-4 mb-4 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
-                                    role="alert">
-                                    <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true"
-                                        xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                        <path
-                                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-                                    </svg>
-                                    <span class="sr-only">Info</span>
-                                    <div>
-                                        <span class="font-medium"></span> <span
-                                            class=" text-lg font-medium me-2 px-2.5 py-0.5 rounded-full ">Umumiy ball:
-                                            {{ round($employee->department->point_user_deportaments()->where('user_id', $employee->id)->where('status', 1)->sum('point'), 2) }}
 
-                                        </span>
+                            <!-- Basic Stats -->
+                            <div class="flex-1 text-center md:text-left">
+                                <!-- Rating Card -->
+                                <div class="inline-flex items-center bg-white rounded-xl shadow-md p-4 mb-4">
+                                    <div class="mr-4">
+                                        <div class="text-sm text-gray-500">Umumiy ball</div>
+                                        <div class="text-2xl font-bold text-blue-600">
+                                            {{ round($employee->department->point_user_deportaments()->where('user_id', $employee->id)->where('status', 1)->sum('point'), 2) }}
+                                        </div>
+                                    </div>
+                                    <div class="w-px h-12 bg-gray-200 mx-4"></div>
+                                    <div>
+                                        <div class="text-sm text-gray-500">Kafedraga o'tgan</div>
+                                        <div class="text-2xl font-bold text-indigo-600">{{ $departamentPointTotal }}</div>
                                     </div>
                                 </div>
-
-                            </div>
-                            <img class="rounded w-4/5 sm:w-2/4 md:w-1/3 lg:w-1/6"
-                            src="{{ $employee->image ? asset('storage/users/image/' . $employee->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}" alt="Extra large avatar"
-                                style="width: 189px; height: 200px; object-fit: cover;">
-                        </div>
-
-                        {{-- dddd --}}
-
-                        <div class="mt-6 border-t border-gray-100">
-                            <dl class="divide-y divide-gray-100">
-                                <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                    <dt class="text-md font-medium leading-6 text-gray-900">To'liq F.I.SH</dt>
-                                    <dd class="mt-1 text-xl leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                        {{ ucwords(strtolower($employee->FullName ?? "Kuzatuvchi")) }}
-                                       </dd>
-                                </div>
-                                <div class="px-4 py-6 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0">
-                                    <dt class="text-md font-medium leading-6 text-gray-900">Foydalanuvchining shaxsiy
-                                        ma'lumotlari
-                                    </dt>
-                                    <dd class="mt-1 text-xl leading-6 text-gray-700 sm:col-span-2 sm:mt-0">
-                                        <span
-                                            class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                                            Mobil telefon raqami: {{ $employee->phone }}
-                                        </span>
-
-
-                                        <br>
-                                        <span
-                                            class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
-
-                                            Kafedrasi nomi: {{ $employee->department->name }}
-                                        </span>
-
-                                        <br>
-                                        <span
-                                            class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                                            Tug'ulgan kuni: {{ $employee->birth_date }}
-
-                                        </span>
-
-
-
-
-                                        <br>
-                                        <span
-                                            class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                                            Umumiy yuborgan ma'lumotlar soni:
-                                            {{ $employee->department->point_user_deportaments->where('user_id', $employee->id)->count() }} ta
-
-                                        </span>
-                                        <br>
-                                        <span
-                                        class="bg-blue-100 text-blue-800 text-sm font-medium me-2 px-2.5 py-0.5 rounded-full dark:bg-blue-900 dark:text-blue-300">
-                                        Kafedraga o'tgan ballari: {{ $departamentPointTotal}} ball
-
-                                    </span>
-
-
-                                    </dd>
-                                </div>
-
-
-                            </dl>
-                        </div>
-                    </div>
-                    <hr class="mb-8 mt-3">
-                    <p class="text-gray-500 dark:text-gray-400 pl-4 m-auto text-center" style="width: 90%">
-                        {{-- <span
-                            class="bg-gray-100 text-gray-800 text-md font-medium me-2 px-2.5 py-0.5 rounded dark:bg-gray-700 dark:text-gray-300">
-                            Foydalanuvchi tomonidan yuklangan fayllar va ularga qo'yilgan ballar:</span> --}}
-                    </p>
-
-                    <div  class="p-4 px-0">
-                        <h3 class="text-2xl font-bold mb-7 ml-3"> Foydalanuvchi tomonidan yuklangan fayllar va ularga qo'yilgan ballar:</h3>
-                        <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                            <div class="text-gray-900 mb-8">
-
-                                @include('dashboard.item_list_component')
-
                             </div>
                         </div>
 
+                        <!-- Detailed Information -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+                            <!-- Personal Information Card -->
+                            <div class="bg-white rounded-xl shadow-md p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Shaxsiy ma'lumotlar</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center py-2">
+                                        <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m6.072 10.072 2 2 6-4m3.586 4.314.9-.9a2 2 0 0 0 0-2.828l-.9-.9a2 2 0 0 1-.586-1.414V5.072a2 2 0 0 0-2-2H13.8a2 2 0 0 1-1.414-.586l-.9-.9a2 2 0 0 0-2.828 0l-.9.9a2 2 0 0 1-1.414.586H5.072a2 2 0 0 0-2 2v1.272a2 2 0 0 1-.586 1.414l-.9.9a2 2 0 0 0 0 2.828l.9.9a2 2 0 0 1 .586 1.414v1.272a2 2 0 0 0 2 2h1.272a2 2 0 0 1 1.414.586l.9.9a2 2 0 0 0 2.828 0l.9-.9a2 2 0 0 1 1.414-.586h1.272a2 2 0 0 0 2-2V13.8a2 2 0 0 1 .586-1.414Z"/>
+                                        </svg>
+                                        <span class="text-gray-600"> {{ $employee->FullName }}</span>
+                                    </div>
+                                    <div class="flex items-center py-2">
+                                        <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/>
+                                        </svg>
+                                        <span class="text-gray-600">{{ $employee->phone ? $employee->phone : "Nomalum!" }}</span>
+                                    </div>
+                                    <div class="flex items-center py-2">
+                                        <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                                        </svg>
+                                        <span class="text-gray-600">{{ $employee->department->name }} kafedrasi</span>
+                                    </div>
+                                    <div class="flex items-center py-2">
+                                        <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1v3m5-3v3m5-3v3M1 7h18M5 11h10M2 3h16a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z"/>
+                                        </svg>
+                                        <span class="text-gray-600">OTMda <b>{{ $employee->year_of_enter}}</b> yildan beri ishlaydi</span>
+                                    </div>                                    
+                                    <div class="flex items-center py-2">
+                                        <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16.5A2.493 2.493 0 0 1 6.51 18H6.5a2.468 2.468 0 0 1-2.4-3.154 2.98 2.98 0 0 1-.85-5.274 2.468 2.468 0 0 1 .921-3.182 2.477 2.477 0 0 1 1.875-3.344 2.5 2.5 0 0 1 3.41-1.856A2.5 2.5 0 0 1 11 3.5m0 13v-13m0 13a2.492 2.492 0 0 0 4.49 1.5h.01a2.467 2.467 0 0 0 2.403-3.154 2.98 2.98 0 0 0 .847-5.274 2.468 2.468 0 0 0-.921-3.182 2.479 2.479 0 0 0-1.875-3.344A2.5 2.5 0 0 0 13.5 1 2.5 2.5 0 0 0 11 3.5m-8 5a2.5 2.5 0 0 1 3.48-2.3m-.28 8.551a3 3 0 0 1-2.953-5.185M19 8.5a2.5 2.5 0 0 0-3.481-2.3m.28 8.551a3 3 0 0 0 2.954-5.185"/>
+                                        </svg>
+                                        <span class="text-gray-600">Ilmiy unvoni: <b>{{$employee->academicDegree_name ? $employee->academicDegree_name : "Nomalum!"}}</b></span>
+                                    </div>
+                                    <div class="flex items-center py-2">
+                                        <svg class="w-5 h-5 text-gray-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                        </svg>
+                                        <span class="text-gray-600">{{ $employee->birth_date }}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Statistics Card -->
+                            <div class="bg-white rounded-xl shadow-md p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Statistika</h3>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <div class="text-sm text-gray-500">Yuborilgan ma'lumotlar</div>
+                                        <div class="text-2xl font-bold text-gray-900">
+                                            {{ $employee->department->point_user_deportaments->where('user_id', $employee->id)->count() }}
+                                        </div>
+                                    </div>
+                                    <div class="bg-gray-50 rounded-lg p-4">
+                                        <div class="text-sm text-gray-500">Qabul qilingan</div>
+                                        <div class="text-2xl font-bold text-gray-900">
+                                            {{ $employee->department->point_user_deportaments->where('user_id', $employee->id)->where('status', 1)->count() }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+
+                <!-- Line Chart -->
+                <div class="max-w-full w-full bg-white rounded-xl shadow-lg p-6">
+                    <div class="flex justify-between items-start w-full mb-4">
+                        <h5 class="text-lg font-bold text-gray-900">Kunlik ma'lumotlar statistikasi</h5>
+                    </div>
+                    <div id="line-chart" class="w-full" style="min-height: 400px;"></div>
+                </div>
+
+                @php
+                    // Kunlik ma'lumotlarni tayyorlash
+            $dailyStats = $pointUserInformations
+                ->groupBy(function ($item) {
+                    return $item->created_at->format('Y-m-d');
+                })
+                ->map(function ($items) {
+                    return [
+            'total' => $items->count(),
+            'accepted' => $items->where('status', '1')->count(),
+            'pending' => $items->where('status', '3')->count(),
+            'rejected' => $items->where('status', '0')->count(),
+                            ];
+                        });
+                @endphp
+
+                <script>
+               
+                    // Line Chart
+                    const dates = @json($dailyStats->keys());
+                    const lineChartOptions = {
+                        series: [{
+                            name: 'Jami yuborilgan',
+                            data: @json($dailyStats->pluck('total'))
+                        }, {
+                            name: 'Maqullangan',
+                            data: @json($dailyStats->pluck('accepted'))
+                        }, {
+                            name: 'Kutilmoqda',
+                            data: @json($dailyStats->pluck('pending'))
+                        }, {
+                            name: 'Rad etilgan',
+                            data: @json($dailyStats->pluck('rejected'))
+                        }],
+                        chart: {
+                            height: 400,
+                            type: 'line',
+                            toolbar: {
+                                show: true
+                            },
+                            zoom: {
+                                enabled: true
+                            }
+                        },
+                        colors: ['#6B7280', '#22C55E', '#3B82F6', '#EF4444'],
+                        dataLabels: {
+                            enabled: false
+                        },
+                        stroke: {
+                            curve: 'smooth',
+                            width: 3
+                        },
+                        xaxis: {
+                            categories: dates,
+                            labels: {
+                                rotate: -45,
+                                rotateAlways: true
+                            }
+                        },
+                        yaxis: {
+                            title: {
+                                text: "Ma'lumotlar soni"
+                            }
+                        },
+                        legend: {
+                            position: 'top'
+                        },
+                        grid: {
+                            borderColor: '#f1f1f1'
+                        },
+                        tooltip: {
+                            shared: true,
+                            intersect: false
+                        }
+                    };
+
+                    // Render Charts
+                    document.addEventListener("DOMContentLoaded", function() {
+                        if (document.getElementById('pie-chart')) {
+                            const pieChart = new ApexCharts(document.getElementById('pie-chart'), pieChartOptions);
+                            pieChart.render();
+                        }
+
+                        if (document.getElementById('line-chart')) {
+                            const lineChart = new ApexCharts(document.getElementById('line-chart'), lineChartOptions);
+                            lineChart.render();
+                        }
+                    });
+                </script>
+                </div>
+
+                <!-- Submitted Documents Section -->
+                <div class="mt-8 px-8 pb-8">
+                    <h3 class="text-xl font-bold text-gray-900 mb-6">Yuklangan hujjatlar</h3>
+                    @include('dashboard.item_list_component')
                 </div>
             </div>
         </div>
-
-
-
-
+    </div>
 </x-app-layout>
+
+<style>
+    /* Gradient Animation */
+    .gradient-animation {
+        background-size: 200% 200%;
+        animation: gradient 15s ease infinite;
+    }
+
+    @keyframes gradient {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+</style>

@@ -247,7 +247,7 @@
                                 x-transition:enter-end="opacity-100 transform translate-x-0">
                                 <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
                                     <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-gradient-to-r from-indigo-500 to-purple-500">
+                                        <thead class="bg-gradient-to-r from-blue-600 to-indigo-600">
                                             <tr>
                                                 <th scope="col"
                                                     class="px-6 py-4 text-left text-xs font-medium text-white uppercase tracking-wider">
@@ -315,9 +315,9 @@
                                     <h3 class="text-2xl font-bold text-gray-900 mb-6">Kafedra o'qituvchilari tomonidan
                                         yuborilgan ma'lumotlar</h3>
                                     <div class="bg-white overflow-hidden shadow-lg rounded-lg">
-                                        <div class="p-6 text-gray-900">
+                                   
                                             @include('dashboard.item_list_component')
-                                        </div>
+                                      
                                     </div>
                                 </div>
                             </div>
