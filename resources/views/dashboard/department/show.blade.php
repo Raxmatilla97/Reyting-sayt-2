@@ -345,21 +345,21 @@
         </style>
     @endpush
     @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Agar URL da 'page' parametri bo'lsa, 'yuborilgan' tabini tanlash
-            let initialTab = window.location.search.includes('page=') ? 'yuborilgan' : 'about_us';
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                // Agar URL da 'page' parametri bo'lsa, 'yuborilgan' tabini tanlash
+                let initialTab = window.location.search.includes('page=') ? 'yuborilgan' : 'about_us';
 
-            // Alpine.js data
-            window.Alpine.data('tabs', () => ({
-                activeTab: initialTab,
-                init() {
-                    this.$watch('activeTab', value => {
-                        localStorage.setItem('activeTab', value);
-                    })
-                }
-            }));
-        });
-    </script>
+                // Alpine.js data
+                window.Alpine.data('tabs', () => ({
+                    activeTab: initialTab,
+                    init() {
+                        this.$watch('activeTab', value => {
+                            localStorage.setItem('activeTab', value);
+                        })
+                    }
+                }));
+            });
+        </script>
     @endpush
 </x-app-layout>

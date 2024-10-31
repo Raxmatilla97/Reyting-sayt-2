@@ -209,63 +209,44 @@ class DepartmentController extends Controller
         $teacherPoints = 0;
         $departmentExtraPoints = 0;
 
-       // Konfiguratsiya faylidan maksimal ballarni olish
-       $maxPoints = Config::get('max_points_dep_emp');
-       $departmentMaxPoints = $maxPoints['department'];
-       $employeeMaxPoints = $maxPoints['employee'];
-       $allMaxPoints = array_merge($departmentMaxPoints, $employeeMaxPoints);
+        // Konfiguratsiya faylidan maksimal ballarni olish
+        $maxPoints = Config::get('max_points_dep_emp');
+        $departmentMaxPoints = $maxPoints['department'];
+        $employeeMaxPoints = $maxPoints['employee'];
+        $allMaxPoints = array_merge($departmentMaxPoints, $employeeMaxPoints);
 
-       $directionalCalculations = []; // Har bir yo'nalish bo'yicha ma'lumotlar
-       $totalN = 0; // Barcha N lar yig'indisi
+        $directionalCalculations = []; // Har bir yo'nalish bo'yicha ma'lumotlar
+        $totalN = 0; // Barcha N lar yig'indisi
 
-       // Har bir yo'nalish bo'yicha ma'lumotlarni hisoblash
-       foreach ($allMaxPoints as $direction => $points) {
-           $columnName = $direction . 'id';
+        // Har bir yo'nalish bo'yicha ma'lumotlarni hisoblash
+        foreach ($allMaxPoints as $direction => $points) {
+            $columnName = $direction . 'id';
 
-           // Yo'nalish bo'yicha ma'lumotlar sonini hisoblash
-           $recordsCount = $department->point_user_deportaments()
-               ->where('status', 1)
-               ->whereNotNull($columnName)
-               ->count();
+            // Yo'nalish bo'yicha ma'lumotlar sonini hisoblash
+            $recordsCount = $department->point_user_deportaments()
+                ->where('status', 1)
+                ->whereNotNull($columnName)
+                ->count();
 
-           if ($recordsCount > 0 && $totalDepartmentEmployees > 0) {
-               $maxPoint = $points['max'];
-               // N = (Ma'lumotlar soni * Max ball) / O'qituvchilar soni
-               $subtotal = $recordsCount * $maxPoint;
-               $N = $subtotal / $totalDepartmentEmployees;
-               $totalN += $N; // Har bir yo'nalishning N qiymati jamlanib boradi
+            if ($recordsCount > 0 && $totalDepartmentEmployees > 0) {
+                $maxPoint = $points['max'];
+                // N = (Ma'lumotlar soni * Max ball) / O'qituvchilar soni
+                $subtotal = $recordsCount * $maxPoint;
+                $N = $subtotal / $totalDepartmentEmployees;
+                $totalN += $N; // Har bir yo'nalishning N qiymati jamlanib boradi
 
-               // Hisob-kitob ma'lumotlarini saqlash
-               $directionalCalculations[] = [
-                   'direction' => $direction,
-                   'records_count' => $recordsCount,
-                   'max_point' => $maxPoint,
-                   'sub_total' => $subtotal,
-                   'N' => round($N, 2)
-               ];
-           }
-       }
+                // Hisob-kitob ma'lumotlarini saqlash
+                $directionalCalculations[] = [
+                    'direction' => $direction,
+                    'records_count' => $recordsCount,
+                    'max_point' => $maxPoint,
+                    'sub_total' => $subtotal,
+                    'N' => round($N, 2)
+                ];
+            }
+        }
 
-       // Kafedraga o'tgan qo'shimcha ballarni hisoblash
-       $departmentExtraPoints = $department->point_user_deportaments()
-           ->where('status', 1)
-           ->whereHas('departPoint')
-           ->with('departPoint')
-           ->get()
-           ->sum(function ($pointEntry) {
-               return $pointEntry->departPoint->point;
-           });
-
-       // Yakuniy natijani hisoblash
-       if ($totalDepartmentEmployees > 0) {
-
-           // Faqat N sonlar yig'indisi (qo'shimcha ballarsiz)
-        $totalPoints = round($totalN, 2);
-
-        // O'qituvchilar ballari (N sonlar yig'indisi * o'qituvchilar soni)
-        $teacherTotalPoints = $totalN * $totalDepartmentEmployees;
-
-         // Kafedraga o'tgan qo'shimcha ballarni hisoblash (faqat ko'rsatish uchun)
+        // Kafedraga o'tgan qo'shimcha ballarni hisoblash
         $departmentExtraPoints = $department->point_user_deportaments()
             ->where('status', 1)
             ->whereHas('departPoint')
@@ -275,10 +256,29 @@ class DepartmentController extends Controller
                 return $pointEntry->departPoint->point;
             });
 
-        // Umumiy ballar yig'indisi (ko'rsatish uchun)
-        $totalWithExtra = round($teacherTotalPoints + $departmentExtraPoints, 2);
+        // Yakuniy natijani hisoblash
+        if ($totalDepartmentEmployees > 0) {
 
-          $pointsCalculationExplanation = '
+            // Faqat N sonlar yig'indisi (qo'shimcha ballarsiz)
+            $totalPoints = round($totalN, 2);
+
+            // O'qituvchilar ballari (N sonlar yig'indisi * o'qituvchilar soni)
+            $teacherTotalPoints = $totalN * $totalDepartmentEmployees;
+
+            // Kafedraga o'tgan qo'shimcha ballarni hisoblash (faqat ko'rsatish uchun)
+            $departmentExtraPoints = $department->point_user_deportaments()
+                ->where('status', 1)
+                ->whereHas('departPoint')
+                ->with('departPoint')
+                ->get()
+                ->sum(function ($pointEntry) {
+                    return $pointEntry->departPoint->point;
+                });
+
+            // Umumiy ballar yig'indisi (ko'rsatish uchun)
+            $totalWithExtra = round($teacherTotalPoints + $departmentExtraPoints, 2);
+
+            $pointsCalculationExplanation = '
         <div class="w-full p-4 bg-gray-50 rounded-lg">
             <h2 class="text-xl font-bold mb-4 text-gray-800">KAFEDRA REYTINGINI HISOBLASH TARTIBI</h2>
 
@@ -348,12 +348,12 @@ class DepartmentController extends Controller
                 </div>
             </div>
         </div>";
-       } else {
-           $pointsCalculationExplanation = "
+        } else {
+            $pointsCalculationExplanation = "
            <div class='p-4 bg-red-100 text-red-700 rounded'>
                Kafedra bali hisoblab bo'lmadi: O'qituvchilar soni 0 ga teng
            </div>";
-       }
+        }
 
 
 

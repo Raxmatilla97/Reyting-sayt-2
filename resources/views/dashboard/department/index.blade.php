@@ -37,37 +37,37 @@
                             <!-- Mobile versiya -->
                             <div class="grid gap-4 sm:hidden">
                                 @foreach ($departments as $index => $item)
-                                  <a href="{{ route('dashboard.departmentShow', ['slug' => $item->slug]) }}">
-                                    <div
-                                        class="bg-white p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-200">
-                                        <div class="flex items-center space-x-4">
-                                            <div class="flex-shrink-0">
-                                                <img class="w-16 h-16 rounded-full"
-                                                    src="https://image.pngaaa.com/419/1509419-middle.png"
-                                                    alt="">
-                                            </div>
-                                            <div class="flex-1 min-w-0">
-                                                <p class="text-sm font-semibold text-gray-900">
-                                                    {{ ($departments->currentPage() - 1) * $departments->perPage() + $loop->iteration }}
-                                                </p>
-                                                <div class="mt-2 text-base text-gray-500">
-                                                    <span class="font-medium">{{ $item->user->count() }}</span> ta
-                                                    o'qituvchi ro'yxatdan o'tgan
+                                    <a href="{{ route('dashboard.departmentShow', ['slug' => $item->slug]) }}">
+                                        <div
+                                            class="bg-white p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-200">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="flex-shrink-0">
+                                                    <img class="w-16 h-16 rounded-full"
+                                                        src="https://image.pngaaa.com/419/1509419-middle.png"
+                                                        alt="">
                                                 </div>
-                                                <div class="flex items-center mt-2 space-x-2">
-                                                    <span
-                                                        class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $item->status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                        {{ $item->status ? 'Aktiv' : 'Aktiv emas' }}
-                                                    </span>
-                                                    <span class="text-lg font-semibold text-blue-600">
-                                                        {{ $item->totalPoints }} ball
-                                                    </span>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-semibold text-gray-900">
+                                                        {{ ($departments->currentPage() - 1) * $departments->perPage() + $loop->iteration }}
+                                                    </p>
+                                                    <div class="mt-2 text-base text-gray-500">
+                                                        <span class="font-medium">{{ $item->user->count() }}</span> ta
+                                                        o'qituvchi ro'yxatdan o'tgan
+                                                    </div>
+                                                    <div class="flex items-center mt-2 space-x-2">
+                                                        <span
+                                                            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $item->status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                                            {{ $item->status ? 'Aktiv' : 'Aktiv emas' }}
+                                                        </span>
+                                                        <span class="text-lg font-semibold text-blue-600">
+                                                            {{ $item->totalPoints }} ball
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                            </div>
 
+                                            </div>
                                         </div>
-                                    </div>
-                                  </a>
+                                    </a>
                                 @endforeach
                             </div>
 
@@ -108,19 +108,23 @@
                                                     <div class="ml-4">
                                                         <div class="text-lg font-medium text-gray-900">
                                                             {{ $item->name }}</div>
-                                                            <div class="text-base text-gray-600">
-                                                                <span class="inline-flex items-center bg-blue-50 px-3 py-1 rounded-lg">
-                                                                    <svg class="w-3 h-3 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
-                                                                    </svg>
-                                                                    <span class="font-bold text-blue-600 text-sm">
-                                                                        {{ $item->user->count() }}
-                                                                    </span>
-                                                                    <span class="ml-2 font-medium text-gray-700">
-                                                                        ta o'qituvchi ro'yxatdan o'tgan
-                                                                    </span>
+                                                        <div class="text-base text-gray-600">
+                                                            <span
+                                                                class="inline-flex items-center bg-blue-50 px-3 py-1 rounded-lg">
+                                                                <svg class="w-3 h-3 text-blue-600 mr-2" fill="none"
+                                                                    stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2"
+                                                                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                                </svg>
+                                                                <span class="font-bold text-blue-600 text-sm">
+                                                                    {{ $item->user->count() }}
                                                                 </span>
-                                                            </div>
+                                                                <span class="ml-2 font-medium text-gray-700">
+                                                                    ta o'qituvchi ro'yxatdan o'tgan
+                                                                </span>
+                                                            </span>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </td>
