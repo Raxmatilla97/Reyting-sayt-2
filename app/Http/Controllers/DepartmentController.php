@@ -172,7 +172,7 @@ class DepartmentController extends Controller
         }
 
         // Fakultet umumiy ma'lumotlar soni
-        $totalInfos = $department->point_user_deportaments()->count();
+        $totalInfos = $department->point_user_deportaments()->where('status', 1)->count();
 
         // Fakultet ma'lumoti eng oxirgi kelgan vaqti
         $mostRecentTimestamp = $department->point_user_deportaments()->max('created_at');
