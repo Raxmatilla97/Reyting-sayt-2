@@ -6,16 +6,13 @@ use App\Models\User;
 use App\Models\Faculty;
 use App\Models\Department;
 use Illuminate\Support\Str;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\PointUserDeportament;
 use App\Traits\ServerSentEventTrait;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Storage;
-use App\Http\Controllers\Auth\ApiHemisController;
-use Illuminate\Support\Facades\Cache; // Cache ni import qilamiz
+use Illuminate\Support\Facades\Cache;
 
 
 class ConfigurationController extends Controller
