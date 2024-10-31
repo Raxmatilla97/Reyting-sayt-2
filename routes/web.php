@@ -117,18 +117,17 @@ Route::middleware('auth')->group(function () {
         // Hamma rad etilgan ma'lumotlarni o'chirish
         Route::post('/delete-rejected-data', [ConfigurationController::class, 'delete'])->name('delete.rejected.data')->middleware('web');
 
-        // O'qituvchilar sonini configga yozish
-        Route::get('/update-teachers-count', [ConfigurationController::class, 'updateTeachersCount'])->name('update.teachers.count');
-        Route::post('/stop-teachers-update', [ConfigurationController::class, 'stopTeachersUpdate'])->name('stop.teachers.update');
-        Route::get('/check-progress', [ConfigurationController::class, 'checkProgress'])->name('check.progress');
-
         // O'qituvchilarni kafedradagi ayni damdagi o'rnga o'tqazish
-
         Route::get('/update-teacher-departments', [ConfigurationController::class, 'updateTeacherDepartments'])
         ->name('update.teacher.departments');
 
+        // Hemisdan Fakultet va department ma'lumotlarini yangilash
+        Route::get('/update-departments', [ConfigurationController::class, 'updateDepartments']);
+        Route::post('/stop-departments-update', [ConfigurationController::class, 'stopDepartmentsUpdate']);
 
-
+        // Hemisdan hamma o'qituvchilarni tekshiradi agar ro'yxatdan o'tmagan bo'lsa o'tqazadi
+        Route::get('/register-all-teachers', [ConfigurationController::class, 'registerAllTeachers']);
+        Route::post('/stop-teachers-registration', [ConfigurationController::class, 'stopTeachersRegistration']);
 
     });
 

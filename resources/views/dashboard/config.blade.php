@@ -70,58 +70,80 @@
                     <div id="statusMessage" class="text-sm font-medium text-gray-700 mt-4"></div>
                 </div>
             </div>
+
             <div class="p-4 md:p-6 bg-white rounded-lg shadow-md flex flex-col items-center justify-center text-center">
-                <h3 class="text-lg md:text-xl font-bold mb-2">Faklultetlarni yangilash</h3>
-                <p class="text-gray-600 mb-4 text-sm md:text-base">Eng so'ngi fakultet yangilanishlarni amalga oshiradi!
+                <h3 class="text-lg md:text-xl font-bold mb-2">Faklultetlar va kafedralarni yangilash</h3>
+                <p class="text-gray-600 mb-4 text-sm md:text-base">
+                    Eng so'ngi fakultet va kafedralarni yangilanishlarni amalga oshiradi!
                 </p>
-                <p class="text-red-500 mb-4 text-xs md:text-sm">Ishlab chiqilmoqda!</p>
-                <button
-                    class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
-                    Yangilash
-                </button>
-            </div>
-
-            <div class="p-4 md:p-6 bg-white rounded-lg shadow-md flex flex-col items-center justify-center text-center">
-                <h3 class="text-lg md:text-xl font-bold mb-2">Kafedralarni yangilash</h3>
-                <p class="text-gray-600 mb-4 text-sm md:text-base">Eng so'ngi fakultet yangilanishlarni amalga oshiradi!
-                    Buni fakultetlarni yangilagandan so'ng amalga oshirish mumkin!</p>
-                <p class="text-red-500 mb-4 text-xs md:text-sm">Ishlab chiqilmoqda!</p>
-                <button
-                    class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
-                    Yangilash
-                </button>
-            </div>
-
-            <div class="p-4 md:p-6 bg-white rounded-lg shadow-md flex flex-col items-center justify-center text-center">
-                <h3 class="text-lg md:text-xl font-bold mb-2">O'qituvchilar sonini yangilash</h3>
-                <p class="text-gray-600 mb-4 text-sm md:text-base">Kafedradagi o'qituvchilarning sonini yangilanadi va
-                    hisoblash aynan shu sondan (11,15,12) ketmaketlikda olinadi.</p>
                 <p class="text-green-500 mb-4 text-xs md:text-sm">Ishlamoqda!</p>
 
-                <button onclick="window.toggleTeachersUpdate()" id="teacherUpdateButton"
+                <button onclick="window.toggleDepartmentsUpdate()" id="departmentUpdateButton"
                     class="w-full md:w-auto bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
                     Yangilash
                 </button>
 
                 <!-- Progress Container -->
-                <div id="teacherUpdateProgressContainer" class="w-full hidden mt-4">
+                <div id="departmentUpdateProgressContainer" class="w-full hidden mt-4">
                     <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-                        <div id="teacherUpdateProgressBar"
+                        <div id="departmentUpdateProgressBar"
                             class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%">
                         </div>
                     </div>
                     <div class="flex flex-col gap-2 mb-4">
-                        <div id="teacherUpdateCurrentStatus" class="text-left"></div>
+                        <div id="departmentUpdateCurrentStatus" class="text-gray-600 text-sm"></div>
                     </div>
                 </div>
 
-                <!-- Status Message -->
-                <div id="teacherUpdateStatus" class="mb-4">
-                    <p class="text-sm"></p>
+                <!-- O'zgarishlar konteyneri -->
+                <div id="departmentChangesContainer" class="w-full mt-4 text-left">
+                </div>
+            </div>
+
+            <div class="p-4 md:p-6 bg-white rounded-lg shadow-md flex flex-col items-center justify-center text-center">
+                <h3 class="text-lg md:text-xl font-bold mb-2">O'qituvchilarni ro'yxatdan o'tkazish</h3>
+                <p class="text-gray-600 mb-4 text-sm md:text-base">
+                    HEMISdagi barcha o'qituvchilarni avtomatik ravishda tizimga ro'yxatdan o'tkazadi
+                </p>
+                <p class="text-green-500 mb-4 text-xs md:text-sm">Ishlamoqda!</p>
+
+                <div class="flex gap-2">
+                    <button onclick="toggleTeachersRegistration()" id="registerTeachersButton"
+                        class="bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                        Ro'yxatdan o'tkazish
+                    </button>
+
+                    <button onclick="stopTeachersRegistration()" id="stopRegistrationButton"
+                        class="hidden bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-lg transition duration-300">
+                        To'xtatish
+                    </button>
                 </div>
 
+                <!-- Progress Container -->
+                <div id="registrationProgressContainer" class="w-full hidden mt-4">
+                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+                        <div id="registrationProgressBar"
+                            class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%">
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2 mb-4">
+                        <div id="registrationCurrentStatus" class="text-gray-600 text-sm"></div>
+                    </div>
+                </div>
+
+                <!-- Results Container -->
+                <div id="registrationResults" class="w-full mt-4 text-left"></div>
+
+                <style>
+
+                    #registrationResults {
+                        max-height: 300px;
+                        overflow-y: auto;
+                    }
+                </style>
 
             </div>
+
 
             <div class="p-4 md:p-6 bg-white rounded-lg shadow-md flex flex-col items-center justify-center text-center">
                 <h3 class="text-lg md:text-xl font-bold mb-2">O'qituvchilarni kafedradagi o'rnini yangilash</h3>
@@ -153,7 +175,8 @@
             </div>
 
 
-            <div class="p-4 md:p-6 bg-white rounded-lg shadow-md flex flex-col items-center justify-center text-center">
+            <div
+                class="p-4 md:p-6 bg-white rounded-lg shadow-md flex flex-col items-center justify-center text-center">
                 <h3 class="text-lg md:text-xl font-bold mb-2">Rad etilganlarni o'chirish</h3>
                 <p class="text-gray-600 mb-4 text-sm md:text-base">Barcha rad etilgan ma'lumotlarni o'chirish.</p>
                 <p class="text-green-500 mb-4 text-xs md:text-sm">Ishlamoqda!</p>
@@ -364,118 +387,6 @@
         }
     </script>
 
-    {{-- O'qituvchilarni hemisdan olinadigan sonini yangilaydi! --}}
-
-    <script>
-        window.isProcessing = false;
-        window.eventSource = null;
-
-        window.toggleTeachersUpdate = function() {
-            const button = document.getElementById('teacherUpdateButton');
-            const progressContainer = document.getElementById('teacherUpdateProgressContainer');
-            const progressBar = document.getElementById('teacherUpdateProgressBar');
-            const currentStatus = document.getElementById('teacherUpdateCurrentStatus');
-            const statusMessage = document.getElementById('teacherUpdateStatus');
-
-            if (!window.isProcessing) {
-                // Yangilashni boshlash
-                window.isProcessing = true;
-                button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
-                button.classList.add('bg-red-500', 'hover:bg-red-600');
-                button.textContent = "To'xtatish";
-                progressContainer.classList.remove('hidden');
-                statusMessage.querySelector('p').textContent = '';
-
-                // Eski EventSource ni yopish
-                if (window.eventSource) {
-                    window.eventSource.close();
-                }
-
-                // CSRF tokenni olish
-                const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-                // EventSource yaratish va CSRF tokenni URL parametri sifatida qo'shish
-                window.eventSource = new EventSource(`/update-teachers-count?_token=${token}`);
-
-                window.eventSource.onmessage = function(event) {
-                    try {
-                        const data = JSON.parse(event.data);
-                        console.log('Received data:', data); // Debug uchun
-
-                        // Progress bar ni yangilash
-                        progressBar.style.width = data.progress + '%';
-
-                        // Status ma'lumotlarini yangilash
-                        let statusText = `
-                            <div class="space-y-2">
-                                <div class="text-sm font-semibold text-gray-800">
-                                    Progress: ${data.progress}%
-                                </div>
-                                <div class="text-sm text-gray-600">
-                                    ${data.message}
-                                </div>
-                            </div>
-                        `;
-                        currentStatus.innerHTML = statusText;
-
-                        // Agar progress 100% bo'lsa
-                        if (data.progress >= 100) {
-                            window.eventSource.close();
-                            window.isProcessing = false;
-                            button.textContent = "Sahifani yangilash";
-                            button.onclick = () => window.location.reload();
-                            statusMessage.querySelector('p').textContent = data.message;
-                            statusMessage.querySelector('p').classList.remove('text-red-500');
-                            statusMessage.querySelector('p').classList.add('text-green-500', 'font-medium');
-                        }
-                    } catch (error) {
-                        console.error('Error parsing data:', error);
-                    }
-                };
-
-                window.eventSource.onerror = function(event) {
-                    console.error('SSE Error:', event);
-                    window.eventSource.close();
-                    stopProcess(true);
-                    statusMessage.querySelector('p').textContent = "Xatolik yuz berdi";
-                    statusMessage.querySelector('p').classList.add('text-red-500');
-                };
-
-            } else {
-                // To'xtatish
-                if (window.eventSource) {
-                    window.eventSource.close();
-                }
-                stopProcess(true);
-                fetch('/stop-teachers-update', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute(
-                            'content'),
-                        'Accept': 'application/json'
-                    }
-                });
-            }
-        }
-
-        function stopProcess(hideProgress = true) {
-            const button = document.getElementById('teacherUpdateButton');
-            const progressContainer = document.getElementById('teacherUpdateProgressContainer');
-
-            window.isProcessing = false;
-            if (window.eventSource) {
-                window.eventSource.close();
-            }
-
-            if (hideProgress) {
-                progressContainer.classList.add('hidden');
-                button.classList.remove('bg-red-500', 'hover:bg-red-600');
-                button.classList.add('bg-blue-500', 'hover:bg-blue-600');
-                button.textContent = "Yangilash";
-            }
-        }
-    </script>
-
     {{--  Teacher Position Update in Departments Functionality --}}
 
     <script>
@@ -550,6 +461,254 @@
                 }, 30000);
             }
         };
+    </script>
+
+
+    {{-- Hemisdan Fakultet va Departamentni yangilash --}}
+
+    <script>
+        let isUpdating = false;
+
+        window.toggleDepartmentsUpdate = async function() {
+            const button = document.getElementById('departmentUpdateButton');
+            const progressContainer = document.getElementById('departmentUpdateProgressContainer');
+            const progressBar = document.getElementById('departmentUpdateProgressBar');
+            const currentStatus = document.getElementById('departmentUpdateCurrentStatus');
+            const statusElement = document.getElementById('departmentUpdateStatus');
+            const changesContainer = document.getElementById('departmentChangesContainer');
+
+            if (isUpdating) {
+                try {
+                    const response = await fetch('/stop-departments-update', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    });
+
+                    if (response.ok) {
+                        button.textContent = 'Yangilash';
+                        button.classList.remove('bg-red-500', 'hover:bg-red-600');
+                        button.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                        isUpdating = false;
+                    }
+                } catch (error) {
+                    console.error('Xatolik:', error);
+                }
+                return;
+            }
+
+            isUpdating = true;
+            button.textContent = 'To\'xtatish';
+            button.classList.remove('bg-blue-500', 'hover:bg-blue-600');
+            button.classList.add('bg-red-500', 'hover:bg-red-600');
+            progressContainer.classList.remove('hidden');
+            changesContainer.innerHTML = ''; // O'zgarishlar konteynerini tozalash
+
+            const eventSource = new EventSource('/update-departments');
+
+            eventSource.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    progressBar.style.width = `${data.progress}%`;
+
+                    // Jarayon davom etayotganda
+                    if (data.progress < 100) {
+                        currentStatus.textContent = data.message;
+                    }
+                    // Jarayon tugaganida
+                    else {
+                        eventSource.close();
+                        button.textContent = 'Yangilash';
+                        button.classList.remove('bg-red-500', 'hover:bg-red-600');
+                        button.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                        isUpdating = false;
+
+                        // O'zgarishlar hisobotini ko'rsatish
+                        const changes = data.message.split("\n");
+                        let htmlContent = '';
+                        let currentSection = '';
+
+                        changes.forEach((line) => {
+                            if (line.trim()) {
+                                if (line.includes(":")) { // Yangi section
+                                    if (currentSection) {
+                                        htmlContent += '</ul></div>';
+                                    }
+                                    currentSection = line;
+                                    let colorClass = 'text-blue-600';
+                                    if (line.includes("O'chirilgan")) colorClass = 'text-red-600';
+                                    if (line.includes("Yangi")) colorClass = 'text-green-600';
+
+                                    htmlContent += `
+                            <div class="mb-4">
+                                <h4 class="font-bold ${colorClass} mb-2">${line.trim()}</h4>
+                                <ul class="list-disc list-inside space-y-1">
+                        `;
+                                } else if (line.startsWith("-")) { // Element
+                                    htmlContent += `
+                            <li class="text-gray-600 ml-4">${line.substring(1).trim()}</li>
+                        `;
+                                } else if (line.includes("Hech qanday o'zgarish topilmadi")) {
+                                    htmlContent = `<p class="text-gray-600">${line}</p>`;
+                                }
+                            }
+                        });
+
+                        if (currentSection) {
+                            htmlContent += '</ul></div>';
+                        }
+
+                        changesContainer.innerHTML = htmlContent;
+                        currentStatus.textContent = 'Jarayon yakunlandi';
+                    }
+                } catch (error) {
+                    console.error('Ma\'lumotlarni qayta ishlashda xatolik:', error);
+                }
+            };
+
+            eventSource.onerror = function(error) {
+                console.error('EventSource xatoligi:', error);
+                eventSource.close();
+                button.textContent = 'Yangilash';
+                button.classList.remove('bg-red-500', 'hover:bg-red-600');
+                button.classList.add('bg-blue-500', 'hover:bg-blue-600');
+                isUpdating = false;
+                currentStatus.textContent = 'Xatolik yuz berdi. Qaytadan urinib ko\'ring.';
+            };
+        }
+
+        // O'zgarishlar bo'limini formatlash uchun yordamchi funksiya
+        function formatSection(section, color) {
+            const lines = section.split("\n");
+            const title = lines[0];
+            const items = lines.slice(1);
+
+            let colorClass = 'text-blue-600';
+            if (color === 'red') colorClass = 'text-red-600';
+            if (color === 'green') colorClass = 'text-green-600';
+
+            let html = `<div class="mb-4">
+        <h4 class="font-bold ${colorClass} mb-2">${title}</h4>
+        <ul class="list-disc list-inside space-y-1">`;
+
+            items.forEach(item => {
+                if (item.trim()) {
+                    html += `<li class="text-gray-600 ml-4">${item.replace("-", "").trim()}</li>`;
+                }
+            });
+
+            html += `</ul></div>`;
+            return html;
+        }
+    </script>
+
+    {{-- Bu funksiya barcha o'qituvchilarni HEMISdan oladi va ro'yxatdan o'tkazadi: --}}
+    <script>
+        let registrationEventSource = null;
+
+        function toggleTeachersRegistration() {
+            const button = document.getElementById('registerTeachersButton');
+            const stopButton = document.getElementById('stopRegistrationButton');
+            const progressContainer = document.getElementById('registrationProgressContainer');
+            const progressBar = document.getElementById('registrationProgressBar');
+            const currentStatus = document.getElementById('registrationCurrentStatus');
+            const resultsContainer = document.getElementById('registrationResults');
+
+            if (registrationEventSource) {
+                stopTeachersRegistration();
+                return;
+            }
+
+            button.classList.add('hidden');
+            stopButton.classList.remove('hidden');
+            progressContainer.classList.remove('hidden');
+            resultsContainer.innerHTML = '';
+
+            registrationEventSource = new EventSource('/register-all-teachers');
+
+            registrationEventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                progressBar.style.width = `${data.progress}%`;
+
+                if (data.progress >= 100) {
+                    registrationComplete();
+                }
+
+                // Format results
+                if (data.message.includes("YAKUNIY NATIJA")) {
+                    const results = data.message.split("\n");
+                    let html = '<div class="mt-4">';
+
+                    results.forEach(line => {
+                        if (line.trim()) {
+                            if (line.includes("YAKUNIY NATIJA")) {
+                                html += `<h4 class="font-bold text-lg mb-2">${line}</h4>`;
+                            } else if (line.startsWith("Royxatdan")) {
+                                html += `<p class="text-green-600">${line}</p>`;
+                            } else if (line.includes("Xatoliklar:")) {
+                                html += `<h4 class="font-bold text-red-600 mt-4 mb-2">${line}</h4>`;
+                            } else {
+                                html += `<p class="text-gray-600">${line}</p>`;
+                            }
+                        }
+                    });
+
+                    html += '</div>';
+                    resultsContainer.innerHTML = html;
+                } else {
+                    currentStatus.textContent = data.message;
+                }
+            };
+
+            registrationEventSource.onerror = function(error) {
+                console.error('EventSource xatoligi:', error);
+                registrationComplete('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+            };
+        }
+
+        function stopTeachersRegistration() {
+            if (registrationEventSource) {
+                fetch('/stop-teachers-registration', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                        }
+                    }).then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            registrationComplete('Jarayon to\'xtatildi');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('To\'xtatishda xatolik:', error);
+                        registrationComplete('To\'xtatishda xatolik yuz berdi');
+                    });
+
+                registrationEventSource.close();
+                registrationEventSource = null;
+            }
+        }
+
+        function registrationComplete(message = null) {
+            const button = document.getElementById('registerTeachersButton');
+            const stopButton = document.getElementById('stopRegistrationButton');
+            const currentStatus = document.getElementById('registrationCurrentStatus');
+
+            if (registrationEventSource) {
+                registrationEventSource.close();
+                registrationEventSource = null;
+            }
+
+            button.classList.remove('hidden');
+            stopButton.classList.add('hidden');
+
+            if (message) {
+                currentStatus.textContent = message;
+            }
+        }
     </script>
 
 </x-app-layout>
