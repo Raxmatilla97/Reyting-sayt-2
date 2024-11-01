@@ -84,7 +84,7 @@
                                                             <div
                                                                 class="absolute inset-0 bg-white rounded-full opacity-10 animate-pulse">
                                                             </div>
-                                                            <img src="https://cdn1.iconfinder.com/data/icons/got-idea-vol-2/128/branches-1024.png"
+                                                            <img src="{{ asset('assets/images/logo3.png') }}"
                                                                 alt="Kafedra Logo"
                                                                 class="w-48 h-48 object-cover rounded-full border-4 border-white shadow-2xl">
                                                         </div>

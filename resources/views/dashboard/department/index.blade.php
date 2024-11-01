@@ -42,13 +42,13 @@
                                             class="bg-white p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all duration-200">
                                             <div class="flex items-center space-x-4">
                                                 <div class="flex-shrink-0">
-                                                    <img class="w-16 h-16 rounded-full"
-                                                        src="https://image.pngaaa.com/419/1509419-middle.png"
+                                                    <img class="w-16 rounded-full"
+                                                        src="{{ asset('assets/images/logo1.png') }}"
                                                         alt="">
                                                 </div>
                                                 <div class="flex-1 min-w-0">
-                                                    <p class="text-sm font-semibold text-gray-900">
-                                                        {{ ($departments->currentPage() - 1) * $departments->perPage() + $loop->iteration }}
+                                                    <p class="text-md font-semibold text-gray-900">
+                                                        {{ $item->name }}
                                                     </p>
                                                     <div class="mt-2 text-base text-gray-500">
                                                         <span class="font-medium">{{ $item->user->count() }}</span> ta
@@ -59,7 +59,7 @@
                                                             class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium {{ $item->status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
                                                             {{ $item->status ? 'Aktiv' : 'Aktiv emas' }}
                                                         </span>
-                                                        <span class="text-lg font-semibold text-blue-600">
+                                                        <span class=" text-lg text-right font-semibold text-blue-600">
                                                             {{ $item->totalPoints }} ball
                                                         </span>
                                                     </div>
@@ -100,14 +100,14 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="flex items-center">
-                                                    <div class="flex-shrink-0 h-10 w-10">
-                                                        <img class="h-10 w-10 rounded-full"
-                                                            src="https://image.pngaaa.com/419/1509419-middle.png"
+                                                    <div class="flex-shrink-0 w-10">
+                                                        <img class="w-10 rounded-full"
+                                                            src="{{ asset('assets/images/logo2.png') }}"
                                                             alt="">
                                                     </div>
                                                     <div class="ml-4">
-                                                        <div class="text-lg font-medium text-gray-900">
-                                                            {{ $item->name }}</div>
+                                                        <div class="text-xl font-medium text-gray-900">
+                                                        {{ \Str::limit($item->name . " kafedrasi", 60, '...') }}</div>
                                                         <div class="text-base text-gray-600">
                                                             <span
                                                                 class="inline-flex items-center bg-blue-50 px-3 py-1 rounded-lg">
