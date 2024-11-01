@@ -77,28 +77,28 @@
                 </div>
             </div>
             @php
-            $user = auth()->user();
-            $pointUserInformations2 = \App\Models\PointUserDeportament::where('user_id', $user->id)
-                ->orderBy('created_at', 'asc')
-                ->get();
+                $user = auth()->user();
+                $pointUserInformations2 = \App\Models\PointUserDeportament::where('user_id', $user->id)
+                    ->orderBy('created_at', 'asc')
+                    ->get();
 
-            $maqullanganCount = $pointUserInformations2->where('status', '1')->count();
-            $kutushdaCount = $pointUserInformations2->where('status', '3')->count();
-            $radEtilganCount = $pointUserInformations2->where('status', '0')->count();
+                $maqullanganCount = $pointUserInformations2->where('status', '1')->count();
+                $kutushdaCount = $pointUserInformations2->where('status', '3')->count();
+                $radEtilganCount = $pointUserInformations2->where('status', '0')->count();
 
-            // Kunlik statistika
-            $dailyStats = $pointUserInformations2
-                ->groupBy(function($item) {
-                    return $item->created_at->format('Y-m-d');
-                })
-                ->map(function($items) {
-                    return [
-                        'total' => $items->count(),
-                        'accepted' => $items->where('status', '1')->count(),
-                        'rejected' => $items->where('status', '0')->count()
-                    ];
-                });
-        @endphp
+                // Kunlik statistika
+                $dailyStats = $pointUserInformations2
+                    ->groupBy(function ($item) {
+                        return $item->created_at->format('Y-m-d');
+                    })
+                    ->map(function ($items) {
+                        return [
+                            'total' => $items->count(),
+                            'accepted' => $items->where('status', '1')->count(),
+                            'rejected' => $items->where('status', '0')->count(),
+                        ];
+                    });
+            @endphp
             <div class="bg-white rounded-xl shadow-lg overflow-hidden p-6">
                 <!-- Grid layout for charts -->
                 <div class="grid grid-cols-2 gap-6 mb-6">
@@ -107,19 +107,20 @@
                         <!-- Background image with gradient -->
                         <div class="absolute inset-0">
                             <div class="absolute inset-0 h-48 bg-cover bg-center bg-no-repeat"
-                                style="background-image: url('{{asset('assets/images/surat_profile.webp')}}');">
+                                style="background-image: url('{{ asset('assets/images/surat_profile.webp') }}');">
                             </div>
-                            <div class="absolute inset-0 h-48 bg-gradient-to-r from-blue-900/50 to-blue-600/50 backdrop-blur-sm"></div>
+                            <div
+                                class="absolute inset-0 h-48 bg-gradient-to-r from-blue-900/50 to-blue-600/50 backdrop-blur-sm">
+                            </div>
                         </div>
 
                         <!-- Profile content -->
                         <div class="relative pt-52 pb-6 px-6 flex flex-col items-center justify-start h-full">
                             <!-- Profile image container -->
                             <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg mb-4"
-                                 style="margin-top: -64px;">
+                                style="margin-top: -64px;">
                                 <img src="{{ $user->image ? asset('storage/users/image/' . $user->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
-                                     alt="Profile"
-                                     class="w-full h-full object-cover"/>
+                                    alt="Profile" class="w-full h-full object-cover" />
                             </div>
 
                             <!-- Profile info -->
@@ -218,131 +219,132 @@
                         height: 40
                     }
                 };
-// Stacked Column Chart Configuration
-const stackedColumnChartOptions = {
-    series: [{
-        name: 'Jami yuborilgan',
-        data: @json($dailyStats->pluck('total'))
-    }, {
-        name: 'Maqullangan',
-        data: @json($dailyStats->pluck('accepted'))
-    }, {
-        name: 'Rad etilgan',
-        data: @json($dailyStats->pluck('rejected'))
-    }],
-    chart: {
-        type: 'bar',
-        height: 400,
-        stacked: true,
-        toolbar: {
-            show: true
-        },
-        zoom: {
-            enabled: true
-        }
-    },
-    colors: ['#FFB547', '#22C55E', '#EF4444'],  // Sariq, Yashil, Qizil
-    plotOptions: {
-        bar: {
-            horizontal: false,
-            columnWidth: '20%',  // Ustun kengligi kamaytirildi
-            borderRadius: 0,
-            distributed: false,
-            rangeBarOverlap: true,
-            rangeBarGroupRows: false,
-            barHeight: '70%',    // Bar balandligi
-            isDumbbell: false,
-            isFunnel: false,
-            isCylinder: false,
-            isVertical: true,
-            dataLabels: {
-                position: 'top'
-            }
-        },
-    },
-    dataLabels: {
-        enabled: true,
-        formatter: function(val) {
-            return val > 0 ? val : '';
-        },
-        style: {
-            fontSize: '12px'
-        }
-    },
-    stroke: {
-        show: true,
-        width: 1,
-        colors: ['transparent']
-    },
-    grid: {
-        show: true,
-        xaxis: {
-            lines: {
-                show: false
-            }
-        },
-        yaxis: {
-            lines: {
-                show: true
-            }
-        }
-    },
-    xaxis: {
-        categories: @json($dailyStats->keys()),
-        labels: {
-            rotate: -45,
-            rotateAlways: true,
-            style: {
-                fontSize: '12px'
-            }
-        },
-        tickPlacement: 'on',
-        axisTicks: {
-            show: true
-        },
-        axisBorder: {
-            show: true
-        }
-    },
-    yaxis: {
-        title: {
-            text: "Ma'lumotlar soni"
-        },
-        min: 0,
-        max: function(max) {
-            return max + 1;  // Y o'qining maksimal qiymatini bir birlikka oshirish
-        }
-    },
-    fill: {
-        opacity: 1
-    },
-    legend: {
-        position: 'top',
-        horizontalAlign: 'center'
-    },
-    tooltip: {
-        shared: true,
-        intersect: false,
-        y: {
-            formatter: function(val) {
-                return val + " ta"
-            }
-        }
-    }
-};
+                // Stacked Column Chart Configuration
+                const stackedColumnChartOptions = {
+                    series: [{
+                        name: 'Jami yuborilgan',
+                        data: @json($dailyStats->pluck('total'))
+                    }, {
+                        name: 'Maqullangan',
+                        data: @json($dailyStats->pluck('accepted'))
+                    }, {
+                        name: 'Rad etilgan',
+                        data: @json($dailyStats->pluck('rejected'))
+                    }],
+                    chart: {
+                        type: 'bar',
+                        height: 400,
+                        stacked: true,
+                        toolbar: {
+                            show: true
+                        },
+                        zoom: {
+                            enabled: true
+                        }
+                    },
+                    colors: ['#FFB547', '#22C55E', '#EF4444'], // Sariq, Yashil, Qizil
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '20%', // Ustun kengligi kamaytirildi
+                            borderRadius: 0,
+                            distributed: false,
+                            rangeBarOverlap: true,
+                            rangeBarGroupRows: false,
+                            barHeight: '70%', // Bar balandligi
+                            isDumbbell: false,
+                            isFunnel: false,
+                            isCylinder: false,
+                            isVertical: true,
+                            dataLabels: {
+                                position: 'top'
+                            }
+                        },
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function(val) {
+                            return val > 0 ? val : '';
+                        },
+                        style: {
+                            fontSize: '12px'
+                        }
+                    },
+                    stroke: {
+                        show: true,
+                        width: 1,
+                        colors: ['transparent']
+                    },
+                    grid: {
+                        show: true,
+                        xaxis: {
+                            lines: {
+                                show: false
+                            }
+                        },
+                        yaxis: {
+                            lines: {
+                                show: true
+                            }
+                        }
+                    },
+                    xaxis: {
+                        categories: @json($dailyStats->keys()),
+                        labels: {
+                            rotate: -45,
+                            rotateAlways: true,
+                            style: {
+                                fontSize: '12px'
+                            }
+                        },
+                        tickPlacement: 'on',
+                        axisTicks: {
+                            show: true
+                        },
+                        axisBorder: {
+                            show: true
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: "Ma'lumotlar soni"
+                        },
+                        min: 0,
+                        max: function(max) {
+                            return max + 1; // Y o'qining maksimal qiymatini bir birlikka oshirish
+                        }
+                    },
+                    fill: {
+                        opacity: 1
+                    },
+                    legend: {
+                        position: 'top',
+                        horizontalAlign: 'center'
+                    },
+                    tooltip: {
+                        shared: true,
+                        intersect: false,
+                        y: {
+                            formatter: function(val) {
+                                return val + " ta"
+                            }
+                        }
+                    }
+                };
 
-// Render Charts
-document.addEventListener("DOMContentLoaded", function() {
-    if (document.getElementById('pie-chart')) {
-        const pieChart = new ApexCharts(document.getElementById('pie-chart'), pieChartOptions);
-        pieChart.render();
-    }
+                // Render Charts
+                document.addEventListener("DOMContentLoaded", function() {
+                    if (document.getElementById('pie-chart')) {
+                        const pieChart = new ApexCharts(document.getElementById('pie-chart'), pieChartOptions);
+                        pieChart.render();
+                    }
 
-    if (document.getElementById('stacked-chart')) {
-        const stackedColumnChart = new ApexCharts(document.getElementById('stacked-chart'), stackedColumnChartOptions);
-        stackedColumnChart.render();
-    }
-});
+                    if (document.getElementById('stacked-chart')) {
+                        const stackedColumnChart = new ApexCharts(document.getElementById('stacked-chart'),
+                            stackedColumnChartOptions);
+                        stackedColumnChart.render();
+                    }
+                });
             </script>
 
 
