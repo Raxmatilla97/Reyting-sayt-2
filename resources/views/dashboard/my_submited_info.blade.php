@@ -77,180 +77,274 @@
                 </div>
             </div>
             @php
-                $user = auth()->user();
-                $pointUserInformations2 = \App\Models\PointUserDeportament::where('user_id', $user->id)
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+            $user = auth()->user();
+            $pointUserInformations2 = \App\Models\PointUserDeportament::where('user_id', $user->id)
+                ->orderBy('created_at', 'asc')
+                ->get();
 
-                $maqullanganCount = $pointUserInformations2->where('status', '1')->count();
-                $kutushdaCount = $pointUserInformations2->where('status', '3')->count();
-                $radEtilganCount = $pointUserInformations2->where('status', '0')->count();
+            $maqullanganCount = $pointUserInformations2->where('status', '1')->count();
+            $kutushdaCount = $pointUserInformations2->where('status', '3')->count();
+            $radEtilganCount = $pointUserInformations2->where('status', '0')->count();
 
-                $totalCount = $maqullanganCount + $kutushdaCount + $radEtilganCount;
-            @endphp
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden" style="z-index: 0;">
-                <!-- Pie Chart -->
-                <div class="max-w-full w-full bg-white rounded-xl shadow-lg p-6 mb-6">
-                    <div class="flex justify-between items-start w-full mb-4">
-                        <h5 class="text-lg font-bold text-gray-900">Ma'lumotlar holati</h5>
-                        <div class="flex gap-4">
-                            <span class="flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
-                                <span class="text-sm text-gray-600">Maqullangan ({{ $maqullanganCount }})</span>
-                            </span>
-                            <span class="flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
-                                <span class="text-sm text-gray-600">Kutilmoqda ({{ $kutushdaCount }})</span>
-                            </span>
-                            <span class="flex items-center">
-                                <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
-                                <span class="text-sm text-gray-600">Rad etilgan ({{ $radEtilganCount }})</span>
-                            </span>
+            // Kunlik statistika
+            $dailyStats = $pointUserInformations2
+                ->groupBy(function($item) {
+                    return $item->created_at->format('Y-m-d');
+                })
+                ->map(function($items) {
+                    return [
+                        'total' => $items->count(),
+                        'accepted' => $items->where('status', '1')->count(),
+                        'rejected' => $items->where('status', '0')->count()
+                    ];
+                });
+        @endphp
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden p-6">
+                <!-- Grid layout for charts -->
+                <div class="grid grid-cols-2 gap-6 mb-6">
+                    <!-- Left side - Profile section -->
+                    <div class="relative rounded-xl shadow-lg overflow-hidden" style="min-height: 450px;">
+                        <!-- Background image with gradient -->
+                        <div class="absolute inset-0">
+                            <div class="absolute inset-0 h-48 bg-cover bg-center bg-no-repeat"
+                                style="background-image: url('{{asset('assets/images/surat_profile.webp')}}');">
+                            </div>
+                            <div class="absolute inset-0 h-48 bg-gradient-to-r from-blue-900/50 to-blue-600/50 backdrop-blur-sm"></div>
+                        </div>
+
+                        <!-- Profile content -->
+                        <div class="relative pt-52 pb-6 px-6 flex flex-col items-center justify-start h-full">
+                            <!-- Profile image container -->
+                            <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg mb-4"
+                                 style="margin-top: -64px;">
+                                <img src="{{ $user->image ? asset('storage/users/image/' . $user->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
+                                     alt="Profile"
+                                     class="w-full h-full object-cover"/>
+                            </div>
+
+                            <!-- Profile info -->
+                            <h3 class="text-xl font-bold text-gray-900 mb-2">{{ $user->name }}</h3>
+                            <p class="text-gray-600 mb-6">Statistika ma'lumotlari</p>
+
+                            <!-- Stats -->
+                            <div class="grid grid-cols-3 gap-4 w-full text-center">
+                                <div class="bg-white shadow-md rounded-lg p-4">
+                                    <div class="font-bold text-green-500 text-lg">{{ $maqullanganCount }}</div>
+                                    <div class="text-sm text-gray-600">Maqullangan</div>
+                                </div>
+                                <div class="bg-white shadow-md rounded-lg p-4">
+                                    <div class="font-bold text-blue-500 text-lg">{{ $kutushdaCount }}</div>
+                                    <div class="text-sm text-gray-600">Kutilmoqda</div>
+                                </div>
+                                <div class="bg-white shadow-md rounded-lg p-4">
+                                    <div class="font-bold text-red-500 text-lg">{{ $radEtilganCount }}</div>
+                                    <div class="text-sm text-gray-600">Rad etilgan</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div id="pie-chart" class="w-full" style="min-height: 400px;"></div>
-                </div>
 
-                <!-- Line Chart -->
-                <div class="max-w-full w-full bg-white rounded-xl shadow-lg p-6">
+
+                    <!-- Right side - Pie Chart -->
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <div class="flex justify-between items-start w-full mb-4">
+                            <h5 class="text-lg font-bold text-gray-900">Ma'lumotlar holati</h5>
+                            <div class="flex gap-4 flex-wrap">
+                                <span class="flex items-center">
+                                    <span class="w-3 h-3 rounded-full bg-green-500 mr-2"></span>
+                                    <span class="text-sm text-gray-600">Maqullangan ({{ $maqullanganCount }})</span>
+                                </span>
+                                <span class="flex items-center">
+                                    <span class="w-3 h-3 rounded-full bg-blue-500 mr-2"></span>
+                                    <span class="text-sm text-gray-600">Kutilmoqda ({{ $kutushdaCount }})</span>
+                                </span>
+                                <span class="flex items-center">
+                                    <span class="w-3 h-3 rounded-full bg-red-500 mr-2"></span>
+                                    <span class="text-sm text-gray-600">Rad etilgan ({{ $radEtilganCount }})</span>
+                                </span>
+                            </div>
+                        </div>
+                        <div id="pie-chart" style="min-height: 400px;"></div>
+                    </div>
+                </div>
+                <!-- Bottom - Stacked Area Chart -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
                     <div class="flex justify-between items-start w-full mb-4">
                         <h5 class="text-lg font-bold text-gray-900">Kunlik ma'lumotlar statistikasi</h5>
                     </div>
-                    <div id="line-chart" class="w-full" style="min-height: 400px;"></div>
+                    <div id="stacked-chart" style="min-height: 400px;"></div>
                 </div>
+            </div>
 
-                @php
-                    // Kunlik ma'lumotlarni tayyorlash
-                    $dailyStats = $pointUserInformations
-                        ->groupBy(function ($item) {
-                            return $item->created_at->format('Y-m-d');
-                        })
-                        ->map(function ($items) {
-                            return [
-                                'total' => $items->count(),
-                                'accepted' => $items->where('status', '1')->count(),
-                                'pending' => $items->where('status', '3')->count(),
-                                'rejected' => $items->where('status', '0')->count(),
-                                                ];
-                                            });
-                @endphp
-
-                <script>
-                    // Pie Chart
-                    const pieChartOptions = {
-                        series: [{{ $maqullanganCount }}, {{ $kutushdaCount }}, {{ $radEtilganCount }}],
-                        chart: {
-                            type: 'donut',
-                            height: 400,
-                            toolbar: {
-                                show: true
-                            }
-                        },
-                        colors: ['#22C55E', '#3B82F6', '#EF4444'],
-                        labels: ['Maqullangan', 'Kutish jarayonida', 'Rad etilgan'],
-                        plotOptions: {
-                            pie: {
-                                donut: {
-                                    size: '70%',
-                                    labels: {
+            <script>
+                // Pie Chart Configuration
+                const pieChartOptions = {
+                    series: [{{ $maqullanganCount }}, {{ $kutushdaCount }}, {{ $radEtilganCount }}],
+                    chart: {
+                        type: 'donut',
+                        height: 400,
+                        toolbar: {
+                            show: true
+                        }
+                    },
+                    colors: ['#22C55E', '#3B82F6', '#EF4444'],
+                    labels: ['Maqullangan', 'Kutish jarayonida', 'Rad etilgan'],
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                size: '70%',
+                                labels: {
+                                    show: true,
+                                    total: {
                                         show: true,
-                                        total: {
-                                            show: true,
-                                            label: 'Jami',
-                                            formatter: function(w) {
-                                                return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
-                                            }
+                                        label: 'Jami',
+                                        formatter: function(w) {
+                                            return w.globals.seriesTotals.reduce((a, b) => a + b, 0)
                                         }
                                     }
                                 }
                             }
-                        },
-                        dataLabels: {
-                            enabled: true,
-                            formatter: function(val, opts) {
-                                return Math.round(val) + '%'
-                            }
-                        },
-                        legend: {
-                            position: 'bottom',
-                            offsetY: 0,
-                            height: 40
                         }
-                    };
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function(val) {
+                            return Math.round(val) + '%'
+                        }
+                    },
+                    legend: {
+                        position: 'bottom',
+                        offsetY: 0,
+                        height: 40
+                    }
+                };
+// Stacked Column Chart Configuration
+const stackedColumnChartOptions = {
+    series: [{
+        name: 'Jami yuborilgan',
+        data: @json($dailyStats->pluck('total'))
+    }, {
+        name: 'Maqullangan',
+        data: @json($dailyStats->pluck('accepted'))
+    }, {
+        name: 'Rad etilgan',
+        data: @json($dailyStats->pluck('rejected'))
+    }],
+    chart: {
+        type: 'bar',
+        height: 400,
+        stacked: true,
+        toolbar: {
+            show: true
+        },
+        zoom: {
+            enabled: true
+        }
+    },
+    colors: ['#FFB547', '#22C55E', '#EF4444'],  // Sariq, Yashil, Qizil
+    plotOptions: {
+        bar: {
+            horizontal: false,
+            columnWidth: '20%',  // Ustun kengligi kamaytirildi
+            borderRadius: 0,
+            distributed: false,
+            rangeBarOverlap: true,
+            rangeBarGroupRows: false,
+            barHeight: '70%',    // Bar balandligi
+            isDumbbell: false,
+            isFunnel: false,
+            isCylinder: false,
+            isVertical: true,
+            dataLabels: {
+                position: 'top'
+            }
+        },
+    },
+    dataLabels: {
+        enabled: true,
+        formatter: function(val) {
+            return val > 0 ? val : '';
+        },
+        style: {
+            fontSize: '12px'
+        }
+    },
+    stroke: {
+        show: true,
+        width: 1,
+        colors: ['transparent']
+    },
+    grid: {
+        show: true,
+        xaxis: {
+            lines: {
+                show: false
+            }
+        },
+        yaxis: {
+            lines: {
+                show: true
+            }
+        }
+    },
+    xaxis: {
+        categories: @json($dailyStats->keys()),
+        labels: {
+            rotate: -45,
+            rotateAlways: true,
+            style: {
+                fontSize: '12px'
+            }
+        },
+        tickPlacement: 'on',
+        axisTicks: {
+            show: true
+        },
+        axisBorder: {
+            show: true
+        }
+    },
+    yaxis: {
+        title: {
+            text: "Ma'lumotlar soni"
+        },
+        min: 0,
+        max: function(max) {
+            return max + 1;  // Y o'qining maksimal qiymatini bir birlikka oshirish
+        }
+    },
+    fill: {
+        opacity: 1
+    },
+    legend: {
+        position: 'top',
+        horizontalAlign: 'center'
+    },
+    tooltip: {
+        shared: true,
+        intersect: false,
+        y: {
+            formatter: function(val) {
+                return val + " ta"
+            }
+        }
+    }
+};
 
-                    // Line Chart
-                    const dates = @json($dailyStats->keys());
-                    const lineChartOptions = {
-                        series: [{
-                            name: 'Jami yuborilgan',
-                            data: @json($dailyStats->pluck('total'))
-                        }, {
-                            name: 'Maqullangan',
-                            data: @json($dailyStats->pluck('accepted'))
-                        }, {
-                            name: 'Kutilmoqda',
-                            data: @json($dailyStats->pluck('pending'))
-                        }, {
-                            name: 'Rad etilgan',
-                            data: @json($dailyStats->pluck('rejected'))
-                        }],
-                        chart: {
-                            height: 400,
-                            type: 'line',
-                            toolbar: {
-                                show: true
-                            },
-                            zoom: {
-                                enabled: true
-                            }
-                        },
-                        colors: ['#6B7280', '#22C55E', '#3B82F6', '#EF4444'],
-                        dataLabels: {
-                            enabled: false
-                        },
-                        stroke: {
-                            curve: 'smooth',
-                            width: 3
-                        },
-                        xaxis: {
-                            categories: dates,
-                            labels: {
-                                rotate: -45,
-                                rotateAlways: true
-                            }
-                        },
-                        yaxis: {
-                            title: {
-                                text: "Ma'lumotlar soni"
-                            }
-                        },
-                        legend: {
-                            position: 'top'
-                        },
-                        grid: {
-                            borderColor: '#f1f1f1'
-                        },
-                        tooltip: {
-                            shared: true,
-                            intersect: false
-                        }
-                    };
+// Render Charts
+document.addEventListener("DOMContentLoaded", function() {
+    if (document.getElementById('pie-chart')) {
+        const pieChart = new ApexCharts(document.getElementById('pie-chart'), pieChartOptions);
+        pieChart.render();
+    }
 
-                    // Render Charts
-                    document.addEventListener("DOMContentLoaded", function() {
-                        if (document.getElementById('pie-chart')) {
-                            const pieChart = new ApexCharts(document.getElementById('pie-chart'), pieChartOptions);
-                            pieChart.render();
-                        }
+    if (document.getElementById('stacked-chart')) {
+        const stackedColumnChart = new ApexCharts(document.getElementById('stacked-chart'), stackedColumnChartOptions);
+        stackedColumnChart.render();
+    }
+});
+            </script>
 
-                        if (document.getElementById('line-chart')) {
-                            const lineChart = new ApexCharts(document.getElementById('line-chart'), lineChartOptions);
-                            lineChart.render();
-                        }
-                    });
-                </script>
-            </div>
-            
 
             {{-- <!-- Ma'lumotlar ro'yxati -->
             <div class="bg-white rounded-xl shadow-lg">
@@ -259,7 +353,7 @@
             <div class="mt-2 mb-4">
                 @include('dashboard.item_list_component')
             </div>
-         
+
         </div>
     </div>
 </x-app-layout>
