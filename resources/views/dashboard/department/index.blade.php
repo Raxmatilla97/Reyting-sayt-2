@@ -1,11 +1,14 @@
 <x-app-layout>
-    <x-slot name="header">
+     <x-slot name="header">
         <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-lg">
-            <h2 class="py-6 text-2xl font-bold text-center text-white leading-tight">
-                {{ __("Kafedralar ro'yxati") }}
+            <h2 class="py-6 text-2xl sm:text-3xl font-bold text-center text-white leading-tight">
+                <span class="block text-xl sm:text-2xl mt-2 font-medium text-blue-100">
+                    {{ __("Kafedralar ro'yxati sahifasi") }}
+                </span>
             </h2>
         </div>
     </x-slot>
+
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

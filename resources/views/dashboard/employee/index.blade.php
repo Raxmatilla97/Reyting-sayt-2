@@ -1,11 +1,16 @@
 <x-app-layout>
+
     <x-slot name="header">
-        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl shadow-lg">
-            <h2 class="py-6 text-2xl font-bold text-center text-white">
-                {{ __("O'qituvchilar ro'yxati") }}
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-lg">
+            <h2 class="py-6 text-2xl sm:text-3xl font-bold text-center text-white leading-tight">
+                <span class="block text-xl sm:text-2xl mt-2 font-medium text-blue-100">
+                    {{ __("O'qituvchilar ro'yxati sahifasi") }}
+                </span>
             </h2>
         </div>
     </x-slot>
+
+
 
     <div class="py-6">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -36,7 +41,7 @@
                                 <div class="p-6 hover:bg-gray-50 transition-colors">
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-shrink-0">
-                                            <img class="h-16 w-16 rounded-xl shadow object-cover" 
+                                            <img class="h-16 w-16 rounded-xl shadow object-cover"
                                                 src="{{ $item->image ? asset('storage/users/image/' . $item->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
                                                 alt="">
                                         </div>
@@ -64,7 +69,7 @@
                                                 </span>
                                             </div>
                                         </div>
-                                        <a href="{{ route('dashboard.employeeShow', ['id_employee' => $item->employee_id_number]) }}" 
+                                        <a href="{{ route('dashboard.employeeShow', ['id_employee' => $item->employee_id_number]) }}"
                                            class="inline-flex items-center justify-center w-10 h-10 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-500 transition-colors">
                                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -97,8 +102,8 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
-                                                <img class="h-10 w-10 rounded-lg object-cover" 
-                                                     src="{{ $item->image ? asset('storage/users/image/' . $item->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}" 
+                                                <img class="h-10 w-10 rounded-lg object-cover"
+                                                     src="{{ $item->image ? asset('storage/users/image/' . $item->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
                                                      alt="">
                                                 <div class="ml-4">
                                                     <div class="text-sm font-medium text-gray-900">
@@ -131,7 +136,7 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right">
-                                            <a href="{{ route('dashboard.employeeShow', ['id_employee' => $item->employee_id_number]) }}" 
+                                            <a href="{{ route('dashboard.employeeShow', ['id_employee' => $item->employee_id_number]) }}"
                                                class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors">
                                                 Ko'rish
                                                 <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

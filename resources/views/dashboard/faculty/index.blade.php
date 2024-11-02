@@ -1,10 +1,16 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __("Fakultetlar ro'yxati sahifasi") }}
-        </h2>
 
+
+    <x-slot name="header">
+        <div class="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg shadow-lg">
+            <h2 class="py-6 text-2xl sm:text-3xl font-bold text-center text-white leading-tight">
+                <span class="block text-xl sm:text-2xl mt-2 font-medium text-blue-100">
+                    {{ __("Fakultetlar ro'yxati sahifasi") }}
+                </span>
+            </h2>
+        </div>
     </x-slot>
+
 
 
     {{-- Sahifada yangilanish qilganda o'ng tarafda chiqadigan bildirishnoma --}}
