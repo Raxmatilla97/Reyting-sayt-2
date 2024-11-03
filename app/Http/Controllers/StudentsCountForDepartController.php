@@ -29,10 +29,14 @@ class StudentsCountForDepartController extends Controller
 
             foreach ($departments as $department) {
                 try {
-                    $response = Http::withToken($this->apiToken)
-                        ->get($this->apiUrl . "/rest/v1/data/student-list?limit=200&_education_type=11&_department=$department->id&_student_status=11");
 
-                    $data = $response->json();
+                    $url = $this->apiUrl . "/rest/v1/data/student-list?limit=200&_education_type=11&_department=" . urlencode($department->id) . "&_student_status=11";
+                    Log::info("So'rov URL'i: $url");
+                    $response = Http::withToken($this->apiToken)->get($url)->json();
+                    Log::info("API javobi: ", $response);
+
+                    $data = $response;
+                    Log::info($data);
                     $totalCount = $data['data']['pagination']['totalCount'] ?? 0;
 
                     // Log faqat muhim ma'lumotlarni
