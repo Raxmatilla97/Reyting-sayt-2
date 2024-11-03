@@ -3,22 +3,18 @@
 namespace App\Http\Controllers;
 
 use Log;
+use App\Models\Department;
 use App\Models\PointUserDeportament;
+use App\Models\StudentsCountForDepart;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-use PhpOffice\PhpSpreadsheet\Calculation\Calculation;
-use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Http\Controllers\Export\Table_1_1_DataCode;
 use App\Http\Controllers\Export\Table_1_2_DataCode;
-use App\Http\Controllers\Export\Table_1_3_1_a_DataCode;
-use App\Http\Controllers\Export\Table_1_3_1_b_DataCode;
-use App\Http\Controllers\Export\Table_1_3_2_a_DataCode;
-use App\Http\Controllers\Export\Table_1_3_2_b_DataCode;
 use App\Http\Controllers\Export\Table_1_4_DataCode;
+use App\Http\Controllers\Export\Table_2_5_DataCode;
+use App\Http\Controllers\Export\Table_4_1_DataCode;
 use App\Http\Controllers\Export\Table_1_5_1_DataCode;
-use App\Http\Controllers\Export\Table_1_5_1_a_DataCode;
 use App\Http\Controllers\Export\Table_1_6_1_DataCode;
-use App\Http\Controllers\Export\Table_1_6_1_a_DataCode;
 use App\Http\Controllers\Export\Table_1_6_2_DataCode;
 use App\Http\Controllers\Export\Table_1_7_1_DataCode;
 use App\Http\Controllers\Export\Table_1_7_2_DataCode;
@@ -32,11 +28,17 @@ use App\Http\Controllers\Export\Table_2_3_1_DataCode;
 use App\Http\Controllers\Export\Table_2_3_2_DataCode;
 use App\Http\Controllers\Export\Table_2_4_1_DataCode;
 use App\Http\Controllers\Export\Table_2_4_2_DataCode;
-use App\Http\Controllers\Export\Table_2_4_2_b_DataCode;
-use App\Http\Controllers\Export\Table_2_5_DataCode;
 use App\Http\Controllers\Export\Table_3_4_1_DataCode;
 use App\Http\Controllers\Export\Table_3_4_2_DataCode;
-use App\Http\Controllers\Export\Table_4_1_DataCode;
+use PhpOffice\PhpSpreadsheet\Calculation\Calculation;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Http\Controllers\Export\Table_1_3_1_a_DataCode;
+use App\Http\Controllers\Export\Table_1_3_1_b_DataCode;
+use App\Http\Controllers\Export\Table_1_3_2_a_DataCode;
+use App\Http\Controllers\Export\Table_1_3_2_b_DataCode;
+use App\Http\Controllers\Export\Table_1_5_1_a_DataCode;
+use App\Http\Controllers\Export\Table_1_6_1_a_DataCode;
+use App\Http\Controllers\Export\Table_2_4_2_b_DataCode;
 
 
 class ExportInfosController extends Controller
@@ -46,8 +48,11 @@ class ExportInfosController extends Controller
 
     public function export()
     {
+        $departments = Department::where('status', 1)->get();
+        $studentCounts = StudentsCountForDepart::with('department')->where('status', 1)->get();
 
-        return view('dashboard.config');
+        return view('dashboard.config', compact('departments', 'studentCounts'));
+
     }
 
     public function download()

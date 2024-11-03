@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('students_count_for_departs', function (Blueprint $table) {
             $table->id();
+            $table->integer('number')->nullable();
+            $table->boolean('status')->nullable();
+            $table->foreignId('departament_id')->nullable()->constrained('departments')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -2,64 +2,76 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\StudentsCountForDepart;
+use App\Models\Department;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
+use App\Models\StudentsCountForDepart;
 
 class StudentsCountForDepartController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    protected $apiUrl;
+    protected $apiToken;
+
+    public function __construct()
     {
-        //
+        // URL ni to'g'irlaymiz
+        $this->apiUrl = 'https://student.cspi.uz';
+        $this->apiToken = env('API_HEMIS_TOKEN');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function updateStudentCounts(Request $request)
     {
-        //
-    }
+        try {
+            $departments = Department::where('status', 1)->get();
+            $updatedCount = 0;
+            $errors = [];
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
+            foreach ($departments as $department) {
+                try {
+                    $response = Http::withToken($this->apiToken)
+                        ->get($this->apiUrl . "/rest/v1/data/student-list?limit=200&_education_type=11&_department=$department->id&_student_status=11");
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(StudentsCountForDepart $studentsCountForDepart)
-    {
-        //
-    }
+                    $data = $response->json();
+                    $totalCount = $data['data']['pagination']['totalCount'] ?? 0;
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(StudentsCountForDepart $studentsCountForDepart)
-    {
-        //
-    }
+                    // Log faqat muhim ma'lumotlarni
+                    Log::info("Kafedra: {$department->name} | ID: {$department->id} | Talabalar soni: {$totalCount}");
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, StudentsCountForDepart $studentsCountForDepart)
-    {
-        //
-    }
+                    StudentsCountForDepart::updateOrCreate(
+                        ['departament_id' => $department->id],
+                        [
+                            'number' => $totalCount,
+                            'status' => 1,
+                            'updated_at' => now()
+                        ]
+                    );
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(StudentsCountForDepart $studentsCountForDepart)
-    {
-        //
+                    $updatedCount++;
+                    usleep(200000);
+
+                } catch (\Exception $e) {
+                    $errorMessage = "Xatolik: {$department->name} (ID: {$department->id}) - " . $e->getMessage();
+                    $errors[] = $errorMessage;
+                    Log::error($errorMessage);
+                }
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => "{$updatedCount} ta kafedra ma'lumotlari yangilandi",
+                'updated' => $updatedCount,
+                'total' => $departments->count(),
+                'errors' => $errors
+            ]);
+
+        } catch (\Exception $e) {
+            Log::error("Xatolik yuz berdi: " . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => "Xatolik yuz berdi: " . $e->getMessage(),
+                'errors' => [$e->getMessage()]
+            ], 500);
+        }
     }
 }

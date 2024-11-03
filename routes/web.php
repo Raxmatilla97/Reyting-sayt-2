@@ -1,18 +1,19 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\FacultyController;
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\FormsController;
-use App\Http\Controllers\FrontendController;
-use App\Http\Controllers\Auth\ApiHemisController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\PointUserDeportamentController;
-use App\Http\Controllers\ExportInfosController;
-use App\Http\Controllers\ConfigurationController;
 use App\Http\Middleware\IsAdmin;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FormsController;
+use App\Http\Controllers\FacultyController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\FrontendController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\ExportInfosController;
+use App\Http\Controllers\Auth\ApiHemisController;
+use App\Http\Controllers\ConfigurationController;
+use App\Http\Controllers\PointUserDeportamentController;
+use App\Http\Controllers\StudentsCountForDepartController;
 
 /*
 |--------------------------------------------------------------------------
@@ -128,6 +129,10 @@ Route::middleware('auth')->group(function () {
         // Hemisdan hamma o'qituvchilarni tekshiradi agar ro'yxatdan o'tmagan bo'lsa o'tqazadi
         Route::get('/register-all-teachers', [ConfigurationController::class, 'registerAllTeachers']);
         Route::post('/stop-teachers-registration', [ConfigurationController::class, 'stopTeachersRegistration']);
+
+        // Talabalar sonini yangilash
+        Route::get('/admin/student-counts', [StudentsCountForDepartController::class, 'index'])->name('admin.student-counts.index');
+        Route::post('/admin/student-counts/update', [StudentsCountForDepartController::class, 'updateStudentCounts'])->name('admin.student-counts.update');
 
     });
 
