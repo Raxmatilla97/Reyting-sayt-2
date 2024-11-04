@@ -48,10 +48,9 @@ class ExportInfosController extends Controller
 
     public function export()
     {
-        $departments = Department::where('status', 1)->get();
-        $studentCounts = StudentsCountForDepart::with('department')->where('status', 1)->get();
+        $studentCounts = StudentsCountForDepart::with('department')->get();
 
-        return view('dashboard.config', compact('departments', 'studentCounts'));
+        return view('dashboard.config', compact('studentCounts'));
 
     }
 

@@ -17,8 +17,10 @@ class StudentsCountForDepart extends Model
         'departament_id'
     ];
 
+
+
     public function department()
     {
-        return $this->belongsTo(Department::class, 'departament_id');
+        return $this->belongsTo(Department::class, 'departament_id', 'id');
     }
 }

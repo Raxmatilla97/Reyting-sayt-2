@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use App\Models\Faculty;
 use App\Models\User;
+use App\Models\Faculty;
 use App\Models\Employee;
 use App\Models\PointUserDeportament;
+use App\Models\StudentsCountForDepart;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 
 class Department extends Model
@@ -45,5 +46,11 @@ class Department extends Model
     {
         return $this->hasMany(PointUserDeportament::class, 'departament_id');
     }
+
+     // Yangi relationship qo'shamiz
+     public function students_count()
+     {
+         return $this->hasOne(StudentsCountForDepart::class, 'departament_id');
+     }
 
 }

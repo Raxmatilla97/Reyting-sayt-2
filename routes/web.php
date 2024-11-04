@@ -131,8 +131,9 @@ Route::middleware('auth')->group(function () {
         Route::post('/stop-teachers-registration', [ConfigurationController::class, 'stopTeachersRegistration']);
 
         // Talabalar sonini yangilash
-        Route::get('/admin/student-counts', [StudentsCountForDepartController::class, 'index'])->name('admin.student-counts.index');
-        Route::post('/admin/student-counts/update', [StudentsCountForDepartController::class, 'updateStudentCounts'])->name('admin.student-counts.update');
+        Route::get('/student-counts', [StudentsCountForDepartController::class, 'index'])->name('student-counts.index');
+    Route::get('/student-counts/export', [StudentsCountForDepartController::class, 'export'])->name('student-counts.export');
+    Route::post('/student-counts/import', [StudentsCountForDepartController::class, 'import'])->name('student-counts.import');
 
     });
 
