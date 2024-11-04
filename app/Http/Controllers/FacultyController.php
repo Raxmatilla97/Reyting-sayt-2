@@ -2,56 +2,62 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Faculty;
-use App\Models\PointUserDeportament;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\Http;
+use App\Models\Faculty;
 use Illuminate\Support\Str;
+use App\Models\PointUserDeportament;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Config;
+use App\Services\PointCalculationService;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class FacultyController extends Controller
 {
+    protected $pointCalculationService;
+
+    public function __construct(PointCalculationService $pointCalculationService)
+    {
+        $this->pointCalculationService = $pointCalculationService;
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $faculties = Faculty::with('departments.point_user_deportaments.departPoint')
+        $faculties = Faculty::with(['departments' => function ($query) {
+            $query->where('status', 1);
+        }])
             ->where('status', 1)
-            ->paginate(15);
+            ->get();
 
-        $departmentCounts = config('departament_tichers_count');
+        $facultiesData = $faculties->map(function ($faculty) {
+            $calculationResult = $this->pointCalculationService->calculateFacultyPoints($faculty);
 
-        if ($departmentCounts === null) {
-            $departmentCounts = include(config_path('departament_tichers_count.php'));
-        }
+            // Object yaratish
+            return (object)[
+                'id' => $faculty->id,
+                'name' => $faculty->name,
+                'slug' => $faculty->slug,
+                'status' => $faculty->status,
+                'departments' => $faculty->departments,
+                'total_points' => $calculationResult['total_points']
+            ];
+        });
 
-        foreach ($faculties as $faculty) {
-            $faculty->totalPoints = 0;
-            $faculty->totalTeachers = 0;
+        $page = request('page', 1);
+        $perPage = 15;
 
-            foreach ($faculty->departments as $department) {
-                // Har bir departament uchun o'qituvchilar sonini hisoblash
-                $teacherCount = $departmentCounts[$faculty->id][$department->id] ?? 0;
-                $faculty->totalTeachers += $teacherCount;
+        $items = $facultiesData->forPage($page, $perPage);
 
-                // Departament uchun umumiy ballarni hisoblash
-                $departmentPoints = $department->point_user_deportaments
-                    ->where('status', 1)
-                    ->reduce(function ($carry, $pointEntry) {
-                        return $carry + $pointEntry->point + ($pointEntry->departPoint ? $pointEntry->departPoint->point : 0);
-                    }, 0);
-
-                // Departament ballarini fakultet umumiy balliga qo'shish
-                $faculty->totalPoints += $departmentPoints;
-            }
-
-            // Fakultet o'rtacha ballini hisoblash
-            $faculty->average_points = $faculty->totalTeachers > 0
-                ? round($faculty->totalPoints / $faculty->totalTeachers, 2)
-                : 'N/A';
-        }
+        $faculties = new LengthAwarePaginator(
+            $items,
+            $facultiesData->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url()]
+        );
 
         return view('dashboard.faculty.index', compact('faculties'));
     }
@@ -60,7 +66,9 @@ class FacultyController extends Controller
     {
         $faculty = Faculty::where('slug', $slug)->firstOrFail();
 
-        $pointUserInformations = PointUserDeportament::whereIn('departament_id', $faculty->departments->pluck('id'))->orderBy('created_at', 'desc')->paginate('15');
+        $pointUserInformations = PointUserDeportament::whereIn('departament_id', $faculty->departments->pluck('id'))
+            ->orderBy('created_at', 'desc')
+            ->paginate('15');
 
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');
@@ -72,164 +80,72 @@ class FacultyController extends Controller
         // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
         $arrayKey = [];
         foreach ($jadvallarCodlari as $key => $value) {
-            $arrayKey[$key . 'id'] = $key; // $key . 'id' qiymatini o'rnating
+            $arrayKey[$key . 'id'] = $key;
         }
 
         // Ma'lumotlar massivini tekshirish
-        foreach ($pointUserInformations as $faculty_item) {
+        foreach ($pointUserInformations as $pointUserInformation) {
             foreach ($arrayKey as $column => $originalKey) {
                 // column tekshiriladi
-                if (isset($faculty_item->$column)) {
+                if (isset($pointUserInformation->$column)) {
                     // $murojaat_nomi o'rnatiladi
-                    $faculty_item->murojaat_nomi = $jadvallarCodlari[$originalKey];
-                    $faculty_item->murojaat_codi = $originalKey;
+                    $pointUserInformation->murojaat_nomi = $jadvallarCodlari[$originalKey];
+                    $pointUserInformation->murojaat_codi = $originalKey;
                     break;
                 }
             }
         }
 
-        // Fakultetda nechta o'qituvchi ro'yxatdan o'tganligi
-        $totalRegisteredEmployees = $faculty->departments->sum(function ($department) {
-            return $department->employee->count();
-        });
+        // Fakultet uchun PointCalculationService dan foydalanish
+        $calculationResult = $this->pointCalculationService->calculateFacultyPoints($faculty);
 
-        // Kafedrada nechta o'qituvchi borligi haqidagi massiv
-        $departmentCounts = config('departament_tichers_count');
-
-        if ($departmentCounts === null) {
-            $departmentCounts = include(config_path('departament_tichers_count.php'));
-        }
-
-        // Fakultet umumiy ballari va o'qituvchilar sonini hisoblash
-        $totalPoints = 0;
-        $totalTeachers = 0;
-
-        // Fakultet ID siga mos keluvchi kafedralar ro'yxatini olish
-        $facultyDepartments = $departmentCounts[$faculty->id] ?? [];
-
-        foreach ($faculty->departments as $department) {
-            $departmentPointTotal = 0;
-            $teacherCount = $facultyDepartments[$department->id] ?? 0;
-            $totalTeachers += $teacherCount;
-
-            // point_user_deportaments jadvalidagi barcha tasdiqlangan (status = 1) balllarni qo'shish
-            $departmentPointTotal += $department->point_user_deportaments()
-                ->where('status', 1)
-                ->sum('point');
-
-            // departPoint jadvalidagi qo'shimcha balllarni qo'shish (agar mavjud bo'lsa)
-            $departmentPointTotal += $department->point_user_deportaments()
-                ->where('status', 1)
-                ->whereHas('departPoint')
-                ->with('departPoint')
-                ->get()
-                ->sum(function ($pointEntry) {
-                    return $pointEntry->departPoint->point;
-                });
-
-            // Umumiy ballni hisoblash
-            $totalPoints += $departmentPointTotal;
-        }
-
-        // Agar o'qituvchilar soni mavjud bo'lsa, o'rtacha ballni hisoblash
-        if ($totalTeachers > 0) {
-            $averagePoints = round($totalPoints / $totalTeachers, 2);
-        } else {
-            $averagePoints = 'N/A';
-        }
-
-        $totalEmployees = $totalTeachers;
-
-        //------------------------------------------------------------------------------
+        // Service dan qaytgan qiymatlarni ajratib olish
+        $totalPoints = $calculationResult['total_points'];
+        $totalTeachers = $calculationResult['total_teachers'];
+        $departmentsData = $calculationResult['departments_data'];
 
         // Fakultet umumiy ma'lumotlar soni
         $totalInfos = $faculty->departments->sum(function ($department) {
             return $department->point_user_deportaments->count();
         });
 
-        // Fakultet ma'lumoti eng ohirgi kelgan vaqti
-        $mostRecentTimestamp = $faculty->departments->flatMap(function ($department) {
-            return $department->point_user_deportaments;
-        })->max('created_at');
+        // Eng so'nggi ma'lumot vaqti va egasini aniqlash
+        $latestInfo = PointUserDeportament::whereIn('departament_id', $faculty->departments->pluck('id'))
+            ->with('employee')
+            ->latest()
+            ->first();
 
-        $mostRecentTime = Carbon::parse($mostRecentTimestamp);
-        $now = Carbon::now();
-        $diffInSeconds = $now->diffInSeconds($mostRecentTime);
-        $diffInMinutes = $now->diffInMinutes($mostRecentTime);
-        $diffInHours = $now->diffInHours($mostRecentTime);
-        $diffInDays = $now->diffInDays($mostRecentTime);
-
-        // Tarjima holati
-        if ($diffInSeconds < 60) {
-            $timeAgo = $diffInSeconds . ' soniya oldin';
-        } elseif ($diffInMinutes < 60) {
-            $timeAgo = $diffInMinutes . ' daqiqa oldin';
-        } elseif ($diffInHours < 24) {
-            $timeAgo = $diffInHours . ' soat oldin';
+        if ($latestInfo) {
+            $timeAgo = $latestInfo->created_at->diffForHumans();
+            $fullName = $latestInfo->employee->full_name ?? "Ma'lumot topilmadi!";
         } else {
-            $timeAgo = $diffInDays . ' kun oldin';
-        }
-
-        // Eng ohirgi yuborgan malumotnign egasi nomi
-        $mostRecentEntry = $faculty->departments->flatMap(function ($department) {
-            return $department->point_user_deportaments;
-        })->sortByDesc('created_at')->first();
-
-        if ($mostRecentEntry) {
-            $fullName = $mostRecentEntry->employee->full_name;
-        } else {
+            $timeAgo = "Ma'lumot yo'q";
             $fullName = "Ma'lumot topilmadi!";
         }
 
-        $totalPoints = 0;
-        $totalTeachers = 0;
-        $departmentCalculations = [];
+        // Service ma'lumotlarini department ma'lumotlari bilan birlashtirish
+        $departments = $faculty->departments->map(function ($department) use ($departmentsData) {
+            $departmentInfo = collect($departmentsData)->firstWhere('department_name', $department->name);
 
-        foreach ($faculty->departments as $department) {
-            $departmentPointTotal = 0;
-            $teacherCount = $facultyDepartments[$department->id] ?? 0;
-            $totalTeachers += $teacherCount;
-
-            // O'qituvchilar yig'gan ballar
-            $teacherPoints = $department->point_user_deportaments()
-                ->where('status', 1)
-                ->sum('point');
-
-            // Kafedraga o'tgan qo'shimcha ballar
-            $departmentExtraPoints = $department->point_user_deportaments()
-                ->where('status', 1)
-                ->whereHas('departPoint')
-                ->with('departPoint')
-                ->get()
-                ->sum(function ($pointEntry) {
-                    return $pointEntry->departPoint->point;
-                });
-
-            $departmentPointTotal = $teacherPoints + $departmentExtraPoints;
-            $totalPoints += $departmentPointTotal;
-
-            $departmentCalculations[] = "{$department->name}: {$teacherPoints} (o'qituvchilar bali) + {$departmentExtraPoints} (kafedraga o'tgan) = {$departmentPointTotal} ball.";
-        }
-
-        $averagePoints = $totalTeachers > 0 ? round($totalPoints / $totalTeachers, 2) : 'N/A';
-
-        $pointsCalculationExplanation = "Fakultet bali hisoblash tartibi:\n" .
-            implode("\n", $departmentCalculations) . "\n" .
-            "Jami: {$totalPoints} ball / {$totalTeachers} fakultet o'qituvchilar soni = " .
-            "{$averagePoints} ball";
+            return [
+                'department' => $department,
+                'points' => [
+                    'total_points' => $departmentInfo['total_n'] ?? 0,
+                    'teacher_count' => $departmentInfo['teacher_count'] ?? 0,
+                    'extra_points' => $departmentInfo['extra_points'] ?? 0,
+                ]
+            ];
+        });
 
         return view('dashboard.faculty.show', compact(
             'faculty',
             'pointUserInformations',
-            'totalEmployees',
             'totalPoints',
+            'totalTeachers',
             'totalInfos',
             'timeAgo',
             'fullName',
-            'averagePoints',
-            'pointsCalculationExplanation'
-
-
+            'departments'
         ));
     }
 

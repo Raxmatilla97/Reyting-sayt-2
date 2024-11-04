@@ -149,7 +149,7 @@
                                                     </div>
                                                     <div>
                                                         <span class="font-semibold">Umumiy ball:</span>
-                                                        <span class="bg-indigo-100 text-indigo-800 text-sm font-medium ml-1 px-2.5 py-0.5 rounded">{{ $item->totalPoints }}</span>
+                                                        <span class="bg-indigo-100 text-indigo-800 text-sm font-medium ml-1 px-2.5 py-0.5 rounded">{{ $item->total_points }}</span>
                                                     </div>
                                                 </div>
                                                 <a href="{{ route('dashboard.facultyShow', ['slug' => $item->slug]) }}" class="text-blue-600 hover:underline">Ko'rish</a>
@@ -212,7 +212,7 @@
                                                 </td>
                                                 <td class="px-6 py-4">
                                                     Jami ball: <span class="bg-indigo-100 text-indigo-800 text-md font-medium me-2 px-2.5 py-0.5 rounded dark:bg-indigo-900 dark:text-indigo-300">
-                                                        {{ $item->average_points }}
+                                                        {{ $item->total_points }}
                                                     </span>
                                                 </td>
                                                 <td class="px-6 py-4">

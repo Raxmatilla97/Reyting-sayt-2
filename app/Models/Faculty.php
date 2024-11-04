@@ -28,5 +28,18 @@ class Faculty extends Model
         return $this->hasMany(Department::class);
     }
 
+    protected $appends = ['totalPoints'];
+    protected $totalPoints = 0;
+
+    public function setTotalPointsAttribute($value)
+    {
+        $this->totalPoints = $value;
+    }
+
+
+    public function getTotalPointsAttribute($value)
+    {
+        return $value ?? 0;
+    }
 
 }

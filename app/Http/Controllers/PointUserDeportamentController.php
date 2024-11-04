@@ -12,17 +12,12 @@ use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Validator;
-use App\Http\Controllers\PointCalculationController;
+
 
 class PointUserDeportamentController extends Controller
 {
 
-    protected $pointCalculationController;
 
-    public function __construct(PointCalculationController $pointCalculationController)
-    {
-        $this->pointCalculationController = $pointCalculationController;
-    }
 
 
     public function list(Request $request)
