@@ -59,9 +59,9 @@
                                 $value = $created_at->format('d-M-Y H:i');
                             } elseif ($column === 'updated_at') {
                                 continue; // Tekshirilgan sanani o'tkazib yuborish
-} elseif ($column === 'asos_file') {
-    if ($value === null || $value === '' || $value === 'null' || !$value) {
-                                    continue;
+                                } elseif ($column === 'asos_file') {
+                                    if ($value === null || $value === '' || $value === 'null' || !$value) {
+                                        continue;
                                 }
                             }
 

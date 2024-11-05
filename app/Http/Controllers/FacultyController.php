@@ -198,6 +198,19 @@ class FacultyController extends Controller
         $relatedData = [];
         $relationships = $item->getRelationships();
 
+        // Tablename ni olish va oxiriga _ qo'shish
+        $tableName = '';
+        foreach ($item->getRelationships() as $relationship) {
+            $foreignKey = $relationship . '_id';
+            if (isset($item->{$foreignKey}) && !is_null($item->{$foreignKey})) {
+                $tableName = $relationship;
+                if (!str_ends_with($tableName, '_')) {
+                    $tableName .= '_';
+                }
+                break;
+            }
+        }
+
         if (is_array($relationships)) {
             foreach ($relationships as $relationship) {
                 $foreignKey = $relationship . '_id';
@@ -212,7 +225,43 @@ class FacultyController extends Controller
             return response()->json(['error' => 'No relationships defined'], 500);
         }
 
-        // Ma'lumotlarni yig'ish
+        // Employee formalar uchun tablitsalar ro'yxati
+        $employeeTables = [
+            'table_1_1_',
+            'table_1_2_',
+            'table_1_3_1_a_',
+            'table_1_3_1_b_',
+            'table_1_3_2_a_',
+            'table_1_3_2_b_',
+            'table_1_4_',
+            'table_1_5_1_',
+            'table_1_5_1_a_',
+            'table_1_6_1_',
+            'table_1_6_1_a_',
+            'table_1_6_2_',
+            'table_1_9_1_',
+            'table_1_9_2_',
+            'table_1_9_3_',
+            'table_2_2_1_',
+            'table_2_2_2_',
+            'table_2_4_2_'
+        ];
+
+        // Department formalar uchun tablitsalar ro'yxati
+        $departmentTables = [
+            'table_1_7_1_',
+            'table_1_7_2_',
+            'table_1_7_3_',
+            'table_2_3_1_',
+            'table_2_3_2_',
+            'table_2_4_1_',
+            'table_2_4_2_b_',
+            'table_2_5_',
+            'table_3_4_1_',
+            'table_3_4_2_',
+            'table_4_1_'
+        ];
+
         $data = [
             'item' => $item,
             'relatedData' => $relatedData,
@@ -225,13 +274,24 @@ class FacultyController extends Controller
             'creator_id' => $item->user_id
         ];
 
+        // Form turini aniqlash
+        if (in_array($tableName, $employeeTables)) {
+            $formType = 'employee';
+        } elseif (in_array($tableName, $departmentTables)) {
+            $formType = 'department';
+        } else {
+            // Agar aniqlanmasa, table_1_7 bilan boshlanganlarni department qilish
+            $formType = strpos($tableName, 'table_') === 0 ? 'department' : 'employee';
+        }
         try {
             $view = view('dashboard.faculty.item-details', $data)->render();
 
             return response()->json([
                 'html' => $view,
                 'status' => $item->status,
-                'creator_id' => $item->user_id
+                'tableName' => $tableName,
+                'itemId' => $id,
+                'formType' => $formType
             ]);
         } catch (\Exception $e) {
             return response()->json([

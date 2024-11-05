@@ -182,37 +182,35 @@
                 </h2>
             </div>
 
-            <!-- Top Employees Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-7 mb-12 w-full">
-                @foreach ($topEmployees as $user)
-                    <div class="card-hover bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl">
-                        <img src="{{ '/storage/users/image' }}/{{ $user->image }}"
-                            alt="{{ ucwords(strtolower($user->FullName)) }}"
-                            class="profile-image w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full mb-3">
-                        <h3 class="text-sm sm:text-base font-bold text-center text-gray-800 mb-1 line-clamp-2">
-                            {{ ucwords(strtolower($user->FullName)) }}
-                        </h3>
-                        <p
-                            class="text-base sm:text-lg font-bold text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
-                            Ball: {{ $user->total_points }}
-                        </p>
-                    </div>
-                @endforeach
-            </div>
+           <!-- Top Employees Grid -->
+           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-7 mb-12 w-full">
+            @foreach ($topEmployees as $employee)
+                <div class="card-hover bg-white/95 backdrop-blur-md p-4 rounded-2xl shadow-xl">
+                    <img src="{{'/storage/users/image'}}/{{ $employee['image'] ?? '/path/to/default/image.jpg' }}"
+                        alt="{{ $employee['first_name'] }}"
+                        class="profile-image w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-full mb-3">
+                    <h3 class="text-sm sm:text-base font-bold text-center text-gray-800 mb-1 line-clamp-2">
+                        {{ $employee['second_name'] }} {{ $employee['first_name'] }}
+                    </h3>
+                    <p class="text-base sm:text-lg font-bold text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
+                        Ball: {{ number_format($employee['total_points'], 1) }}
+                    </p>
+                </div>
+            @endforeach
+        </div>
 
             <!-- Statistics Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
                 <!-- Top Departments -->
                 <div class="stats-card rounded-2xl p-6 shadow-xl">
-                    <h3
-                        class="text-xl font-bold text-center mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
+                    <h3 class="text-xl font-bold text-center mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
                         TOP-5 KAFEDRA REYTINGI
                     </h3>
                     <ol class="list-decimal pl-5 space-y-4">
-                        @foreach ($topDepartments as $topDepartment)
+                        @foreach ($topDepartments->take(5) as $department)
                             <li class="text-lg font-semibold">
-                                {{ $topDepartment->name }} -
-                                <span class="text-blue-600 font-bold">{{ $topDepartment->average_points }}</span>
+                                {{ $department['name'] }} -
+                                <span class="text-blue-600 font-bold">{{ number_format($department['total_points'], 1) }}</span>
                             </li>
                         @endforeach
                     </ol>
@@ -220,15 +218,14 @@
 
                 <!-- Top Faculties -->
                 <div class="stats-card rounded-2xl p-6 shadow-xl">
-                    <h3
-                        class="text-xl font-bold text-center mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
+                    <h3 class="text-xl font-bold text-center mb-6 bg-gradient-to-r from-blue-600 to-indigo-600 text-transparent bg-clip-text">
                         TOP-3 FAKULTETLAR REYTINGI
                     </h3>
                     <ol class="list-decimal pl-5 space-y-4">
-                        @foreach ($topFaculties as $topFaculty)
+                        @foreach ($topFaculties->take(3) as $faculty)
                             <li class="text-lg font-semibold">
-                                {{ $topFaculty->name }} -
-                                <span class="text-blue-600 font-bold">{{ $topFaculty->average_points }}</span>
+                                {{ $faculty['name'] }} -
+                                <span class="text-blue-600 font-bold">{{ number_format($faculty['total_points'], 1) }}</span>
                             </li>
                         @endforeach
                     </ol>
@@ -257,3 +254,6 @@
 </body>
 
 </html>
+
+
+

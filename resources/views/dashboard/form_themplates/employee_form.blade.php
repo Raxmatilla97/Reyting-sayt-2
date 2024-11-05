@@ -1,155 +1,167 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Ma'lumot bo'limini tanlang
+            @if(isset($oldData))
+                Ma'lumotni tahrirlash
+            @else
+                Ma'lumot bo'limini tanlang
+            @endif
         </h2>
     </x-slot>
 
-
-
-
     <div class="py-8">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="mb-4">
+            {{-- Notifications --}}
+            <div class="mb-4 space-y-4">
                 @if (session('error'))
-                    <div class="bg-red-500 text-white p-3 rounded">
-                        {{ session('error') }}
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r" role="alert">
+                        <p class="font-bold">Xatolik!</p>
+                        <p>{{ session('error') }}</p>
                     </div>
                 @endif
 
                 @if (session('success'))
-                    <div class="bg-green-500 text-white p-3 rounded">
-                        {{ session('success') }}
+                    <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded-r" role="alert">
+                        <p class="font-bold">Muvaffaqiyatli!</p>
+                        <p>{{ session('success') }}</p>
                     </div>
                 @endif
 
                 @if ($errors->any())
-                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <strong class="font-bold">Xatolar yuz berdi!</strong>
-                        <span class="block sm:inline">Iltimos, quyidagi xatolarni to'g'irlang:</span>
-                        <ul>
+                    <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-r" role="alert">
+                        <p class="font-bold">Xatolar yuz berdi!</p>
+                        <ul class="list-disc list-inside">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
                             @endforeach
                         </ul>
                     </div>
                 @endif
-
             </div>
 
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 mt-6">
-                    <div class="flex justify-between">
-                        <a href="{{ route('dashboard.employee_form_chose') }}">
-                            <button type="button"
-                                class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Orqaga
-                                qaytish</button>
-
-                        </a>
-                        <span
-                            class="bg-indigo-100 text-indigo-800 text-md font-bold me-2 px-2.5 py-0.5 rounded dark:bg-indigo-900 dark:text-indigo-300"
-                            style=" height: 30px;">{{ $tableName }}</span>
-
-                    </div>
-
-                    <div class="max-w-3xl mx-auto flex items-center p-4 mb-8 text-sm text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400"
-                        role="alert">
-                        <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                            <path
-                                d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-                        </svg>
-                        <span class="sr-only">Info</span>
-                        <div>
-                            <div class="text-red-600 text-center mb-3">
-                                <svg class="flex-shrink-0 inline w-4 h-4 me-3" aria-hidden="true"
-                                xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                                <path
-                                    d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                <div class="p-6 text-gray-900">
+                    {{-- Header with back button and table name --}}
+                    <div class="flex justify-between items-center mb-6">
+                        <a href="{{ route('dashboard.employee_form_chose') }}"
+                           class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 rounded-md font-semibold text-xs text-gray-700 uppercase tracking-widest shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
                             </svg>
-                                <span class="font-medium ">Ma'lumotlarni to'g'ri kiriting!</span> Agarda ma'lumotlar tog'ri
-                                kiritilmasa u rad etilishi mumkin.
-                            </div>
-
-                            <h1 class="text-lg tracking-tight ">{{$title}}</h1    >
-                        </div>
-
-
+                            Orqaga qaytish
+                        </a>
+                        <span class="px-4 py-2 bg-indigo-100 text-indigo-800 rounded-md font-bold">
+                            {{ $tableName }}
+                        </span>
                     </div>
 
-                    <form class="max-w-3xl mx-auto" method="POST"
-                        action="{{ route('dashboard.employee_store_form', ['tableName' => $tableName]) }}" enctype="multipart/form-data"
-                        class="mt-5">
+                    {{-- Info Alert --}}
+                    <div class="max-w-3xl mx-auto mb-8">
+                        <div class="flex p-4 text-blue-800 rounded-lg bg-blue-50 dark:bg-gray-800 dark:text-blue-400">
+                            <div class="flex-shrink-0">
+                                <svg class="w-5 h-5 mt-1" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <div class="text-red-600 mb-3 font-medium">
+                                    Ma'lumotlarni to'g'ri kiriting! Agarda ma'lumotlar tog'ri kiritilmasa u rad etilishi mumkin.
+                                </div>
+                                <h1 class="text-lg font-semibold">{{$title}}</h1>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Form --}}
+                    <form class="max-w-3xl mx-auto space-y-6" method="POST"
+                          action="{{ route('dashboard.employee_store_form', ['tableName' => $tableName]) }}"
+                          enctype="multipart/form-data">
                         @csrf
 
+                        @if(request()->has('edit'))
+                        <input type="hidden" name="edit" value="{{ request()->query('edit') }}">
+                         @endif
+
                         @foreach ($fields as $field)
-                            <div class="mb-5">
+                            <div class="space-y-2">
                                 <label for="{{ $field['name'] }}"
-                                    class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{{ $field['label'] }}</label>
+                                       class="block text-sm font-medium text-gray-700">
+                                    {{ $field['label'] }}
+                                </label>
+
                                 @if ($field['type'] === 'text')
-                                    <input type="text" id="{{ $field['name'] }}" name="{{ $field['name'] }}" required
-                                        value="{{ old($field['name']) }}"
-                                        class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 dark:shadow-sm-light" />
+                                    <input type="text"
+                                           id="{{ $field['name'] }}"
+                                           name="{{ $field['name'] }}"
+                                           value="{{ $oldData->{$field['name']} ?? old($field['name']) }}"
+                                           required
+                                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition duration-150 ease-in-out"/>
                                 @elseif($field['type'] === 'file')
-                                    <input name="{{ $field['name'] }}"
-                                        class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
-                                        aria-describedby="{{ $field['name'] }}_help" id="{{ $field['name'] }}"
-                                        type="file" required>
-                                    <div class="mt-1 text-sm text-gray-500 dark:text-gray-300"
-                                        id="{{ $field['name'] }}_help">
+                                    <div class="flex flex-col space-y-2">
+                                        <input type="file"
+                                               id="{{ $field['name'] }}"
+                                               name="{{ $field['name'] }}"
+                                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                                               {{ !isset($oldData) ? 'required' : '' }}/>
+
+                                        @if(isset($oldData) && $oldData->{$field['name']})
+                                            <div class="text-sm text-gray-500 bg-gray-50 p-2 rounded-md flex items-center">
+                                                <svg class="w-4 h-4 mr-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                                </svg>
+                                                Mavjud fayl: {{ basename($oldData->{$field['name']}) }}
+                                            </div>
+                                        @endif
                                     </div>
                                 @endif
                             </div>
                         @endforeach
 
-                        <div class="mt-3 mb-6">
-                            <label for="year" class="block text-gray-700 text-sm font-bold mb-2">Ushbu ma'lumotlar qaysi yilda yaratilgan yoki tegishli bo'lishi mumkin:</label>
-                            <select id="year" name="year" class="block appearance-none w-full bg-white border border-gray-400 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline">
+                        {{-- Year Selection --}}
+                        <div class="space-y-2">
+                            <label for="year" class="block text-sm font-medium text-gray-700">
+                                Ushbu ma'lumotlar qaysi yilda yaratilgan yoki tegishli bo'lishi mumkin:
+                            </label>
+                            <select id="year"
+                                    name="year"
+                                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm">
                                 @for ($year = 2015; $year <= date('Y'); $year++)
-                                    <option value="{{ $year }}">{{ $year }} yil</option>
+                                    <option value="{{ $year }}" {{ (isset($oldData) && $oldData->year == $year) ? 'selected' : '' }}>
+                                        {{ $year }} yil
+                                    </option>
                                 @endfor
                             </select>
                         </div>
 
-                        <div class="flex items-start mb-5">
-                            <div class="flex items-center h-5">
-                                <input id="terms" type="checkbox" value=""
-                                    class="w-4 h-4 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800"
-                                    required />
-                            </div>
-                            <label for="terms"
-                                class="ms-2 text-sm font-medium text-gray-900 dark:text-gray-300">Barcha ma'lumotlar
-                                to'g'riligiga ishonaman</label>
-                        </div>
-                        <div class="flex justify-end mb-6">
-                            <button id="submitBtn" type="submit"
-                                class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled>Ma'lumotni yuborish</button>
+                        {{-- Confirmation Checkbox --}}
+                        <div class="flex items-center space-x-2">
+                            <input type="checkbox"
+                                   id="terms"
+                                   required
+                                   class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50"/>
+                            <label for="terms" class="text-sm text-gray-700">
+                                Barcha ma'lumotlar to'g'riligiga ishonaman
+                            </label>
                         </div>
 
+                        {{-- Submit Button --}}
+                        <div class="flex justify-end pt-4">
+                            <button type="submit"
+                                    id="submitBtn"
+                                    disabled
+                                    class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 py-2 px-4 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-indigo-600">
+                                {{ isset($oldData) ? "Ma'lumotni yangilash" : "Ma'lumotni yuborish" }}
+                            </button>
+                        </div>
                     </form>
 
                     <script>
                         document.getElementById('terms').addEventListener('change', function() {
-                            var submitButton = document.getElementById('submitBtn');
-                            submitButton.disabled = !this.checked;
+                            document.getElementById('submitBtn').disabled = !this.checked;
                         });
                     </script>
-
-                    <style>
-                        #submitBtn:disabled {
-                            opacity: 0.5;
-                            /* Hira ko'rinish */
-                            cursor: not-allowed;
-                            /* Cursor taqiqlangan belgisiga o'zgaradi */
-                        }
-                    </style>
-
-
                 </div>
             </div>
         </div>
     </div>
-
-
 </x-app-layout>

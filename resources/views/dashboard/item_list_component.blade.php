@@ -47,22 +47,22 @@
                                             <span class="text-gray-600 text-sm"
                                                 title="{{ $item->murojaat_nomi ?? 'Noma\'lum' }}">
                                                 @php
-                                                $originalText = $item->murojaat_nomi ?? 'Noma\'lum';
-                                                $textToRemove = "Chirchiq davlat pedagogika universitetida";
+                                                    $originalText = $item->murojaat_nomi ?? 'Noma\'lum';
+                                                    $textToRemove = 'Chirchiq davlat pedagogika universitetida';
 
-                                                // Textni qayta ishlash
-                                                if (str_starts_with($originalText, $textToRemove)) {
-                                                    // Kerakmas so'zni olib tashlash
-                                                    $trimmedText = substr($originalText, strlen($textToRemove));
-                                                    // Boshi va oxiridagi bo'sh joylarni olib tashlash
-                                                    $trimmedText = trim($trimmedText);
-                                                    // Birinchi harfni katta qilish
-                                                    $formattedText = ucfirst($trimmedText);
-                                                } else {
-                                                    $formattedText = $originalText;
-                                                }
-                                            @endphp
-                                            {{ \Str::limit($formattedText, 100, '...') }}
+                                                    // Textni qayta ishlash
+                                                    if (str_starts_with($originalText, $textToRemove)) {
+                                                        // Kerakmas so'zni olib tashlash
+    $trimmedText = substr($originalText, strlen($textToRemove));
+    // Boshi va oxiridagi bo'sh joylarni olib tashlash
+                                                        $trimmedText = trim($trimmedText);
+                                                        // Birinchi harfni katta qilish
+                                                        $formattedText = ucfirst($trimmedText);
+                                                    } else {
+                                                        $formattedText = $originalText;
+                                                    }
+                                                @endphp
+                                                {{ \Str::limit($formattedText, 100, '...') }}
                                             </span>
                                         </div>
                                     </div>
@@ -203,14 +203,27 @@
                         <span id="modal-status-badge"></span>
                     </div>
                 </div>
-                <button type="button"
-                    class="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm p-2 inline-flex items-center transition-colors duration-200"
-                    data-modal-hide="default-modal">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
+                <div class="flex items-center gap-2">
+                    {{-- Status 0 bo'lganda edit button ko'rinadi --}}
+                    <div id="edit-button-container" style="display: none;">
+                        <a href="#" id="edit-link"
+                            class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Tahrirlash
+                        </a>
+                    </div>
+                    <button type="button"
+                        class="text-gray-400 bg-transparent hover:bg-gray-100 hover:text-gray-900 rounded-lg text-sm p-2 inline-flex items-center transition-colors duration-200"
+                        data-modal-hide="default-modal">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
             </div>
             <!-- Modal body -->
             <div class="modal-body p-6 overflow-y-auto" style="max-height: calc(90vh - 200px);">
@@ -219,29 +232,30 @@
         </div>
     </div>
 </div>
-
 <script>
-   document.addEventListener('DOMContentLoaded', function() {
-    const viewButtons = document.querySelectorAll('.view-details-btn');
-    const modal = document.querySelector('#default-modal');
-    const modalContent = modal.querySelector('.modal-content');
-    const modalBody = modal.querySelector('.modal-body');
-    const modalStatusBadge = modal.querySelector('#modal-status-badge');
-    const closeButtons = document.querySelectorAll('[data-modal-hide="default-modal"]');
+    document.addEventListener('DOMContentLoaded', function() {
+        const viewButtons = document.querySelectorAll('.view-details-btn');
+        const modal = document.querySelector('#default-modal');
+        const modalContent = modal.querySelector('.modal-content');
+        const modalBody = modal.querySelector('.modal-body');
+        const modalStatusBadge = modal.querySelector('#modal-status-badge');
+        const editButtonContainer = modal.querySelector('#edit-button-container');
+        const editLink = modal.querySelector('#edit-link');
+        const closeButtons = document.querySelectorAll('[data-modal-hide="default-modal"]');
 
-    function getStatusBadgeHTML(status) {
-        if (status === 1 || status === '1') {
-            return `<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-green-100 text-green-700 text-xs font-medium border border-green-100">
+        function getStatusBadgeHTML(status) {
+            if (status === 1 || status === '1') {
+                return `<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-green-100 text-green-700 text-xs font-medium border border-green-100">
                 <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
                 Maqullangan
             </span>`;
-        } else if (status === 0 || status === '0') {
-            return `<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-red-100 text-red-700 text-xs font-medium border border-red-100">
+            } else if (status === 0 || status === '0') {
+                return `<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-red-100 text-red-700 text-xs font-medium border border-red-100">
                 <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
                 Rad etilgan
             </span>`;
-        } else {
-            return `<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-yellow-100 text-yellow-700 text-xs font-medium border border-yellow-100">
+            } else {
+                return `<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-yellow-100 text-yellow-700 text-xs font-medium border border-yellow-100">
                 <span class="w-1.5 h-1.5 rounded-full bg-yellow-700 mr-1.5"></span>
                 Tekshiruvda
             </span>
@@ -249,56 +263,86 @@
                 <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5"></span>
                 Baholanmagan
             </span>`;
+            }
         }
-    }
 
-    function showModal() {
-        modal.classList.remove('hidden');
-        requestAnimationFrame(() => {
-            modal.classList.add('show');
-            modalContent.classList.add('show');
+        function showModal() {
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                modal.classList.add('show');
+                modalContent.classList.add('show');
+            });
+            document.body.style.overflow = 'hidden';
+        }
+
+        function hideModal() {
+            modal.classList.remove('show');
+            modalContent.classList.remove('show');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        function updateEditButton(status, tableName, itemId, formType) {
+            if (status === 0 || status === '0') {
+                editButtonContainer.style.display = 'block';
+
+                // Har doim oxirida _ borligini tekshirish
+                const tableNameWithUnderscore = tableName.endsWith('_') ? tableName : tableName + '_';
+
+                // Form type ga qarab URL ni shakllantirish
+                const baseUrl = formType === 'employee' ? '/show-employee-form/' : '/show-department-form/';
+                editLink.href = `${baseUrl}${tableNameWithUnderscore}?edit=${itemId}`;
+
+                // Debug log
+                console.log('Edit URL:', editLink.href);
+            } else {
+                editButtonContainer.style.display = 'none';
+            }
+        }
+
+        viewButtons.forEach(button => {
+            button.addEventListener('click', async function() {
+                const id = this.getAttribute('data-id');
+                try {
+                    const response = await fetch(`/getItemDetails/${id}`);
+                    const data = await response.json();
+
+                    if (data.error) {
+                        console.error('Error:', data.error);
+                        return;
+                    }
+
+                    modalBody.innerHTML = data.html;
+                    modalStatusBadge.innerHTML = getStatusBadgeHTML(data.status);
+
+                    // Edit button ni yangilash
+                    updateEditButton(data.status, data.tableName, data.itemId, data
+                        .formType);
+
+                    showModal();
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            });
         });
-        document.body.style.overflow = 'hidden';
-    }
 
-    function hideModal() {
-        modal.classList.remove('show');
-        modalContent.classList.remove('show');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            document.body.style.overflow = '';
-        }, 300);
-    }
 
-    viewButtons.forEach(button => {
-        button.addEventListener('click', async function() {
-            const id = this.getAttribute('data-id');
-            try {
-                const response = await fetch(`/getItemDetails/${id}`);
-                const data = await response.json();
-                modalBody.innerHTML = data.html;
-                modalStatusBadge.innerHTML = getStatusBadgeHTML(data.status);
-                showModal();
-            } catch (error) {
-                console.error('Error:', error);
+        closeButtons.forEach(button => {
+            button.addEventListener('click', hideModal);
+        });
+
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                hideModal();
+            }
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                hideModal();
             }
         });
     });
-
-    closeButtons.forEach(button => {
-        button.addEventListener('click', hideModal);
-    });
-
-    modal.addEventListener('click', function(event) {
-        if (event.target === modal) {
-            hideModal();
-        }
-    });
-
-    document.addEventListener('keydown', function(event) {
-        if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
-            hideModal();
-        }
-    });
-});
 </script>
