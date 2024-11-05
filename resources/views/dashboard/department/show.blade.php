@@ -137,7 +137,7 @@
                                                                     </svg>
                                                                 </div>
                                                                 <div>
-                                                                    <p class="text-sm text-gray-500">Kafedra reytingi
+                                                                    <p class="text-sm text-gray-500">Kafedra reytingi balli
                                                                     </p>
                                                                     <span
                                                                         class="bg-green-100 text-green-800 text-lg font-medium px-2.5 py-0.5 rounded">
@@ -315,9 +315,9 @@
                                     <h3 class="text-2xl font-bold text-gray-900 mb-6">Kafedra o'qituvchilari tomonidan
                                         yuborilgan ma'lumotlar</h3>
                                     <div class="bg-white overflow-hidden shadow-lg rounded-lg">
-                                   
+
                                             @include('dashboard.item_list_component')
-                                      
+
                                     </div>
                                 </div>
                             </div>

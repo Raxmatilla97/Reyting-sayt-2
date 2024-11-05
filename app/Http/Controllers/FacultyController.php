@@ -118,9 +118,11 @@ class FacultyController extends Controller
         if ($latestInfo) {
             $timeAgo = $latestInfo->created_at->diffForHumans();
             $fullName = $latestInfo->employee->full_name ?? "Ma'lumot topilmadi!";
+            $departEmployee = $latestInfo->employee->department->name ?? "Ma'lumot topilmadi!";
         } else {
             $timeAgo = "Ma'lumot yo'q";
             $fullName = "Ma'lumot topilmadi!";
+            $departEmployee = "Ma'lumot topilmadi!";
         }
 
         // Service ma'lumotlarini department ma'lumotlari bilan birlashtirish
@@ -137,6 +139,39 @@ class FacultyController extends Controller
             ];
         });
 
+        // Bar chart uchun ma'lumotlarni tayyorlash
+        $barChartData = $departments->map(function ($item) {
+            return [
+                'x' => mb_substr($item['department']->name, 0, 15),  // Qisqa nom
+                'full_name' => $item['department']->name,  // To'liq nom
+                'y' => round($item['points']['total_points'], 2)
+            ];
+        })->values()->toArray();
+        // Radar chart uchun ma'lumotlarni yig'ish
+        $radarChartData = [];
+        foreach ($faculty->departments as $department) {
+            foreach ($jadvallarCodlari as $key => $value) {
+                $count = $department->point_user_deportaments()
+                    ->where($key . 'id', '!=', null)
+                    ->where('status', 1)
+                    ->count();
+
+                // Faqat ma'lumot mavjud bo'lgan yo'nalishlarni qo'shamiz
+                if ($count > 0) {
+                    if (!isset($radarChartData[$key])) {
+                        $radarChartData[$key] = 0;
+                    }
+                    $radarChartData[$key] += $count;
+                }
+            }
+        }
+
+        // Radar chart uchun ma'lumotlarni formatlash (faqat ma'lumoti bor yo'nalishlar)
+        $radarData = [
+            'categories' => array_keys($radarChartData),
+            'series' => array_values($radarChartData)
+        ];
+
         return view('dashboard.faculty.show', compact(
             'faculty',
             'pointUserInformations',
@@ -145,13 +180,16 @@ class FacultyController extends Controller
             'totalInfos',
             'timeAgo',
             'fullName',
-            'departments'
+            'departments',
+            'barChartData',
+            'radarData',
+            'departEmployee'
         ));
     }
 
     public function getItemDetails($id)
     {
-        $item = PointUserDeportament::find($id);
+        $item = PointUserDeportament::findOrFail($id);
 
         if (!$item) {
             return response()->json(['error' => 'Item not found'], 404);
@@ -174,23 +212,33 @@ class FacultyController extends Controller
             return response()->json(['error' => 'No relationships defined'], 500);
         }
 
-        // $item->arizaga_javob ni $relatedData massiviga qo'shamiz
-        $arizaga_javob = $item->arizaga_javob;
-        $yaratilgan_sana = $item->created_at;
-        $tekshirilgan_sana = $item->updated_at;
+        // Ma'lumotlarni yig'ish
+        $data = [
+            'item' => $item,
+            'relatedData' => $relatedData,
+            'year' => $item->year,
+            'arizaga_javob' => $item->arizaga_javob,
+            'tekshirilgan_sana' => $item->updated_at,
+            'yaratilgan_sana' => $item->created_at,
+            'qoyilgan_ball' => is_numeric($item->point) ? round($item->point, 2) : 0,
+            'status' => $item->status,
+            'creator_id' => $item->user_id
+        ];
 
-        // Qo'yilgan ballni hisoblash
-        $qoyilgan_ball = 0;
-        if ($item->point !== null && is_numeric($item->point)) {
-            $qoyilgan_ball = round($item->point, 2);
+        try {
+            $view = view('dashboard.faculty.item-details', $data)->render();
+
+            return response()->json([
+                'html' => $view,
+                'status' => $item->status,
+                'creator_id' => $item->user_id
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'View rendering failed',
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        // $item->year ni ko'rinishga uzatamiz
-        $year = $item->year;
-
-        $view = view('dashboard.faculty.item-details', compact('item', 'relatedData', 'year', 'arizaga_javob', 'tekshirilgan_sana', 'yaratilgan_sana', 'qoyilgan_ball'))->render();
-
-        return response()->json(['html' => $view]);
     }
 
 

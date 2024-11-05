@@ -28,37 +28,37 @@ class DepartmentController extends Controller
      */
 
 
-     public function index(Request $request)
-     {
-         // Departamentlar uchun so'rov yaratish
-         $departments = Department::with(['point_user_deportaments' => function ($query) {
-             $query->where('status', 1)->with('departPoint');
-         }])->where('status', 1);
+    public function index(Request $request)
+    {
+        // Departamentlar uchun so'rov yaratish
+        $departments = Department::with(['point_user_deportaments' => function ($query) {
+            $query->where('status', 1)->with('departPoint');
+        }])->where('status', 1);
 
-         // Agar ism berilgan bo'lsa, qidirish
-         if ($request->filled('name')) {
-             $name = '%' . $request->name . '%';
-             $departments->where('name', 'like', $name);
-         }
+        // Agar ism berilgan bo'lsa, qidirish
+        if ($request->filled('name')) {
+            $name = '%' . $request->name . '%';
+            $departments->where('name', 'like', $name);
+        }
 
-         // Paginatsiyani qo'llaymiz
-         $departments = $departments->orderBy('created_at', 'desc')->paginate(21);
+        // Paginatsiyani qo'llaymiz
+        $departments = $departments->orderBy('created_at', 'desc')->paginate(21);
 
-         // Har bir departament uchun reytingni hisoblash
-         foreach ($departments as $department) {
-             $calculationResult = $this->pointCalculationService->calculateDepartmentPoints($department);
+        // Har bir departament uchun reytingni hisoblash
+        foreach ($departments as $department) {
+            $calculationResult = $this->pointCalculationService->calculateDepartmentPoints($department);
 
-             // Departament obyektiga yangi ma'lumotlarni qo'shish
-             $department->totalPoints = $calculationResult['total_n']; // N yig'indisi (reyting balli)
-             $department->teacherCount = $calculationResult['teacher_count'];
-             $department->studentCount = $calculationResult['student_count'];
-             $department->extraPoints = $calculationResult['extra_points'];
-             $department->teacherTotalPoints = $calculationResult['teacher_total_points'];
-             $department->totalWithExtra = $calculationResult['total_with_extra'];
-         }
+            // Departament obyektiga yangi ma'lumotlarni qo'shish
+            $department->totalPoints = $calculationResult['total_n']; // N yig'indisi (reyting balli)
+            $department->teacherCount = $calculationResult['teacher_count'];
+            $department->studentCount = $calculationResult['student_count'];
+            $department->extraPoints = $calculationResult['extra_points'];
+            $department->teacherTotalPoints = $calculationResult['teacher_total_points'];
+            $department->totalWithExtra = $calculationResult['total_with_extra'];
+        }
 
-         return view('dashboard.department.index', compact('departments'));
-     }
+        return view('dashboard.department.index', compact('departments'));
+    }
 
 
     public function departmentFormChose()
@@ -76,6 +76,32 @@ class DepartmentController extends Controller
         $pointUserInformations = PointUserDeportament::where('departament_id', $department->id)
             ->orderBy('created_at', 'desc')
             ->paginate(15);
+
+        // Department va Employee konfiguratsiyalarini olish
+        $departmentCodlari = Config::get('dep_emp_tables.department');
+        $employeeCodlari = Config::get('dep_emp_tables.employee');
+
+        // Ikkala massivni birlashtirish
+        $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
+
+        // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
+        $arrayKey = [];
+        foreach ($jadvallarCodlari as $key => $value) {
+            $arrayKey[$key . 'id'] = $key;
+        }
+
+        // Ma'lumotlar massivini tekshirish
+        foreach ($pointUserInformations as $pointUserInformation) {
+            foreach ($arrayKey as $column => $originalKey) {
+                // column tekshiriladi
+                if (isset($pointUserInformation->$column)) {
+                    // $murojaat_nomi o'rnatiladi
+                    $pointUserInformation->murojaat_nomi = $jadvallarCodlari[$originalKey];
+                    $pointUserInformation->murojaat_codi = $originalKey;
+                    break;
+                }
+            }
+        }
 
         $calculationResult = $this->pointCalculationService->calculateDepartmentPoints($department);
 

@@ -49,7 +49,7 @@
                                                 @php
                                                 $originalText = $item->murojaat_nomi ?? 'Noma\'lum';
                                                 $textToRemove = "Chirchiq davlat pedagogika universitetida";
-                                                
+
                                                 // Textni qayta ishlash
                                                 if (str_starts_with($originalText, $textToRemove)) {
                                                     // Kerakmas so'zni olib tashlash
@@ -188,8 +188,8 @@
 </style>
 
 <!-- Yangilangan Modal strukturasi -->
+<!-- Modal -->
 <div id="default-modal" tabindex="-1" aria-hidden="true"
-
     class="modal-backdrop hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
     <div class="relative p-4 w-full max-w-4xl max-h-[90vh]">
         <div class="modal-content relative bg-white rounded-2xl shadow-2xl overflow-hidden">
@@ -200,30 +200,7 @@
                         To'liq ma'lumot
                     </h3>
                     <div class="flex items-center gap-2">
-                        @if (isset($item->status) && ($item->status === '1' || $item->status === 1))
-                            <span
-                                class="inline-flex items-center px-2.5 py-1 rounded-md bg-green-100 text-green-700 text-xs font-medium border border-green-100">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
-                                Maqullangan
-                            </span>
-                        @elseif(isset($item->status) &&  ($item->status === '0' || $item->status === 0))
-                            <span
-                                class="inline-flex items-center px-2.5 py-1 rounded-md bg-red-100 text-red-700 text-xs font-medium border border-red-100">
-                                <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
-                                Rad etilgan
-                            </span>
-                        @else
-                            <span
-                                class="inline-flex items-center px-2.5 py-1 rounded-md bg-yellow-100 text-yellow-700 text-xs font-medium border border-yellow-100">
-                                <span class="w-1.5 h-1.5 rounded-full bg-yellow-700 mr-1.5"></span>
-                                Tekshiruvda
-                            </span>
-                            <span
-                                class="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-100 text-blue-700 text-xs font-medium border border-blue-100">
-                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5"></span>
-                                Baholanmagan
-                            </span>
-                        @endif
+                        <span id="modal-status-badge"></span>
                     </div>
                 </div>
                 <button type="button"
@@ -244,61 +221,84 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const viewButtons = document.querySelectorAll('.view-details-btn');
-        const modal = document.querySelector('#default-modal');
-        const modalContent = modal.querySelector('.modal-content');
-        const modalBody = modal.querySelector('.modal-body');
-        const closeButtons = document.querySelectorAll('[data-modal-hide="default-modal"]');
+   document.addEventListener('DOMContentLoaded', function() {
+    const viewButtons = document.querySelectorAll('.view-details-btn');
+    const modal = document.querySelector('#default-modal');
+    const modalContent = modal.querySelector('.modal-content');
+    const modalBody = modal.querySelector('.modal-body');
+    const modalStatusBadge = modal.querySelector('#modal-status-badge');
+    const closeButtons = document.querySelectorAll('[data-modal-hide="default-modal"]');
 
-        function showModal() {
-            modal.classList.remove('hidden');
-            // Keyingi frame'da animatsiyani ishga tushirish
-            requestAnimationFrame(() => {
-                modal.classList.add('show');
-                modalContent.classList.add('show');
-            });
-            document.body.style.overflow = 'hidden';
+    function getStatusBadgeHTML(status) {
+        if (status === 1 || status === '1') {
+            return `<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-green-100 text-green-700 text-xs font-medium border border-green-100">
+                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
+                Maqullangan
+            </span>`;
+        } else if (status === 0 || status === '0') {
+            return `<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-red-100 text-red-700 text-xs font-medium border border-red-100">
+                <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
+                Rad etilgan
+            </span>`;
+        } else {
+            return `<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-yellow-100 text-yellow-700 text-xs font-medium border border-yellow-100">
+                <span class="w-1.5 h-1.5 rounded-full bg-yellow-700 mr-1.5"></span>
+                Tekshiruvda
+            </span>
+            <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-100 text-blue-700 text-xs font-medium border border-blue-100">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5"></span>
+                Baholanmagan
+            </span>`;
         }
+    }
 
-        function hideModal() {
-            modal.classList.remove('show');
-            modalContent.classList.remove('show');
-            // Animatsiya tugashini kutish
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                document.body.style.overflow = '';
-            }, 300);
-        }
-
-        viewButtons.forEach(button => {
-            button.addEventListener('click', async function() {
-                const id = this.getAttribute('data-id');
-                try {
-                    const response = await fetch(`/getItemDetails/${id}`);
-                    const data = await response.json();
-                    modalBody.innerHTML = data.html;
-                    showModal();
-                } catch (error) {
-                    console.error('Error:', error);
-                }
-            });
+    function showModal() {
+        modal.classList.remove('hidden');
+        requestAnimationFrame(() => {
+            modal.classList.add('show');
+            modalContent.classList.add('show');
         });
+        document.body.style.overflow = 'hidden';
+    }
 
-        closeButtons.forEach(button => {
-            button.addEventListener('click', hideModal);
-        });
+    function hideModal() {
+        modal.classList.remove('show');
+        modalContent.classList.remove('show');
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }, 300);
+    }
 
-        modal.addEventListener('click', function(event) {
-            if (event.target === modal) {
-                hideModal();
-            }
-        });
-
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
-                hideModal();
+    viewButtons.forEach(button => {
+        button.addEventListener('click', async function() {
+            const id = this.getAttribute('data-id');
+            try {
+                const response = await fetch(`/getItemDetails/${id}`);
+                const data = await response.json();
+                modalBody.innerHTML = data.html;
+                modalStatusBadge.innerHTML = getStatusBadgeHTML(data.status);
+                showModal();
+            } catch (error) {
+                console.error('Error:', error);
             }
         });
     });
+
+    closeButtons.forEach(button => {
+        button.addEventListener('click', hideModal);
+    });
+
+    modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            hideModal();
+        }
+    });
+
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+            hideModal();
+        }
+    });
+});
 </script>

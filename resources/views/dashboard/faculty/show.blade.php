@@ -11,7 +11,13 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl rounded-2xl">
                 <div class="p-6 bg-white">
-                    <div x-data="{ activeTab: 'yuborilgan' }" class="container mx-auto">
+                    <div x-data="{
+                        activeTab: window.location.search.includes('page=') ? 'yuborilgan' : localStorage.getItem('activeTab') || 'about_us'
+                    }"
+                    class="container mx-auto"
+                    @load.window="() => {
+                        $watch('activeTab', value => localStorage.setItem('activeTab', value))
+                    }">
                         <!-- Mobile Tab Dropdown -->
                         <div class="sm:hidden mb-6">
                             <select x-model="activeTab"
@@ -181,38 +187,75 @@
                                             <!-- Hisob-kitob ma'lumotlari -->
                                             <div class="p-4 mt-4 text-sm rounded-lg bg-blue-50 shadow-md"
                                                 role="alert">
-                                                {{-- <!-- Kafedraga o'tgan ballar -->
+                                                <!-- Kafedraga o'tgan ballar -->
                                                 <div
-                                                    class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
-                                                    <div class="flex items-center gap-4">
-                                                        <div class="p-3 bg-indigo-100 rounded-full">
-                                                            <svg class="w-6 h-6 text-indigo-600" fill="none"
-                                                                stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round"
-                                                                    stroke-width="2"
-                                                                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z">
-                                                                </path>
-                                                            </svg>
-                                                        </div>
-                                                        <div>
-                                                            <p class="text-sm text-gray-500">Fakultet ballari</p>
-                                                            <span
-                                                                class="bg-indigo-100 mr-2 text-indigo-800 text-sm font-medium px-1 py-0.5 rounded">
-                                                                {{ $departmentExtraPoints }}
-                                                            </span>
-                                                            +
-                                                            <span
-                                                                class="bg-green-100 ml-2 mr-2 text-green-800 text-sm font-medium px-1 py-0.5 rounded">
-                                                                {{ $teacherTotalPoints }}
-                                                            </span>
-                                                            =
-                                                            <span
-                                                                class="bg-green-100 ml-2 text-green-800 text-sm font-medium px-1 py-0.5 rounded">
-                                                                {{ $totalWithExtra }} ball
-                                                            </span>
+                                                    class="bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-300 overflow-hidden">
+                                                    <div class="p-6">
+                                                        <!-- Header qismi -->
+                                                        <div class="flex items-start space-x-4">
+                                                            <!-- Icon container -->
+                                                            <div class="flex-shrink-0">
+                                                                <div
+                                                                    class="p-3 bg-gradient-to-br from-indigo-100 to-indigo-200 rounded-xl shadow-sm">
+                                                                    <svg class="w-6 h-6 text-indigo-600"
+                                                                        fill="none" stroke="currentColor"
+                                                                        viewBox="0 0 24 24">
+                                                                        <path stroke-linecap="round"
+                                                                            stroke-linejoin="round" stroke-width="2"
+                                                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z">
+                                                                        </path>
+                                                                    </svg>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Content container -->
+                                                            <div class="flex-1">
+                                                                <h3 class="text-sm font-medium text-gray-500 mb-2.5">
+                                                                    Oxirgi ma'lumotni yuborgan o'qituvchi
+                                                                </h3>
+                                                                <div class="flex flex-wrap items-center gap-2">
+                                                                    <!-- O'qituvchi ismi -->
+                                                                    <div
+                                                                        class="inline-flex items-center bg-gradient-to-r from-indigo-50 to-indigo-100
+                                                                                rounded-lg px-3 py-1.5 shadow-sm">
+                                                                        <svg class="w-4 h-4 text-indigo-500 mr-2"
+                                                                            fill="none" stroke="currentColor"
+                                                                            viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                stroke-width="2"
+                                                                                d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z">
+                                                                            </path>
+                                                                        </svg>
+                                                                        <span
+                                                                            class="text-sm font-medium text-indigo-700">
+                                                                            {{ $fullName }}
+                                                                        </span>
+                                                                    </div>
+
+                                                                    <!-- Kafedra nomi -->
+                                                                    <div
+                                                                        class="inline-flex items-center bg-gradient-to-r from-indigo-50 to-indigo-100
+                                                                                rounded-lg px-3 py-1.5 shadow-sm">
+                                                                        <svg class="w-4 h-4 text-indigo-500 mr-2"
+                                                                            fill="none" stroke="currentColor"
+                                                                            viewBox="0 0 24 24">
+                                                                            <path stroke-linecap="round"
+                                                                                stroke-linejoin="round"
+                                                                                stroke-width="2"
+                                                                                d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4">
+                                                                            </path>
+                                                                        </svg>
+                                                                        <span
+                                                                            class="text-sm font-medium text-indigo-700">
+                                                                            {{ $departEmployee }}
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div> --}}
+                                                </div>
 
                                             </div>
                                         </div>
@@ -220,7 +263,26 @@
                                 </div>
 
 
-                              {{-- {!! $pointsCalculationExplanation !!} --}}
+                                <!-- Chartlar uchun container -->
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                                    <!-- Bar Chart -->
+                                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                                        <div class="p-6">
+                                            <h2 class="text-lg font-semibold text-gray-700 mb-4">Kafedralar reytingi
+                                            </h2>
+                                            <div id="barChart" class="h-[400px]"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Radar Chart -->
+                                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                                        <div class="p-6">
+                                            <h2 class="text-lg font-semibold text-gray-700 mb-4">Yo'nalishlar bo'yicha
+                                                ma'lumotlar</h2>
+                                            <div id="radarChart" class="h-[400px]"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Department List Tab -->
@@ -254,43 +316,48 @@
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
                                             @foreach ($departments as $item)
-                                            @php
-                                                $department = $item['department'];
-                                                $points = $item['points'];
-                                            @endphp
-                                            <tr class="hover:bg-blue-50 transition-colors duration-200">
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <div class="flex items-center">
-                                                        <div class="flex-shrink-0 h-12 w-12">
-                                                            <span class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
-                                                                <span class="text-xl font-medium">{{ substr($department->name, 0, 2) }}</span>
-                                                            </span>
+                                                @php
+                                                    $department = $item['department'];
+                                                    $points = $item['points'];
+                                                @endphp
+                                                <tr class="hover:bg-blue-50 transition-colors duration-200">
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <div class="flex items-center">
+                                                            <div class="flex-shrink-0 h-12 w-12">
+                                                                <span
+                                                                    class="inline-flex items-center justify-center h-12 w-12 rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+                                                                    <span
+                                                                        class="text-xl font-medium">{{ substr($department->name, 0, 2) }}</span>
+                                                                </span>
+                                                            </div>
+                                                            <div class="ml-4">
+                                                                <a href="{{ route('dashboard.departmentShow', ['slug' => $department->slug]) }}"
+                                                                    class="text-lg font-medium text-gray-900 hover:text-indigo-600 transition-colors duration-200">
+                                                                    {{ $department->name }}
+                                                                </a>
+                                                            </div>
                                                         </div>
-                                                        <div class="ml-4">
-                                                            <a href="{{ route('dashboard.departmentShow', ['slug' => $department->slug]) }}"
-                                                                class="text-lg font-medium text-gray-900 hover:text-indigo-600 transition-colors duration-200">
-                                                                {{ $department->name }}
-                                                            </a>
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="px-3 py-1 inline-flex text-lg leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
-                                                        {{ $points['teacher_count'] }}
-                                                    </span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="px-3 py-1 inline-flex text-lg leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                        {{ $department->point_user_deportaments->count() }}
-                                                    </span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
-                                                    <span class="px-3 py-1 inline-flex text-lg leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
-                                                        {{ $points['total_points'] }}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        @endforeach
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span
+                                                            class="px-3 py-1 inline-flex text-lg leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                                                            {{ $points['teacher_count'] }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span
+                                                            class="px-3 py-1 inline-flex text-lg leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                            {{ $department->point_user_deportaments->count() }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="px-6 py-4 whitespace-nowrap">
+                                                        <span
+                                                            class="px-3 py-1 inline-flex text-lg leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                                                            {{ $points['total_points'] }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
                                         </tbody>
                                     </table>
                                 </div>
@@ -334,20 +401,295 @@
         </style>
     @endpush
 
-    @push('scripts')
-        <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                let initialTab = window.location.search.includes('page=') ? 'yuborilgan' : 'about_us';
 
-                window.Alpine.data('tabs', () => ({
-                    activeTab: initialTab,
-                    init() {
-                        this.$watch('activeTab', value => {
-                            localStorage.setItem('activeTab', value);
-                        })
+    @push('scripts')
+    <script>
+        // URL dan page parametrini tekshirish
+        const hasPageParam = window.location.search.includes('page=');
+
+        // Agar URL da page parametri bo'lsa activeTab ni yuborilgan ga o'zgartirish
+        if (hasPageParam) {
+            localStorage.setItem('activeTab', 'yuborilgan');
+        }
+
+        // Sahifa yuklanganda
+        window.addEventListener('load', () => {
+            const activeTab = hasPageParam ? 'yuborilgan' : (localStorage.getItem('activeTab') || 'about_us');
+
+            // Alpine.js state ni yangilash
+            if (window.Alpine) {
+                const component = document.querySelector('[x-data]').__x;
+                if (component) {
+                    component.$data.activeTab = activeTab;
+                }
+            }
+        });
+    </script>
+
+    <script>
+        // Bar Chart
+        var barOptions = {
+            series: [{
+                name: 'Reyting bali',
+                data: @json($barChartData)
+            }],
+            chart: {
+                type: 'bar',
+                height: 350,
+                fontFamily: 'Inter, sans-serif',
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        selection: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true
                     }
-                }));
+                }
+            },
+            plotOptions: {
+                bar: {
+                    horizontal: false,
+                    borderRadius: 4,
+                    columnWidth: '70%',
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: function(val) {
+                    return val.toFixed(1);
+                },
+                style: {
+                    fontSize: '12px'
+                }
+            },
+            colors: ['#4F46E5'],
+            xaxis: {
+                type: 'category',
+                labels: {
+                    style: {
+                        fontSize: '12px',
+                        fontWeight: 500,
+                    },
+                    rotate: -45,
+                    rotateAlways: true,
+                    trim: false,
+                    maxHeight: 120
+                }
+            },
+            yaxis: {
+                title: {
+                    text: 'Reyting bali',
+                    style: {
+                        fontSize: '13px',
+                        fontWeight: 500
+                    }
+                },
+                labels: {
+                    formatter: function(val) {
+                        return val.toFixed(1);
+                    }
+                },
+                // Ballar orasidagi farqni normallashtirish
+                min: function(min) {
+                    return min * 0.8;
+                },
+                max: function(max) {
+                    return max * 1.2;
+                }
+            },
+            tooltip: {
+                custom: function({
+                    series,
+                    seriesIndex,
+                    dataPointIndex,
+                    w
+                }) {
+                    const data = w.config.series[seriesIndex].data[dataPointIndex];
+                    return '<div class="p-2">' +
+                        '<div class="font-semibold">' + data.full_name + '</div>' +
+                        '<div>Ball: ' + data.y.toFixed(2) + '</div>' +
+                        '</div>';
+                }
+            }
+        };
+
+        // Chartlarni render qilish
+        var barChart = new ApexCharts(document.querySelector("#barChart"), barOptions);
+
+
+        barChart.render();
+    </script>
+
+    <script>
+        // Radar Chart
+        var radarOptions = {
+            series: [{
+                name: "Ma'lumotlar soni",
+                data: @json($radarData['series'])
+            }],
+            chart: {
+                type: 'radar',
+                height: 350,
+                fontFamily: 'Inter, sans-serif',
+                toolbar: {
+                    show: true,
+                    tools: {
+                        download: true,
+                        zoom: true,
+                        zoomin: true,
+                        zoomout: true,
+                        pan: true,
+                        reset: true
+                    },
+                    export: {
+                        csv: {
+                            filename: 'Yo\'nalishlar bo\'yicha ma\'lumotlar',
+                        },
+                        svg: {
+                            filename: 'Yo\'nalishlar bo\'yicha ma\'lumotlar',
+                        },
+                        png: {
+                            filename: 'Yo\'nalishlar bo\'yicha ma\'lumotlar',
+                        }
+                    }
+                }
+            },
+            plotOptions: {
+                radar: {
+                    size: 140,
+                    polygons: {
+                        strokeColor: '#e9e9e9',
+                        fill: {
+                            colors: ['#f8f8f8', '#fff']
+                        }
+                    }
+                }
+            },
+            colors: ['#4F46E5'],
+            stroke: {
+                width: 2
+            },
+            fill: {
+                opacity: 0.5
+            },
+            markers: {
+                size: 5,
+                hover: {
+                    size: 7
+                }
+            },
+            xaxis: {
+                categories: @json($radarData['categories']),
+                labels: {
+                    style: {
+                        fontSize: '11px',
+                        fontWeight: 500
+                    },
+                    formatter: function(value) {
+                        return value.toString();
+                    }
+                }
+            },
+            yaxis: {
+                show: true,
+                tickAmount: 6,
+                labels: {
+                    formatter: function(val) {
+                        return val.toFixed(0);
+                    }
+                }
+            },
+            tooltip: {
+                enabled: true,
+                y: {
+                    formatter: function(val) {
+                        return val.toFixed(0) + ' ta';
+                    }
+                }
+            },
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                    chart: {
+                        height: 300
+                    }
+                }
+            }]
+        };
+
+
+        // Radar chartni render qilish
+        var radarChart = new ApexCharts(document.querySelector("#radarChart"), radarOptions);
+        radarChart.render();
+
+        // Event listenerlarni qo'shish
+        document.addEventListener("DOMContentLoaded", function() {
+            const chartElement = document.querySelector("#radarChart");
+            let scale = 1;
+            const ZOOM_SPEED = 0.15; // Zoom tezligini oshirdik
+            const MAX_ZOOM = 5; // Maksimal zoomni oshirdik
+            const MIN_ZOOM = 0.5; // Minimal zoom
+
+            chartElement.addEventListener('wheel', function(e) {
+                e.preventDefault();
+
+                const delta = e.deltaY > 0 ? -ZOOM_SPEED : ZOOM_SPEED;
+                scale = Math.min(Math.max(MIN_ZOOM, scale + delta), MAX_ZOOM);
+
+                // Chartni yangilash
+                radarChart.updateOptions({
+                    plotOptions: {
+                        radar: {
+                            size: 140 * scale
+                        }
+                    }
+                });
+            }, {
+                passive: false
             });
-        </script>
-    @endpush
+
+            // Touch eventlar uchun
+            let touchStartDistance = 0;
+
+            chartElement.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    touchStartDistance = Math.hypot(
+                        e.touches[0].pageX - e.touches[1].pageX,
+                        e.touches[0].pageY - e.touches[1].pageY
+                    );
+                }
+            });
+
+            chartElement.addEventListener('touchmove', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+
+                    const distance = Math.hypot(
+                        e.touches[0].pageX - e.touches[1].pageX,
+                        e.touches[0].pageY - e.touches[1].pageY
+                    );
+
+                    const delta = (distance - touchStartDistance) * 0.015; // Touch zoom tezligini oshirdik
+                    scale = Math.min(Math.max(MIN_ZOOM, scale + delta), MAX_ZOOM);
+
+                    radarChart.updateOptions({
+                        plotOptions: {
+                            radar: {
+                                size: 140 * scale
+                            }
+                        }
+                    });
+
+                    touchStartDistance = distance;
+                }
+            }, {
+                passive: false
+            });
+        });
+    </script>
+@endpush
 </x-app-layout>
