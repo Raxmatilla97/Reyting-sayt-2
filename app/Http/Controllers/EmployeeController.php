@@ -42,7 +42,7 @@ class EmployeeController extends Controller
             // To'liq ism bilan qidirish
             $fullName = '%' . $request->name . '%';
             $query->orWhere(DB::raw("CONCAT(first_name, ' ', second_name, ' ', third_name)"), 'like', $fullName)
-                  ->orWhere(DB::raw("CONCAT(second_name, ' ', first_name, ' ', third_name)"), 'like', $fullName);
+                ->orWhere(DB::raw("CONCAT(second_name, ' ', first_name, ' ', third_name)"), 'like', $fullName);
         }
 
         // Tartiblash va paginatsiya qilish
@@ -106,9 +106,11 @@ class EmployeeController extends Controller
             }
 
             // Umumiy ballarni hisoblash
-            $totalPoints = PointUserDeportament::where('user_id', $employee->id)
-                ->where('status', 1)
-                ->sum('point');
+            $totalPointsSuccess = PointUserDeportament::where('user_id', $employee->id)
+                ->where('status', 1);
+
+            $totalPoints = $totalPointsSuccess->sum('point');
+            $totalInfos = $totalPointsSuccess->count() ? $totalPointsSuccess->count() : 0;
 
 
             // O'qituvchining barcha departamentga o'tib ketgan ballari yi'gindisi
@@ -122,11 +124,32 @@ class EmployeeController extends Controller
 
             // $totalPoints = $employee->department ? $totalPoints : 'N/A';
 
-            return view('dashboard.employee.show', compact('employee', 'pointUserInformations', 'totalPoints', 'departamentPointTotal'));
+            // Statistika uchun barcha ma'lumotlarni olish (paginatsiyasiz)
+            $allUserInformations = PointUserDeportament::where('user_id', $employee->id)
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            // Kunlik statistika uchun ma'lumotlarni guruhlash
+            $dailyStats = $allUserInformations
+                ->groupBy(function ($item) {
+                    return $item->created_at->format('Y-m-d');
+                })
+                ->map(function ($group) {
+                    return [
+                        'total' => $group->count(),
+                        'accepted' => $group->where('status', 1)->count(),
+                        'rejected' => $group->where('status', 0)->count()
+                    ];
+                });
+
+
+            return view('dashboard.employee.show', compact('employee', 'pointUserInformations', 'totalPoints', 'departamentPointTotal', 'totalInfos', 'dailyStats'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+
             // Xodim topilmasa, xato xabarini ko'rsatamiz
             return back()->with('error', "ID: $employee_id bo'lgan xodim topilmadi.");
         } catch (\Exception $e) {
+
             // Boshqa xatoliklar uchun
             \Log::error('Xodim ma\'lumotlarini olishda xatolik: ' . $e->getMessage());
             return back()->with('error', 'Ma\'lumotlarni olishda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko\'ring.');
@@ -155,9 +178,11 @@ class EmployeeController extends Controller
         }
 
         // Umumiy ballar yig'indisini hisoblash (pagination dan tashqari)
-        $totalPoints = PointUserDeportament::where('user_id', $user->id)
-            ->where('status', 1)
-            ->sum('point');
+        $totalPointsSuccess = PointUserDeportament::where('user_id', $user->id)
+            ->where('status', 1);
+
+        $totalPoints = $totalPointsSuccess->sum('point') ? $totalPointsSuccess->sum('point') : 0;
+        $totalInfos = $totalPointsSuccess->count() ? $totalPointsSuccess->count() : 0;
 
         // DepartPoints ballarini hisoblash (pagination dan tashqari)
         $departamentPointTotal = DepartPoints::whereIn('point_user_deport_id', function ($query) use ($user) {
@@ -165,6 +190,25 @@ class EmployeeController extends Controller
                 ->from('point_user_deportaments')
                 ->where('user_id', $user->id);
         })->sum('point');
+
+        // Statistika uchun barcha ma'lumotlar (paginatsiyasiz)
+        $allUserInformations = PointUserDeportament::where('user_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Kunlik statistika uchun ma'lumotlarni guruhlash
+        $dailyStats = $allUserInformations
+            ->groupBy(function ($item) {
+                return $item->created_at->format('Y-m-d');
+            })
+            ->map(function ($group) {
+                return [
+                    'total' => $group->count(),
+                    'accepted' => $group->where('status', 1)->count(),
+                    'rejected' => $group->where('status', 0)->count()
+                ];
+            });
+
 
         // Ma'lumotlar massivini tekshirish
         foreach ($pointUserInformations as $pointUserInformation) {
@@ -179,7 +223,7 @@ class EmployeeController extends Controller
             }
         }
 
-        return view('dashboard.my_submited_info', compact('pointUserInformations', 'totalPoints', 'departamentPointTotal'));
+        return view('dashboard.my_submited_info', compact('pointUserInformations', 'totalPoints', 'departamentPointTotal', 'totalInfos', 'dailyStats'));
     }
 
     public function list(Request $request)

@@ -86,18 +86,18 @@
                 $kutushdaCount = $pointUserInformations2->where('status', '3')->count();
                 $radEtilganCount = $pointUserInformations2->where('status', '0')->count();
 
-                // Kunlik statistika
-                $dailyStats = $pointUserInformations2
-                    ->groupBy(function ($item) {
-                        return $item->created_at->format('Y-m-d');
-                    })
-                    ->map(function ($items) {
-                        return [
-                            'total' => $items->count(),
-                            'accepted' => $items->where('status', '1')->count(),
-                            'rejected' => $items->where('status', '0')->count(),
-                        ];
-                    });
+                // // Kunlik statistika
+                // $dailyStats = $pointUserInformations2
+                //     ->groupBy(function ($item) {
+                //         return $item->created_at->format('Y-m-d');
+                //     })
+                //     ->map(function ($items) {
+                //         return [
+                //             'total' => $items->count(),
+                //             'accepted' => $items->where('status', '1')->count(),
+                //             'rejected' => $items->where('status', '0')->count(),
+                //         ];
+                //     });
             @endphp
             <div class="bg-white rounded-xl shadow-lg overflow-hidden p-6">
                 <!-- Grid layout for charts -->

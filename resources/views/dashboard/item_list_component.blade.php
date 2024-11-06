@@ -3,7 +3,10 @@
         <!-- Header qismi -->
         <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6">
             <h2 class="text-xl font-bold text-white">Ma'lumotlar ro'yxati</h2>
-            <p class="text-blue-100 mt-2">Jami: {{ $pointUserInformations->total() }} ta ma'lumot mavjud</p>
+            <div class="flex gap-4">
+                <p class="text-blue-100 mt-2">Jami: {{ $pointUserInformations->total() }} ta ma'lumot mavjud</p>
+                <p class="text-green-300 mt-2">Shundan qabul qilingan: {{ $totalInfos }} ta</p>
+            </div>
         </div>
 
         <!-- Table qismi -->
@@ -156,13 +159,12 @@
 
 <!-- Modal -->
 <style>
-    /* Modal animatsiyalari */
     .modal-backdrop {
-        transition: all 0.3s ease-out;
         opacity: 0;
+        transition: opacity 0.3s ease-out;
     }
 
-    .modal-backdrop.show {
+    .modal-backdrop:not(.hidden) {
         opacity: 1;
     }
 
@@ -172,23 +174,30 @@
         transition: all 0.3s ease-out;
     }
 
-    .modal-content.show {
+    .modal-content:not(.hidden) {
         transform: scale(1);
         opacity: 1;
     }
 
-    /* Hover effekti uchun */
-    .truncate-text {
-        display: -webkit-box;
-        -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical;
-        overflow: hidden;
-        text-overflow: ellipsis;
+    .modal-body {
+        scrollbar-width: thin;
+        scrollbar-color: #CBD5E0 #F7FAFC;
+    }
+
+    .modal-body::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .modal-body::-webkit-scrollbar-track {
+        background: #F7FAFC;
+    }
+
+    .modal-body::-webkit-scrollbar-thumb {
+        background-color: #CBD5E0;
+        border-radius: 4px;
     }
 </style>
 
-<!-- Yangilangan Modal strukturasi -->
-<!-- Modal -->
 <div id="default-modal" tabindex="-1" aria-hidden="true"
     class="modal-backdrop hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-center justify-center">
     <div class="relative p-4 w-full max-w-4xl max-h-[90vh]">
@@ -197,14 +206,13 @@
             <div class="modal-header flex items-center justify-between p-6 border-b">
                 <div class="flex items-center gap-3">
                     <h3 class="text-xl font-bold text-gray-900">
-                        To'liq ma'lumot
+                        Ma'lumot ko'rish
                     </h3>
                     <div class="flex items-center gap-2">
                         <span id="modal-status-badge"></span>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    {{-- Status 0 bo'lganda edit button ko'rinadi --}}
                     <div id="edit-button-container" style="display: none;">
                         <a href="#" id="edit-link"
                             class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 flex items-center gap-2">
@@ -226,122 +234,80 @@
                 </div>
             </div>
             <!-- Modal body -->
-            <div class="modal-body p-6 overflow-y-auto" style="max-height: calc(90vh - 200px);">
+            <div id="modal-body" class="modal-body p-6 overflow-y-auto" style="max-height: calc(90vh - 200px);">
                 <!-- AJAX content -->
             </div>
         </div>
     </div>
 </div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const viewButtons = document.querySelectorAll('.view-details-btn');
-        const modal = document.querySelector('#default-modal');
-        const modalContent = modal.querySelector('.modal-content');
-        const modalBody = modal.querySelector('.modal-body');
-        const modalStatusBadge = modal.querySelector('#modal-status-badge');
-        const editButtonContainer = modal.querySelector('#edit-button-container');
-        const editLink = modal.querySelector('#edit-link');
-        const closeButtons = document.querySelectorAll('[data-modal-hide="default-modal"]');
+        const modal = document.getElementById('default-modal');
+        const modalBody = document.getElementById('modal-body');
+        const editButton = document.getElementById('edit-button-container');
+        const editLink = document.getElementById('edit-link');
 
-        function getStatusBadgeHTML(status) {
-            if (status === 1 || status === '1') {
-                return `<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-green-100 text-green-700 text-xs font-medium border border-green-100">
-                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5"></span>
-                Maqullangan
-            </span>`;
-            } else if (status === 0 || status === '0') {
-                return `<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-red-100 text-red-700 text-xs font-medium border border-red-100">
-                <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-1.5"></span>
-                Rad etilgan
-            </span>`;
-            } else {
-                return `<span class="inline-flex items-center px-2.5 py-1 rounded-md bg-yellow-100 text-yellow-700 text-xs font-medium border border-yellow-100">
-                <span class="w-1.5 h-1.5 rounded-full bg-yellow-700 mr-1.5"></span>
-                Tekshiruvda
-            </span>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-blue-100 text-blue-700 text-xs font-medium border border-blue-100">
-                <span class="w-1.5 h-1.5 rounded-full bg-blue-500 mr-1.5"></span>
-                Baholanmagan
-            </span>`;
-            }
+        function closeModal() {
+            modal.classList.add('hidden');
+            modalBody.innerHTML = '';
+            editButton.style.display = 'none';
         }
 
-        function showModal() {
-            modal.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                modal.classList.add('show');
-                modalContent.classList.add('show');
-            });
-            document.body.style.overflow = 'hidden';
-        }
+        // Ko'rish tugmalari
+        document.querySelectorAll('.view-details-btn').forEach(button => {
+            button.addEventListener('click', async function(e) {
+                e.preventDefault();
+                const itemId = this.getAttribute('data-id');
 
-        function hideModal() {
-            modal.classList.remove('show');
-            modalContent.classList.remove('show');
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                document.body.style.overflow = '';
-            }, 300);
-        }
-
-        function updateEditButton(status, tableName, itemId, formType) {
-            if (status === 0 || status === '0') {
-                editButtonContainer.style.display = 'block';
-
-                // Har doim oxirida _ borligini tekshirish
-                const tableNameWithUnderscore = tableName.endsWith('_') ? tableName : tableName + '_';
-
-                // Form type ga qarab URL ni shakllantirish
-                const baseUrl = formType === 'employee' ? '/show-employee-form/' : '/show-department-form/';
-                editLink.href = `${baseUrl}${tableNameWithUnderscore}?edit=${itemId}`;
-
-                // Debug log
-                console.log('Edit URL:', editLink.href);
-            } else {
-                editButtonContainer.style.display = 'none';
-            }
-        }
-
-        viewButtons.forEach(button => {
-            button.addEventListener('click', async function() {
-                const id = this.getAttribute('data-id');
                 try {
-                    const response = await fetch(`/getItemDetails/${id}`);
+                    modalBody.innerHTML = '<div class="text-center">Loading...</div>';
+                    modal.classList.remove('hidden');
+
+                    const response = await fetch(`/getItemDetails/${itemId}`);
                     const data = await response.json();
 
                     if (data.error) {
-                        console.error('Error:', data.error);
+                        modalBody.innerHTML =
+                            '<div class="text-red-500">Xatolik yuz berdi</div>';
                         return;
                     }
 
                     modalBody.innerHTML = data.html;
-                    modalStatusBadge.innerHTML = getStatusBadgeHTML(data.status);
 
-                    // Edit button ni yangilash
-                    updateEditButton(data.status, data.tableName, data.itemId, data
-                        .formType);
+                    if (data.status === 0 && data.creator_id === {{ Auth::id() }}) {
+                        editButton.style.display = 'block';
+                        const baseUrl = data.formType === 'employee' ?
+                            '/show-employee-form/' : '/show-department-form/';
+                        editLink.href = `${baseUrl}${data.tableName}?edit=${data.itemId}`;
+                    } else {
+                        editButton.style.display = 'none';
+                    }
 
-                    showModal();
                 } catch (error) {
                     console.error('Error:', error);
+                    modalBody.innerHTML =
+                        '<div class="text-red-500">Xatolik yuz berdi</div>';
                 }
             });
         });
 
-
-        closeButtons.forEach(button => {
-            button.addEventListener('click', hideModal);
+        // Modal yopish
+        document.querySelectorAll('[data-modal-hide="default-modal"]').forEach(button => {
+            button.addEventListener('click', closeModal);
         });
 
-        modal.addEventListener('click', function(event) {
-            if (event.target === modal) {
-                hideModal();
+        // Modal tashqarisiga bosilganda
+        modal.addEventListener('click', function(e) {
+            if (!e.target.closest('.modal-content')) {
+                closeModal();
             }
         });
 
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
-                hideModal();
+        // Escape tugmasi
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
             }
         });
     });

@@ -66,9 +66,16 @@ class FacultyController extends Controller
     {
         $faculty = Faculty::where('slug', $slug)->firstOrFail();
 
-        $pointUserInformations = PointUserDeportament::whereIn('departament_id', $faculty->departments->pluck('id'))
+        $pointUserInformations = PointUserDeportament::whereIn(
+            'departament_id',
+            $faculty->departments->where('status', 1)->pluck('id')
+        )  // Faqat aktiv kafedralar
+            ->whereHas('employee', function ($q) {  // Faqat aktiv hodimlar
+                $q->where('status', 1);
+            })
             ->orderBy('created_at', 'desc')
             ->paginate('15');
+
 
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');
@@ -105,17 +112,33 @@ class FacultyController extends Controller
         $departmentsData = $calculationResult['departments_data'];
 
         // Fakultet umumiy ma'lumotlar soni
-        $totalInfos = $faculty->departments->sum(function ($department) {
-            return $department->point_user_deportaments->count();
-        });
+        $totalInfos = $faculty->departments
+            ->where('status', 1)  // Faqat aktiv kafedralar
+            ->sum(function ($department) {
+                return $department->point_user_deportaments()
+                    ->whereHas('employee', function ($q) {  // Faqat aktiv hodimlar
+                        $q->where('status', 1);
+                    })
+                    ->where('status', 1)  // Tasdiqlangan ma'lumotlar
+                    ->count();
+            });
 
         // Eng so'nggi ma'lumot vaqti va egasini aniqlash
-        $latestInfo = PointUserDeportament::whereIn('departament_id', $faculty->departments->pluck('id'))
-            ->with('employee')
+        $latestInfo = PointUserDeportament::whereIn(
+            'departament_id',
+            $faculty->departments->where('status', 1)->pluck('id')
+        )  // Faqat aktiv kafedralar
+            ->whereHas('employee', function ($q) {  // Faqat aktiv hodimlar
+                $q->where('status', 1);
+            })
+            ->where('status', 1)  // Tasdiqlangan ma'lumotlar
+            ->with(['employee' => function ($q) {
+                $q->where('status', 1);  // Employee ma'lumotlarini olishda ham aktiv hodimlarnigina olish
+            }])
             ->latest()
             ->first();
 
-        if ($latestInfo) {
+        if ($latestInfo && $latestInfo->employee) {
             $timeAgo = $latestInfo->created_at->diffForHumans();
             $fullName = $latestInfo->employee->full_name ?? "Ma'lumot topilmadi!";
             $departEmployee = $latestInfo->employee->department->name ?? "Ma'lumot topilmadi!";
@@ -125,19 +148,27 @@ class FacultyController extends Controller
             $departEmployee = "Ma'lumot topilmadi!";
         }
 
-        // Service ma'lumotlarini department ma'lumotlari bilan birlashtirish
-        $departments = $faculty->departments->map(function ($department) use ($departmentsData) {
-            $departmentInfo = collect($departmentsData)->firstWhere('department_name', $department->name);
 
-            return [
-                'department' => $department,
-                'points' => [
-                    'total_points' => $departmentInfo['total_n'] ?? 0,
-                    'teacher_count' => $departmentInfo['teacher_count'] ?? 0,
-                    'extra_points' => $departmentInfo['extra_points'] ?? 0,
-                ]
-            ];
-        });
+        // Service ma'lumotlarini department ma'lumotlari bilan birlashtirish
+        $departments = $faculty->departments
+            ->map(function ($department) use ($departmentsData) {
+                $departmentInfo = collect($departmentsData)->firstWhere('department_name', $department->name);
+
+                return [
+                    'department' => $department,
+                    'points' => [
+                        'total_points' => $departmentInfo['total_n'] ?? 0,
+                        'teacher_count' => $departmentInfo['teacher_count'] ?? 0,
+                        'extra_points' => $departmentInfo['extra_points'] ?? 0,
+                        'approved_count' => $department->point_user_deportaments()
+                        ->whereHas('employee', function($q) {
+                            $q->where('status', 1);
+                        })
+                        ->where('status', 1)
+                        ->count()
+                    ]
+                ];
+            });
 
         // Bar chart uchun ma'lumotlarni tayyorlash
         $barChartData = $departments->map(function ($item) {
@@ -147,11 +178,15 @@ class FacultyController extends Controller
                 'y' => round($item['points']['total_points'], 2)
             ];
         })->values()->toArray();
+
         // Radar chart uchun ma'lumotlarni yig'ish
         $radarChartData = [];
-        foreach ($faculty->departments as $department) {
+        foreach ($faculty->departments->where('status', 1) as $department) {  // Faqat aktiv kafedralar
             foreach ($jadvallarCodlari as $key => $value) {
                 $count = $department->point_user_deportaments()
+                    ->whereHas('employee', function ($q) {  // aktiv hodimlar yuborgan ma'lumotlar
+                        $q->where('status', 1);
+                    })
                     ->where($key . 'id', '!=', null)
                     ->where('status', 1)
                     ->count();
@@ -291,7 +326,9 @@ class FacultyController extends Controller
                 'status' => $item->status,
                 'tableName' => $tableName,
                 'itemId' => $id,
-                'formType' => $formType
+                'formType' => $formType,
+                'creator_id' => $item->user_id, // Muhim: edit button uchun kerak
+                'success' => true
             ]);
         } catch (\Exception $e) {
             return response()->json([

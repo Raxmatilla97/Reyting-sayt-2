@@ -1,8 +1,10 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\Faculty;
 use App\Models\Department;
+use Illuminate\Support\Facades\DB;
 use App\Models\StudentsCountForDepart;
 use Illuminate\Support\Facades\Config;
 
@@ -31,8 +33,16 @@ class PointCalculationService
             ->where('status', 1)
             ->value('number') ?? 0;
 
-        // O'qituvchilar sonini olish
-        $departmentCounts = config('departament_tichers_count') ?? include(config_path('departament_tichers_count.php'));
+
+        //O'qituvchilar sonini departments bo'yicha hisoblash
+        $departmentCounts = DB::table('users')
+            ->select('department_id', DB::raw('count(*) as teachers_count'))
+            ->whereNotNull('department_id')  // department_id null bo'lmagan
+            ->where('status', 1)
+            ->groupBy('department_id')       // department_id bo'yicha guruhlash
+            ->pluck('teachers_count', 'department_id')
+            ->toArray();
+
         $totalDepartmentEmployees = $this->getDepartmentEmployeeCount($department->id, $departmentCounts);
 
         // Maksimal ballarni olish
@@ -47,9 +57,14 @@ class PointCalculationService
         );
 
         $totalN = collect($directionalCalculations)->sum('N');
-        $totalInfos = $department->point_user_deportaments()->where('status', 1)->count();
+        $totalInfos = $department->point_user_deportaments()
+            ->whereHas('employee', function ($q) {  // Faqat aktiv hodimlar
+                $q->where('status', 1);
+            })
+            ->where('status', 1)
+            ->count();
 
-        // Qo'shimcha ballarni hisoblash
+        // Qo'shimcha ballar - faqat aktiv xodimlarning tasdiqlangan ma'lumotlaridan
         $departmentExtraPoints = $this->calculateExtraPoints($department);
 
         // O'qituvchilar umumiy balli
@@ -57,8 +72,16 @@ class PointCalculationService
             ? $totalN * $totalDepartmentEmployees
             : 0;
 
+        // O'qituvchilar umumiy ballini to'g'ri hisoblash
+        $teacherTotalPoints = $department->point_user_deportaments()
+            ->whereHas('employee', function ($q) {
+                $q->where('status', 1);
+            })
+            ->where('status', 1)
+            ->sum('point');
+
+        $totalEmployees = $totalDepartmentEmployees;
         $totalWithExtra = round($teacherTotalPoints + $departmentExtraPoints, 2);
-        $totalEmployees = $department->employee()->count();
 
         return [
             'calculations' => $directionalCalculations,
@@ -93,10 +116,9 @@ class PointCalculationService
             // Debug
             \Log::info('Starting faculty calculation:', ['faculty_id' => $faculty->name]);
 
-            foreach ($faculty->departments as $department) {
-                // Har bir kafedra uchun ballarni hisoblash
+            // Har bir kafedra uchun ballarni hisoblash
+            foreach ($faculty->departments->where('status', 1) as $department) {
                 $calculationResult = $this->calculateDepartmentPoints($department);
-
                 // Debug
                 \Log::info('Department calculation:', [
                     'department_id' => $department->name,
@@ -126,7 +148,6 @@ class PointCalculationService
                 'total_teachers' => $totalTeachers,
                 'departments_data' => $departmentsData
             ];
-
         } catch (\Exception $e) {
             \Log::error('Error in calculateFacultyPoints:', [
                 'faculty_id' => $faculty->id,
@@ -150,10 +171,15 @@ class PointCalculationService
 
         foreach ($allMaxPoints as $direction => $points) {
             $columnName = $direction . 'id';
+            // Faqat aktiv xodimlar yuborgan va tasdiqlangan ma'lumotlarni sanash
             $recordsCount = $department->point_user_deportaments()
+                ->whereHas('employee', function ($q) {
+                    $q->where('status', 1);
+                })
                 ->where('status', 1)
                 ->whereNotNull($columnName)
                 ->count();
+
 
             if ($recordsCount > 0) {
                 $maxPoint = $points['max'];
@@ -189,8 +215,12 @@ class PointCalculationService
      */
     protected function calculateExtraPoints($department)
     {
+
         return $department->point_user_deportaments()
-            ->where('status', 1)
+            ->whereHas('employee', function ($q) {
+                $q->where('status', 1); // Faqat aktiv xodimlar
+            })
+            ->where('status', 1)  // Tasdiqlangan ma'lumotlar
             ->whereHas('departPoint')
             ->with('departPoint')
             ->get()
@@ -204,12 +234,7 @@ class PointCalculationService
      */
     protected function getDepartmentEmployeeCount($departmentId, $departmentCounts)
     {
-        foreach ($departmentCounts as $facultyDepartments) {
-            if (isset($facultyDepartments[$departmentId])) {
-                return $facultyDepartments[$departmentId];
-            }
-        }
-        return 0;
+        return $departmentCounts[$departmentId] ?? 0;
     }
 
     /**
@@ -351,5 +376,4 @@ class PointCalculationService
 
         return $html;
     }
-
 }

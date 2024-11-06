@@ -73,7 +73,12 @@ class DepartmentController extends Controller
     public function departmentShow(string $slug)
     {
         $department = Department::where('slug', $slug)->firstOrFail();
+
+        // Ma'lumotlarni olishda user status=1 bo'lganlarni olish
         $pointUserInformations = PointUserDeportament::where('departament_id', $department->id)
+            ->whereHas('employee', function ($q) {
+                $q->where('status', 1);
+            })
             ->orderBy('created_at', 'desc')
             ->paginate(15);
 
@@ -120,7 +125,8 @@ class DepartmentController extends Controller
             'pointsCalculationExplanation' => $calculationResult['html'],
             'departmentExtraPoints' => $calculationResult['extra_points'],
             'teacherTotalPoints' => $calculationResult['teacher_total_points'],
-            'totalWithExtra' => $calculationResult['total_with_extra']
+            'totalWithExtra' => $calculationResult['total_with_extra'],
+
         ]);
     }
 
@@ -154,6 +160,9 @@ class DepartmentController extends Controller
     private function getLastUserFullName($department)
     {
         $mostRecentEntry = $department->point_user_deportaments()
+            ->whereHas('employee', function ($q) {
+                $q->where('status', 1);
+            })
             ->orderBy('created_at', 'desc')
             ->first();
 

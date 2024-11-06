@@ -142,21 +142,6 @@
                         <div id="line-chart" class="w-full" style="min-height: 400px;"></div>
                     </div>
 
-                    @php
-                        // Kunlik ma'lumotlarni tayyorlash
-$dailyStats = $pointUserInformations
-    ->groupBy(function ($item) {
-        return $item->created_at->format('Y-m-d');
-    })
-    ->map(function ($items) {
-        return [
-            'total' => $items->count(),
-            'accepted' => $items->where('status', '1')->count(),
-            'pending' => $items->where('status', '3')->count(),
-            'rejected' => $items->where('status', '0')->count(),
-                                ];
-                            });
-                    @endphp
 
                     <script>
                         // Stacked Column Chart Configuration

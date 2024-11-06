@@ -131,7 +131,7 @@
                                                             <p class="text-sm text-gray-500">Umumiy ballar</p>
                                                             <span
                                                                 class="bg-green-100 text-green-800 text-lg font-medium px-2.5 py-0.5 rounded">
-                                                                {{ $totalPoints }}
+                                                                {{ $totalPoints }} ball
                                                             </span>
                                                         </div>
                                                     </div>
@@ -154,7 +154,7 @@
                                                             <p class="text-sm text-gray-500">Yuborilgan ma'lumotlar</p>
                                                             <span
                                                                 class="bg-yellow-100 text-yellow-800 text-lg font-medium px-2.5 py-0.5 rounded">
-                                                                {{ $totalInfos }} ta
+                                                                {{ $totalInfos }} ta qabul qilingan
                                                             </span>
                                                         </div>
                                                     </div>
@@ -347,7 +347,7 @@
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <span
                                                             class="px-3 py-1 inline-flex text-lg leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                            {{ $department->point_user_deportaments->count() }}
+                                                            {{ $points['approved_count'] }}
                                                         </span>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">

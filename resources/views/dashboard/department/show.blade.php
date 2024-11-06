@@ -141,7 +141,7 @@
                                                                     </p>
                                                                     <span
                                                                         class="bg-green-100 text-green-800 text-lg font-medium px-2.5 py-0.5 rounded">
-                                                                        {{ $totalPoints }}
+                                                                        {{ $totalPoints }} ball
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -200,7 +200,7 @@
                                                                         ma'lumotlar</p>
                                                                     <span
                                                                         class="bg-yellow-100 text-yellow-800 text-lg font-medium px-2.5 py-0.5 rounded">
-                                                                        {{ $totalInfos }} ta
+                                                                        {{ $totalInfos }} ta qabul qilingan
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -263,7 +263,7 @@
                                                 </th>
 
                                         <tbody class="bg-white divide-y divide-gray-200">
-                                            @foreach ($department->employee as $employee)
+                                            @foreach ($department->employee->where('status', 1) as $employee)
                                                 <tr>
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <div class="flex items-center">
@@ -282,26 +282,24 @@
                                                         </div>
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                        {{ $employee->department->point_user_deportaments()->where('user_id', $employee->id)->count() }}
+                                                        {{ $employee->department->point_user_deportaments()->where('status', 1)->where('user_id', $employee->id)->count() }}
                                                     </td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <span
                                                             class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                            {{ $employee->department->point_user_deportaments()->where('status', 1)->where('user_id', $employee->id)->sum('point') }}
+                                                            {{ $employee->department->point_user_deportaments()
+                                                                ->whereHas('employee', function($q) {
+                                                                    $q->where('status', 1);  // Faqat aktiv o'qituvchilar
+                                                                })
+                                                                ->where('status', 1)  // Tasdiqlangan ma'lumotlar
+                                                                ->where('user_id', $employee->id)  // Shu o'qituvchining ma'lumotlari
+                                                                ->sum('point') }}
                                                         </span>
                                                     </td>
                                                 </tr>
                                             @endforeach
                                         </tbody>
 
-                                        <tbody class="divide-y divide-gray-200">
-                                            <!-- Enhanced employee rows with hover effects -->
-                                            @foreach ($department->employee as $employee)
-                                                <tr class="hover:bg-gray-50 transition-colors duration-200">
-                                                    <!-- Your existing employee row content with improved styling -->
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
                                     </table>
                                 </div>
                             </div>

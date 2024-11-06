@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\IsAdmin;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\FormsController;
 use App\Http\Controllers\FacultyController;
@@ -120,7 +121,7 @@ Route::middleware('auth')->group(function () {
 
         // O'qituvchilarni kafedradagi ayni damdagi o'rnga o'tqazish
         Route::get('/update-teacher-departments', [ConfigurationController::class, 'updateTeacherDepartments'])
-        ->name('update.teacher.departments');
+            ->name('update.teacher.departments');
 
         // Hemisdan Fakultet va department ma'lumotlarini yangilash
         Route::get('/update-departments', [ConfigurationController::class, 'updateDepartments']);
@@ -132,9 +133,15 @@ Route::middleware('auth')->group(function () {
 
         // Talabalar sonini yangilash
         Route::get('/student-counts', [StudentsCountForDepartController::class, 'index'])->name('student-counts.index');
-    Route::get('/student-counts/export', [StudentsCountForDepartController::class, 'export'])->name('student-counts.export');
-    Route::post('/student-counts/import', [StudentsCountForDepartController::class, 'import'])->name('student-counts.import');
+        Route::get('/student-counts/export', [StudentsCountForDepartController::class, 'export'])->name('student-counts.export');
+        Route::post('/student-counts/import', [StudentsCountForDepartController::class, 'import'])->name('student-counts.import');
 
+        // web.php da
+        Route::get('/get-current-user', function () {
+            return response()->json([
+                'id' => Auth::id()
+            ]);
+        });
     });
 
     // Auth bo'lib kirganlar uchun routes
