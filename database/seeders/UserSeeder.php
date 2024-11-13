@@ -18,12 +18,12 @@ class UserSeeder extends Seeder
        // Oddiy foydalanuvchi
        $userPassword = Str::random(12);
        $user = User::create([
-           'name' => 'Raxmatilla',
-           'first_name' => 'Raxmatilla',
-           'second_name' => 'Fayziyev',
-           'third_name' => "Xanshor o'g'lli",
-           'email' => 'wi.fi.xor@gmail.com',
-           'employee_id_number' => '3541911085',
+           'name' => '########',
+           'first_name' => '##########',
+           'second_name' => '#########',
+           'third_name' => "###########",
+           'email' => '###########',
+           'employee_id_number' => '######',
            'employee_id' => '1307',
            'status' => true,
            'department_id' => '57',
