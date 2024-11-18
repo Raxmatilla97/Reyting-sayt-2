@@ -212,6 +212,33 @@
                 </div>
             </div>
 
+
+
+            <!-- Excel Export Card -->
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+                <div class="p-6">
+                    <div class="flex flex-col items-center">
+                        <div class="p-3 bg-green-100 rounded-full">
+                            <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <h3 class="mt-4 text-xl font-bold text-gray-900">Excel export</h3>
+                        <p class="mt-2 text-sm text-gray-600 text-center">
+                            Barcha kafedra ma'lumotlarini Excel formatida yuklash
+                        </p>
+                        <p class="mt-2 text-sm font-semibold text-green-600">Ishlamoqda!</p>
+
+                        <button onclick="generateExcel()" id="excelGenerateButton"
+                            class="mt-4 w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-200 transition-all duration-300">
+                            Yuklash
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Delete Rejected Data Card -->
             <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                 <div class="p-6">
@@ -229,43 +256,289 @@
                         </p>
                         <p class="mt-2 text-sm font-semibold text-green-600">Ishlamoqda!</p>
 
-                        <button onclick="deleteRejectedData()" id="rejectedDeleteButton"
+                        <button id="rejectedDeleteButton"
                             class="mt-4 w-full bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 focus:ring-4 focus:ring-red-200 transition-all duration-300">
                             O'chirish
                         </button>
+                    </div>
+                </div>
+            </div>
 
-                        <div id="rejectedProgressContainer" class="hidden w-full mt-4">
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div id="rejectedProgressBar" class="bg-red-600 h-2 rounded-full"></div>
-                            </div>
-                            <div id="rejectedProgressText" class="mt-2 text-sm text-gray-600 text-center">0%</div>
+            <!-- Modal Dialog -->
+            <div id="rejectedDeleteConfirmModal"
+                class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center">
+                <div class="bg-white rounded-lg p-6 max-w-sm mx-auto">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Ma'lumotlarni o'chirish</h3>
+                    <p class="text-sm text-gray-600 mb-6">
+                        Haqiqatan ham barcha rad etilgan ma'lumotlarni o'chirishni istaysizmi?
+                    </p>
+
+                    <!-- Progress Container -->
+                    <div id="rejectedModalProgressContainer" class="hidden mb-4">
+                        <div class="w-full bg-gray-200 rounded-full h-2">
+                            <div id="rejectedModalProgressBar" class="bg-red-600 h-2 rounded-full"></div>
                         </div>
+                        <div id="rejectedModalProgressText" class="mt-2 text-sm text-gray-600 text-center">0%</div>
+                    </div>
 
-                        <div id="rejectedStatusMessage" class="mt-4 text-sm text-gray-600"></div>
+                    <!-- Status Message -->
+                    <div id="rejectedModalStatusMessage" class="mb-4 text-sm hidden"></div>
+
+                    <!-- Buttons -->
+                    <div class="flex justify-end space-x-3">
+                        <button id="rejectedCancelDelete"
+                            class="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg">
+                            Bekor qilish
+                        </button>
+                        <button id="rejectedConfirmDelete"
+                            class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg">
+                            O'chirish
+                        </button>
                     </div>
                 </div>
             </div>
 
 
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    // Modal oynani ochish
+                    document.getElementById('rejectedDeleteButton').addEventListener('click', function(e) {
+                        e.preventDefault();
+                        showRejectedModal();
+                    });
+
+                    // Modal oynani yopish (Bekor qilish tugmasi)
+                    document.getElementById('rejectedCancelDelete').addEventListener('click', function() {
+                        hideRejectedModal();
+                    });
+
+                    // O'chirish tugmasi bosilganda
+                    document.getElementById('rejectedConfirmDelete').addEventListener('click', function() {
+                        handleRejectedDelete();
+                    });
+                });
+
+                function showRejectedModal() {
+                    const modal = document.getElementById('rejectedDeleteConfirmModal');
+                    modal.classList.remove('hidden');
+                    modal.classList.add('flex');
+                }
+
+                function hideRejectedModal() {
+                    const modal = document.getElementById('rejectedDeleteConfirmModal');
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }
+
+                function updateRejectedModalProgress(progress) {
+                    const progressBar = document.getElementById('rejectedModalProgressBar');
+                    const progressText = document.getElementById('rejectedModalProgressText');
+                    progressBar.style.width = `${progress}%`;
+                    progressText.textContent = `${progress}%`;
+                }
+
+                function handleRejectedDelete() {
+                    const confirmButton = document.getElementById('rejectedConfirmDelete');
+                    const cancelButton = document.getElementById('rejectedCancelDelete');
+                    const progressContainer = document.getElementById('rejectedModalProgressContainer');
+                    const statusMessage = document.getElementById('rejectedModalStatusMessage');
+
+                    // Tugmalarni o'chirish
+                    confirmButton.disabled = true;
+                    cancelButton.disabled = true;
+                    confirmButton.classList.add('opacity-50');
+                    cancelButton.classList.add('opacity-50');
+
+                    // Progress bar ni ko'rsatish
+                    progressContainer.classList.remove('hidden');
+
+                    // CSRF token olish
+                    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+                    // Ajax so'rov
+                    fetch('/delete-rejected-data', {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': token,
+                                'Accept': 'application/json'
+                            },
+                            credentials: 'same-origin'
+                        })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Server xatosi');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            if (data.success) {
+                                // Progress bar 100% ko'rsatish
+                                updateRejectedModalProgress(100);
+
+                                // Muvaffaqiyatli xabar
+                                statusMessage.textContent = data.message;
+                                statusMessage.classList.remove('hidden', 'text-red-500');
+                                statusMessage.classList.add('text-green-500', 'block');
+
+                                // 2 sekunddan keyin sahifani yangilash
+                                setTimeout(() => {
+                                    window.location.reload();
+                                }, 2000);
+                            } else {
+                                throw new Error(data.message || 'Kutilmagan xatolik');
+                            }
+                        })
+                        .catch(error => {
+                            // Xatolik xabari
+                            statusMessage.textContent = error.message;
+                            statusMessage.classList.remove('hidden', 'text-green-500');
+                            statusMessage.classList.add('text-red-500', 'block');
+
+                            // Progress bar ni yashirish
+                            progressContainer.classList.add('hidden');
+
+                            // Tugmalarni qayta yoqish
+                            confirmButton.disabled = false;
+                            cancelButton.disabled = false;
+                            confirmButton.classList.remove('opacity-50');
+                            cancelButton.classList.remove('opacity-50');
+                        });
+                }
+            </script>
+
+            <!-- Excel Progress Modal -->
+            <div id="excelProgressModal"
+                class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" aria-modal="true"
+                role="dialog">
+                <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                    <div class="mt-3 text-center">
+                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                            <svg class="h-6 w-6 text-green-600 animate-spin" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                    stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Excel fayl tayyorlanmoqda</h3>
+
+                        <div class="mt-4">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="excelProgressBar"
+                                    class="bg-green-600 h-2 rounded-full transition-all duration-300"
+                                    style="width: 0%"></div>
+                            </div>
+                            <div id="excelProgressText" class="mt-2 text-sm text-gray-600">0%</div>
+                        </div>
+
+                        <div class="mt-4" id="excelStatusMessage"></div>
+                    </div>
+                </div>
+            </div>
+
+            @push('scripts')
+                <script>
+                    function showModal() {
+                        document.getElementById('excelProgressModal').classList.remove('hidden');
+                    }
+
+                    function hideModal() {
+                        document.getElementById('excelProgressModal').classList.add('hidden');
+                    }
+
+                    function updateProgress(progress) {
+                        document.getElementById('excelProgressBar').style.width = progress + '%';
+                        document.getElementById('excelProgressText').textContent = progress + '%';
+                    }
+
+                    function showStatus(message, isError = false) {
+                        const statusElement = document.getElementById('excelStatusMessage');
+                        statusElement.textContent = message;
+                        statusElement.className = 'mt-4 text-sm ' + (isError ? 'text-red-600' : 'text-green-600');
+                    }
+
+                    function generateExcel() {
+                        const button = document.getElementById('excelGenerateButton');
+                        const progressKey = 'excel_progress_' + Date.now();
+
+                        // Buttonni o'chirish
+                        button.disabled = true;
+                        button.classList.add('opacity-75', 'cursor-not-allowed');
+
+                        // Modalni ko'rsatish
+                        showModal();
+
+                        fetch('{{ route('excel.generate_two') }}', { // route nomi o'zgardi
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                                },
+                                body: JSON.stringify({
+                                    key: progressKey
+                                })
+                            })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    showStatus('Excel fayl tayyor!');
+                                    window.location.href = '/storage/' + data.file;
+                                    setTimeout(hideModal, 1000);
+                                } else {
+                                    throw new Error(data.message || 'Xatolik yuz berdi');
+                                }
+                            })
+                            .catch(error => {
+                                showStatus(error.message, true);
+                                setTimeout(hideModal, 3000);
+                            })
+                            .finally(() => {
+                                button.disabled = false;
+                                button.classList.remove('opacity-75', 'cursor-not-allowed');
+                            });
+
+                        // Progress tekshirish
+                        const progressCheck = setInterval(() => {
+                            fetch(`{{ route('excel.progress_two') }}?key=${progressKey}`) // route nomi o'zgardi
+                                .then(response => response.json())
+                                .then(data => {
+                                    updateProgress(data.progress);
+                                    if (data.progress >= 100) {
+                                        clearInterval(progressCheck);
+                                    }
+                                });
+                        }, 1000);
+                    }
+                </script>
+            @endpush
+
+
         </div>
         <div class="mt-5">
-             <!-- Table -->
-             <div class="overflow-x-auto">
+            <!-- Table -->
+            <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nomer</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Kafedra</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Talabalar soni</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Oxirgi yangilanish</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Holati</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Nomer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Kafedra</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Talabalar soni</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Oxirgi yangilanish</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Holati</th>
                         </tr>
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                         @php
                             $i = 1;
                         @endphp
-                        @foreach($studentCounts as $count)
+                        @foreach ($studentCounts as $count)
                             <tr class="hover:bg-gray-50 transition-colors duration-150">
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     {{ $i++ }}
@@ -280,12 +553,14 @@
                                     <div class="text-sm text-gray-500">{{ $count->updated_at->diffForHumans() }}</div>
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($count->status)
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                    @if ($count->status)
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
                                             Aktiv
                                         </span>
                                     @else
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                        <span
+                                            class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
                                             Nofaol
                                         </span>
                                     @endif
@@ -335,7 +610,7 @@
                     background-color: #E5E7EB;
                     border-radius: 3px;
                 }
-                </style>
+            </style>
         </div>
 
     </div>
@@ -563,76 +838,7 @@
     </script>
 
 
-    <!-- JavaScript Delete all infos -->
 
-    <script>
-        function deleteRejectedData() {
-            const button = document.getElementById('rejectedDeleteButton');
-            const progressContainer = document.getElementById('rejectedProgressContainer');
-            const progressBar = document.getElementById('rejectedProgressBar');
-            const progressText = document.getElementById('rejectedProgressText');
-            const statusMessage = document.getElementById('rejectedStatusMessage');
-
-            // Button ni o'chirish
-            button.disabled = true;
-            button.classList.add('opacity-50');
-
-            // Progress bar ni ko'rsatish
-            progressContainer.classList.remove('hidden');
-
-            // CSRF token olish
-            const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-            // Ajax so'rov
-            fetch('/delete-rejected-data', {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': token,
-                        'Accept': 'application/json'
-                    },
-                    credentials: 'same-origin' // CSRF token uchun
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Server xatosi');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    if (data.success) {
-                        // Muvaffaqiyatli bajarildi
-                        statusMessage.querySelector('p').textContent = data.message;
-                        statusMessage.classList.remove('hidden', 'text-red-500');
-                        statusMessage.classList.add('text-green-500');
-
-                        // Progress bar 100% ko'rsatish
-                        progressBar.style.width = '100%';
-                        progressText.textContent = '100%';
-
-                        // 2 sekunddan keyin sahifani yangilash
-                        setTimeout(() => {
-                            window.location.reload();
-                        }, 2000);
-                    } else {
-                        throw new Error(data.message || 'Kutilmagan xatolik');
-                    }
-                })
-                .catch(error => {
-                    // Xatolik yuz berdi
-                    statusMessage.querySelector('p').textContent = error.message;
-                    statusMessage.classList.remove('hidden', 'text-green-500');
-                    statusMessage.classList.add('text-red-500');
-
-                    // Progress bar ni yashirish
-                    progressContainer.classList.add('hidden');
-                })
-                .finally(() => {
-                    // Button ni qayta yoqish
-                    button.disabled = false;
-                    button.classList.remove('opacity-50');
-                });
-        }
-    </script>
 
     {{--  Teacher Position Update in Departments Functionality --}}
 

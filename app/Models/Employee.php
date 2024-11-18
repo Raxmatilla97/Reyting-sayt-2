@@ -57,5 +57,10 @@ class Employee extends Model
         return "{$this->second_name} {$this->first_name} {$this->third_name}";
     }
 
+    public function point_user_deportaments()
+    {
+        return $this->hasMany(PointUserDeportament::class, 'user_id', 'user_id');
+    }
+
 
 }

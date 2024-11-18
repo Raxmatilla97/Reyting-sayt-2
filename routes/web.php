@@ -15,6 +15,7 @@ use App\Http\Controllers\Auth\ApiHemisController;
 use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\PointUserDeportamentController;
 use App\Http\Controllers\StudentsCountForDepartController;
+use App\Http\Controllers\Export\Two\DepartmentTwoExcelController;
 
 /*
 |--------------------------------------------------------------------------
@@ -142,6 +143,12 @@ Route::middleware('auth')->group(function () {
                 'id' => Auth::id()
             ]);
         });
+
+
+        Route::post('/excel/generate-two', [DepartmentTwoExcelController::class, 'generateExcel'])
+            ->name('excel.generate_two');
+        Route::get('/excel/progress-two', [DepartmentTwoExcelController::class, 'getProgress'])
+            ->name('excel.progress_two');
     });
 
     // Auth bo'lib kirganlar uchun routes
