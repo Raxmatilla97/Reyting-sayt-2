@@ -239,6 +239,117 @@
                 </div>
             </div>
 
+            <!-- Excel Progress Modal -->
+            <div id="excelProgressModal"
+                class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" aria-modal="true"
+                role="dialog">
+                <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+                    <div class="mt-3 text-center">
+                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
+                            <svg class="h-6 w-6 text-green-600 animate-spin" xmlns="http://www.w3.org/2000/svg"
+                                fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10"
+                                    stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                                </path>
+                            </svg>
+                        </div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Excel fayl tayyorlanmoqda</h3>
+
+                        <div class="mt-4">
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div id="excelProgressBar"
+                                    class="bg-green-600 h-2 rounded-full transition-all duration-300"
+                                    style="width: 0%">
+                                </div>
+                            </div>
+                            <div id="excelProgressText" class="mt-2 text-sm text-gray-600">0%</div>
+                        </div>
+
+                        <div class="mt-4" id="excelStatusMessage"></div>
+                    </div>
+                </div>
+            </div>
+
+            @push('scripts')
+                <script>
+                function generateExcel() {
+    const button = document.getElementById('excelGenerateButton');
+    const progressModal = document.getElementById('excelProgressModal');
+    const progressBar = document.getElementById('excelProgressBar');
+    const progressText = document.getElementById('excelProgressText');
+    const statusMessage = document.getElementById('excelStatusMessage');
+
+    // UI ni tayyorlash
+    button.disabled = true;
+    button.classList.add('opacity-75', 'cursor-not-allowed');
+    progressModal.classList.remove('hidden');
+    progressBar.style.width = '0%';
+    progressText.textContent = '0%';
+    statusMessage.textContent = 'Boshlanmoqda...';
+
+    // EventSource yaratish
+    const eventSource = new EventSource('{{ route("excel.generate_two") }}');
+
+    // SSE event handler
+    eventSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+
+        // Progress va xabarni yangilash
+        progressBar.style.width = data.progress + '%';
+        progressText.textContent = data.progress + '%';
+        statusMessage.textContent = data.message;
+
+        // Agar jarayon tugagan bo'lsa
+        if (data.progress >= 100 && data.success) {
+            eventSource.close();
+
+            // Faylni yuklab olish
+            setTimeout(() => {
+                window.location.href = data.download_url;
+            }, 1000);
+
+            // Modal va buttonni qayta tiklash
+            setTimeout(() => {
+                progressModal.classList.add('hidden');
+                button.disabled = false;
+                button.classList.remove('opacity-75', 'cursor-not-allowed');
+            }, 2000);
+        }
+
+        // Xatolik bo'lsa
+        if (data.success === false) {
+            eventSource.close();
+            statusMessage.textContent = data.message;
+            statusMessage.classList.add('text-red-600');
+
+            setTimeout(() => {
+                progressModal.classList.add('hidden');
+                button.disabled = false;
+                button.classList.remove('opacity-75', 'cursor-not-allowed');
+            }, 3000);
+        }
+    };
+
+    // SSE xatolik handler
+    eventSource.onerror = function(error) {
+        console.error('SSE Error:', error);
+        eventSource.close();
+
+        statusMessage.textContent = 'Serverda xatolik yuz berdi';
+        statusMessage.classList.add('text-red-600');
+
+        setTimeout(() => {
+            progressModal.classList.add('hidden');
+            button.disabled = false;
+            button.classList.remove('opacity-75', 'cursor-not-allowed');
+        }, 3000);
+    };
+}
+                </script>
+            @endpush
+
             <!-- Delete Rejected Data Card -->
             <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                 <div class="p-6">
@@ -406,113 +517,6 @@
                 }
             </script>
 
-            <!-- Excel Progress Modal -->
-            <div id="excelProgressModal"
-                class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" aria-modal="true"
-                role="dialog">
-                <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-                    <div class="mt-3 text-center">
-                        <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
-                            <svg class="h-6 w-6 text-green-600 animate-spin" xmlns="http://www.w3.org/2000/svg"
-                                fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10"
-                                    stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor"
-                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                                </path>
-                            </svg>
-                        </div>
-                        <h3 class="text-lg leading-6 font-medium text-gray-900 mt-4">Excel fayl tayyorlanmoqda</h3>
-
-                        <div class="mt-4">
-                            <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div id="excelProgressBar"
-                                    class="bg-green-600 h-2 rounded-full transition-all duration-300"
-                                    style="width: 0%"></div>
-                            </div>
-                            <div id="excelProgressText" class="mt-2 text-sm text-gray-600">0%</div>
-                        </div>
-
-                        <div class="mt-4" id="excelStatusMessage"></div>
-                    </div>
-                </div>
-            </div>
-
-            @push('scripts')
-                <script>
-                    function showModal() {
-                        document.getElementById('excelProgressModal').classList.remove('hidden');
-                    }
-
-                    function hideModal() {
-                        document.getElementById('excelProgressModal').classList.add('hidden');
-                    }
-
-                    function updateProgress(progress) {
-                        document.getElementById('excelProgressBar').style.width = progress + '%';
-                        document.getElementById('excelProgressText').textContent = progress + '%';
-                    }
-
-                    function showStatus(message, isError = false) {
-                        const statusElement = document.getElementById('excelStatusMessage');
-                        statusElement.textContent = message;
-                        statusElement.className = 'mt-4 text-sm ' + (isError ? 'text-red-600' : 'text-green-600');
-                    }
-
-                    function generateExcel() {
-                        const button = document.getElementById('excelGenerateButton');
-                        const progressKey = 'excel_progress_' + Date.now();
-
-                        // Buttonni o'chirish
-                        button.disabled = true;
-                        button.classList.add('opacity-75', 'cursor-not-allowed');
-
-                        // Modalni ko'rsatish
-                        showModal();
-
-                        fetch('{{ route('excel.generate_two') }}', { // route nomi o'zgardi
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                                },
-                                body: JSON.stringify({
-                                    key: progressKey
-                                })
-                            })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    showStatus('Excel fayl tayyor!');
-                                    window.location.href = '/storage/' + data.file;
-                                    setTimeout(hideModal, 1000);
-                                } else {
-                                    throw new Error(data.message || 'Xatolik yuz berdi');
-                                }
-                            })
-                            .catch(error => {
-                                showStatus(error.message, true);
-                                setTimeout(hideModal, 3000);
-                            })
-                            .finally(() => {
-                                button.disabled = false;
-                                button.classList.remove('opacity-75', 'cursor-not-allowed');
-                            });
-
-                        // Progress tekshirish
-                        const progressCheck = setInterval(() => {
-                            fetch(`{{ route('excel.progress_two') }}?key=${progressKey}`) // route nomi o'zgardi
-                                .then(response => response.json())
-                                .then(data => {
-                                    updateProgress(data.progress);
-                                    if (data.progress >= 100) {
-                                        clearInterval(progressCheck);
-                                    }
-                                });
-                        }, 1000);
-                    }
-                </script>
-            @endpush
 
 
         </div>

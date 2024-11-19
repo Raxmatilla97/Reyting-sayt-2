@@ -145,10 +145,14 @@ Route::middleware('auth')->group(function () {
         });
 
 
-        Route::post('/excel/generate-two', [DepartmentTwoExcelController::class, 'generateExcel'])
-            ->name('excel.generate_two');
-        Route::get('/excel/progress-two', [DepartmentTwoExcelController::class, 'getProgress'])
-            ->name('excel.progress_two');
+
+        Route::get('/export/department-two/generate', [DepartmentTwoExcelController::class, 'generateExcel'])
+        ->name('excel.generate_two');
+
+    Route::get('/export/department-two/download/{filename}', [DepartmentTwoExcelController::class, 'downloadExcel'])
+        ->name('excel.download_two');
+
+
     });
 
     // Auth bo'lib kirganlar uchun routes
