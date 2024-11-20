@@ -106,25 +106,56 @@
                                 <div class="rounded-md ring-1 ring-black ring-opacity-5 py-1">
                                     <a href="{{ route('murojatlar.list') }}"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('murojatlar.list') ? 'bg-gray-100' : '' }}">
-                                        {{ __('Barchasi') }}
+                                        {{ __('Fakultet va Kafedra reytingi') }}
                                     </a>
-                                    <a href="{{ route('murojatlar.list', ['type' => 'demo1']) }}"
+                                    <a href="{{ route('admin.kpi.index') }}"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->input('type') === 'demo1' ? 'bg-gray-100' : '' }}">
-                                        {{ __('Demo 1') }}
+                                        {{ __("O'qituvchi reytingi") }}
                                     </a>
-                                    <a href="{{ route('murojatlar.list', ['type' => 'demo2']) }}"
+                                    {{-- <a href="{{ route('murojatlar.list', ['type' => 'demo2']) }}"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->input('type') === 'demo2' ? 'bg-gray-100' : '' }}">
                                         {{ __('Demo 2') }}
-                                    </a>
+                                    </a> --}}
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                        <x-nav-link :href="route('export')" :active="request()->routeIs('export')" wire:navigate>
-                            {{ __('Boshqaruv') }}
-                        </x-nav-link>
+                    <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex items-center">
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open"
+                                    class="inline-flex items-center px-3 text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150"
+                                    :class="{'text-blue-500': open || request()->routeIs(['export', 'admin.criteria.*'])}">
+                                {{ __('Boshqaruv') }}
+                                <svg class="ml-2 -mr-0.5 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </button>
+                    
+                            <div x-show="open" 
+                                 @click.away="open = false" 
+                                 class="absolute right-0 z-50 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
+                                 x-transition:enter="transition ease-out duration-200"
+                                 x-transition:enter-start="transform opacity-0 scale-95"
+                                 x-transition:enter-end="transform opacity-100 scale-100"
+                                 x-transition:leave="transition ease-in duration-75"
+                                 x-transition:leave-start="transform opacity-100 scale-100"
+                                 x-transition:leave-end="transform opacity-0 scale-95">
+                                <div class="rounded-md ring-1 ring-black ring-opacity-5 py-1">
+                                    <!-- Export -->
+                                    <a href="{{ route('export') }}" 
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('export') ? 'bg-gray-100' : '' }}">
+                                        {{ __('Eksport va Yangilash') }}
+                                    </a>
+                    
+                                    <!-- KPI Mezonlari -->
+                                    <a href="{{ route('admin.criteria.index') }}" 
+                                       class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.criteria.*') ? 'bg-gray-100' : '' }}">
+                                        {{ __('KPI Mezonlari') }}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 @endif
 

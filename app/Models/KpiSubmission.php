@@ -24,4 +24,12 @@ class KpiSubmission extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+     // KPI mezon bilan bog'lanish
+     public function criteria()
+     {
+         return $this->belongsTo(KpiCriteria::class, 'criteria_id');
+     }
+ 
+   
 }

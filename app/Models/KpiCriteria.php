@@ -19,7 +19,7 @@ class KpiCriteria extends Model
         'calculation_method',
         'evaluation_period', // bir yil, semestr va h.k.
         'required_proof', // qanday hujjatlar kerakligi
-        'order' // tartibi, PDFdagi tartib bo'yicha
+        'sort_order' // tartibi, PDFdagi tartib bo'yicha
     ];
 
     // KPI yuborishlar bilan bog'lanish

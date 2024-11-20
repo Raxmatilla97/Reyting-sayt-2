@@ -20,7 +20,7 @@ return new class extends Migration
             $table->text('calculation_method');
             $table->string('evaluation_period')->default('2024');
             $table->text('required_proof')->nullable();
-            $table->integer('order')->default(0);
+            $table->integer('sort_order')->default(0);
             $table->timestamps();
         });
     }

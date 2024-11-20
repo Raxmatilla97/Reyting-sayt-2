@@ -18,6 +18,8 @@ use App\Http\Controllers\KpiSubmissionController;
 use App\Http\Controllers\PointUserDeportamentController;
 use App\Http\Controllers\StudentsCountForDepartController;
 use App\Http\Controllers\Export\Two\DepartmentTwoExcelController;
+use App\Http\Controllers\KpiCriteriaController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -157,9 +159,12 @@ Route::middleware('auth')->group(function () {
             ->name('excel.download_two');
 
         // KPI ma'lumotlarini ko'rish
-        Route::get('admin/kpi', [KpiReviewController::class, 'index'])->name('admin.kpi.index');
-        Route::put('admin/kpi/{submission}/review', [KpiReviewController::class, 'review'])->name('admin.kpi.review');
-        Route::get('kpi/criteria/{category}', [KpiSubmissionController::class, 'getCriteria']);
+        Route::get('/admin/kpi', [KpiReviewController::class, 'index'])->name('admin.kpi.index');
+        Route::put('/admin/kpi/{submission}/review', [KpiReviewController::class, 'review'])->name('admin.kpi.review');
+        Route::get('/kpi/criteria/{category}', [KpiSubmissionController::class, 'getCriteria']);
+        Route::prefix('admin')->name('admin.')->group(function () {
+            Route::resource('criteria', KpiCriteriaController::class);
+        });
     });
 
     // Auth bo'lib kirganlar uchun routes

@@ -28,7 +28,7 @@ class KpiSubmissionController extends Controller
         ];
 
         // Barcha mezonlarni olish
-        $criteria = KpiCriteria::orderBy('order')->get();
+        $criteria = KpiCriteria::orderBy('sort_order')->get();
 
         return view('dashboard.kpi.create', compact('categories', 'criteria'));
     }
@@ -59,7 +59,7 @@ class KpiSubmissionController extends Controller
     public function getCriteria($category)
     {
         $criteria = KpiCriteria::where('category', $category)
-            ->orderBy('order')
+            ->orderBy('sort_order')
             ->get(['id', 'name', 'max_points', 'required_proof']);
 
         return response()->json($criteria);
