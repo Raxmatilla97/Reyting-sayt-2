@@ -3,9 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Faculty;
-
-use Illuminate\Http\Request;
-use App\Models\PointUserDeportament;
 use App\Services\PointCalculationService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
@@ -42,12 +39,28 @@ class FrontendController extends Controller
         $facultiesWithPoints = new SupportCollection();
 
         foreach ($faculties as $faculty) {
+            // Fakultet ballarini hisoblash
             $points = $this->pointCalculationService->calculateFacultyPoints($faculty);
+
+            // Fakultet o'qituvchilari sonini hisoblash
+            $facultyTotalTeachers = $faculty->departments
+                ->where('status', 1)
+                ->sum(function ($department) {
+                    return $department->employee
+                        ->where('status', 1)
+                        ->count();
+                });
+
+            // Fakultet reytingini hisoblash - umumiy ball / o'qituvchilar soni
+            $facultyRating = $facultyTotalTeachers > 0
+                ? round($points['total_points'] / $facultyTotalTeachers, 2)
+                : 0;
 
             $facultyData = [
                 'id' => $faculty->id,
                 'name' => $faculty->name,
-                'total_points' => $points['total_points'],
+                'total_points' => $facultyRating, // o'zgartirildi
+                'total_teachers' => $facultyTotalTeachers,
                 'image' => $faculty->image ?? null,
                 'status' => $faculty->status
             ];

@@ -229,7 +229,7 @@
                         <p class="mt-2 text-sm text-gray-600 text-center">
                             Barcha kafedra ma'lumotlarini Excel formatida yuklash
                         </p>
-                        <p class="mt-2 text-sm font-semibold text-green-600">Ishlamoqda!</p>
+                        <p class="mt-2 text-sm font-semibold text-yellow-600">Ishlab chiqilmoqda!</p>
 
                         <button onclick="generateExcel()" id="excelGenerateButton"
                             class="mt-4 w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:ring-4 focus:ring-green-200 transition-all duration-300">

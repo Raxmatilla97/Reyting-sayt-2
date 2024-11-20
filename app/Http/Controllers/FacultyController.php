@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
 use App\Models\Faculty;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 use App\Models\PointUserDeportament;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Config;
 use App\Services\PointCalculationService;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -35,14 +34,29 @@ class FacultyController extends Controller
         $facultiesData = $faculties->map(function ($faculty) {
             $calculationResult = $this->pointCalculationService->calculateFacultyPoints($faculty);
 
-            // Object yaratish
+            // Fakultet o'qituvchilari sonini hisoblash
+            $facultyTotalTeachers = $faculty->departments
+                ->where('status', 1)
+                ->sum(function ($department) {
+                    return DB::table('users')
+                        ->where('department_id', $department->id)
+                        ->where('status', 1)
+                        ->count();
+                });
+
+            // Fakultet reytingini hisoblash - umumiy ball / o'qituvchilar soni
+            $facultyRating = $facultyTotalTeachers > 0
+                ? round($calculationResult['total_points'] / $facultyTotalTeachers, 2)
+                : 0;
+
             return (object)[
                 'id' => $faculty->id,
                 'name' => $faculty->name,
                 'slug' => $faculty->slug,
                 'status' => $faculty->status,
                 'departments' => $faculty->departments,
-                'total_points' => $calculationResult['total_points']
+                'total_points' => $facultyRating, // o'zgartirildi
+                'total_teachers' => $facultyTotalTeachers
             ];
         });
 
@@ -69,13 +83,12 @@ class FacultyController extends Controller
         $pointUserInformations = PointUserDeportament::whereIn(
             'departament_id',
             $faculty->departments->where('status', 1)->pluck('id')
-        )  // Faqat aktiv kafedralar
-            ->whereHas('employee', function ($q) {  // Faqat aktiv hodimlar
+        )
+            ->whereHas('employee', function ($q) {
                 $q->where('status', 1);
             })
             ->orderBy('created_at', 'desc')
             ->paginate('15');
-
 
         // Department va Employee konfiguratsiyalarini olish
         $departmentCodlari = Config::get('dep_emp_tables.department');
@@ -93,9 +106,7 @@ class FacultyController extends Controller
         // Ma'lumotlar massivini tekshirish
         foreach ($pointUserInformations as $pointUserInformation) {
             foreach ($arrayKey as $column => $originalKey) {
-                // column tekshiriladi
                 if (isset($pointUserInformation->$column)) {
-                    // $murojaat_nomi o'rnatiladi
                     $pointUserInformation->murojaat_nomi = $jadvallarCodlari[$originalKey];
                     $pointUserInformation->murojaat_codi = $originalKey;
                     break;
@@ -106,20 +117,32 @@ class FacultyController extends Controller
         // Fakultet uchun PointCalculationService dan foydalanish
         $calculationResult = $this->pointCalculationService->calculateFacultyPoints($faculty);
 
-        // Service dan qaytgan qiymatlarni ajratib olish
-        $totalPoints = $calculationResult['total_points'];
-        $totalTeachers = $calculationResult['total_teachers'];
+        // Fakultet o'qituvchilari sonini hisoblash
+        $totalTeachers = $faculty->departments
+            ->where('status', 1)
+            ->sum(function ($department) {
+                return DB::table('users')
+                    ->where('department_id', $department->id)
+                    ->where('status', 1)
+                    ->count();
+            });
+
+        // Fakultet reytingini hisoblash - umumiy ball / o'qituvchilar soni
+        $totalPoints = $totalTeachers > 0
+            ? round($calculationResult['total_points'] / $totalTeachers, 2)
+            : 0;
+
         $departmentsData = $calculationResult['departments_data'];
 
         // Fakultet umumiy ma'lumotlar soni
         $totalInfos = $faculty->departments
-            ->where('status', 1)  // Faqat aktiv kafedralar
+            ->where('status', 1)
             ->sum(function ($department) {
                 return $department->point_user_deportaments()
-                    ->whereHas('employee', function ($q) {  // Faqat aktiv hodimlar
+                    ->whereHas('employee', function ($q) {
                         $q->where('status', 1);
                     })
-                    ->where('status', 1)  // Tasdiqlangan ma'lumotlar
+                    ->where('status', 1)
                     ->count();
             });
 
@@ -127,13 +150,13 @@ class FacultyController extends Controller
         $latestInfo = PointUserDeportament::whereIn(
             'departament_id',
             $faculty->departments->where('status', 1)->pluck('id')
-        )  // Faqat aktiv kafedralar
-            ->whereHas('employee', function ($q) {  // Faqat aktiv hodimlar
+        )
+            ->whereHas('employee', function ($q) {
                 $q->where('status', 1);
             })
-            ->where('status', 1)  // Tasdiqlangan ma'lumotlar
+            ->where('status', 1)
             ->with(['employee' => function ($q) {
-                $q->where('status', 1);  // Employee ma'lumotlarini olishda ham aktiv hodimlarnigina olish
+                $q->where('status', 1);
             }])
             ->latest()
             ->first();
@@ -147,7 +170,6 @@ class FacultyController extends Controller
             $fullName = "Ma'lumot topilmadi!";
             $departEmployee = "Ma'lumot topilmadi!";
         }
-
 
         // Service ma'lumotlarini department ma'lumotlari bilan birlashtirish
         $departments = $faculty->departments
@@ -173,25 +195,24 @@ class FacultyController extends Controller
         // Bar chart uchun ma'lumotlarni tayyorlash
         $barChartData = $departments->map(function ($item) {
             return [
-                'x' => mb_substr($item['department']->name, 0, 15),  // Qisqa nom
-                'full_name' => $item['department']->name,  // To'liq nom
+                'x' => mb_substr($item['department']->name, 0, 15),
+                'full_name' => $item['department']->name,
                 'y' => round($item['points']['total_points'], 2)
             ];
         })->values()->toArray();
 
         // Radar chart uchun ma'lumotlarni yig'ish
         $radarChartData = [];
-        foreach ($faculty->departments->where('status', 1) as $department) {  // Faqat aktiv kafedralar
+        foreach ($faculty->departments->where('status', 1) as $department) {
             foreach ($jadvallarCodlari as $key => $value) {
                 $count = $department->point_user_deportaments()
-                    ->whereHas('employee', function ($q) {  // aktiv hodimlar yuborgan ma'lumotlar
+                    ->whereHas('employee', function ($q) {
                         $q->where('status', 1);
                     })
                     ->where($key . 'id', '!=', null)
                     ->where('status', 1)
                     ->count();
 
-                // Faqat ma'lumot mavjud bo'lgan yo'nalishlarni qo'shamiz
                 if ($count > 0) {
                     if (!isset($radarChartData[$key])) {
                         $radarChartData[$key] = 0;
@@ -201,7 +222,7 @@ class FacultyController extends Controller
             }
         }
 
-        // Radar chart uchun ma'lumotlarni formatlash (faqat ma'lumoti bor yo'nalishlar)
+        // Radar chart uchun ma'lumotlarni formatlash
         $radarData = [
             'categories' => array_keys($radarChartData),
             'series' => array_values($radarChartData)

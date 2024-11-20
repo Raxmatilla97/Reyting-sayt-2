@@ -9,10 +9,12 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\FrontendController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\KpiReviewController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ExportInfosController;
 use App\Http\Controllers\Auth\ApiHemisController;
 use App\Http\Controllers\ConfigurationController;
+use App\Http\Controllers\KpiSubmissionController;
 use App\Http\Controllers\PointUserDeportamentController;
 use App\Http\Controllers\StudentsCountForDepartController;
 use App\Http\Controllers\Export\Two\DepartmentTwoExcelController;
@@ -99,6 +101,9 @@ Route::middleware('auth')->group(function () {
     // Kafedrani o'zgartirish
     Route::patch('/profile/update-department', [ProfileController::class, 'updateDepartment'])->name('profile.update.department');
 
+    // KPI ma'lumotlarini yuborish
+    Route::resource('kpi', KpiSubmissionController::class);
+
     //Faqat adminlar uchun routelar
     Route::middleware(['auth', 'isadmin'])->group(function () {
         // Murojaatlarni ro'yxati va ko'rish
@@ -145,14 +150,16 @@ Route::middleware('auth')->group(function () {
         });
 
 
-
+        // Sariq jadvalga export qilish
         Route::get('/export/department-two/generate', [DepartmentTwoExcelController::class, 'generateExcel'])
-        ->name('excel.generate_two');
+            ->name('excel.generate_two');
+        Route::get('/export/department-two/download/{filename}', [DepartmentTwoExcelController::class, 'downloadExcel'])
+            ->name('excel.download_two');
 
-    Route::get('/export/department-two/download/{filename}', [DepartmentTwoExcelController::class, 'downloadExcel'])
-        ->name('excel.download_two');
-
-
+        // KPI ma'lumotlarini ko'rish
+        Route::get('admin/kpi', [KpiReviewController::class, 'index'])->name('admin.kpi.index');
+        Route::put('admin/kpi/{submission}/review', [KpiReviewController::class, 'review'])->name('admin.kpi.review');
+        Route::get('kpi/criteria/{category}', [KpiSubmissionController::class, 'getCriteria']);
     });
 
     // Auth bo'lib kirganlar uchun routes

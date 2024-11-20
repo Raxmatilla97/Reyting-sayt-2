@@ -190,11 +190,11 @@
                                 <div class="absolute -top-4 left-1/2 transform -translate-x-1/2 z-10">
                                     <span
                                         class="px-4 py-1 bg-gradient-to-r from-indigo-400 to-indigo-500 text-white text-sm font-bold rounded-full shadow-lg">
-                                        Ishga tushurilmagan!
+                                        New
                                     </span>
                                 </div>
 
-                                <a href="#"
+                                <a href="{{ route('kpi.index')}}"
                                     class="group relative flex flex-col sm:flex-row items-center bg-white rounded-xl shadow-2xl hover:shadow-2xl transition-all duration-300 overflow-hidden border-2 border-indigo-100 hover:border-indigo-300">
                                     <!-- Animated gradient background -->
                                     <div
