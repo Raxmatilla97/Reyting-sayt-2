@@ -210,7 +210,7 @@
                         @foreach ($topDepartments->take(5) as $department)
                             <li class="text-lg font-semibold">
                                 {{ $department['name'] }} -
-                                <span class="text-blue-600 font-bold">{{ number_format($department['total_points'], 1) }}</span>
+                                <span class="text-blue-600 font-bold">{{ number_format($department['total_points'], 2) }}</span>
                             </li>
                         @endforeach
                     </ol>
@@ -225,7 +225,7 @@
                         @foreach ($topFaculties->take(3) as $faculty)
                             <li class="text-lg font-semibold">
                                 {{ $faculty['name'] }} -
-                                <span class="text-blue-600 font-bold">{{ number_format($faculty['total_points'], 1) }}</span>
+                                <span class="text-blue-600 font-bold">{{ number_format($faculty['total_points'], 2) }}</span>
                             </li>
                         @endforeach
                     </ol>
