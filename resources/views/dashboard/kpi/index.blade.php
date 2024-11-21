@@ -10,6 +10,19 @@
                         </a>
                     </div>
 
+                    <div
+                    class="flex items-center p-4 mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 rounded-lg shadow-sm">
+                    <svg class="flex-shrink-0 w-5 h-5 text-blue-600 mr-3" fill="currentColor"
+                        viewBox="0 0 20 20">
+                        <path
+                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                    </svg>
+                    <div>
+                        <span class="font-semibold text-blue-800">Etibor bering! </span>
+                        <span class="text-blue-700">Bu bo'lim hozir test rejimida. Shu sababli, hozircha bu yerga hech narsa yuklashingiz shart emas.</span>
+                    </div>
+                </div>
+
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead class="bg-gray-50">
@@ -35,7 +48,7 @@
                                 @forelse($submissions as $submission)
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            {{ $submission->criteria->category }}
+                                            {{ \App\Models\KpiCriteria::categories()[$submission->criteria->category] ?? 'Noma\'lum kategoriya' }}
                                         </td>
                                         <td class="px-6 py-4">
                                             {{ $submission->criteria->name }}

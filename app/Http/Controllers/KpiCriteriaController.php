@@ -65,6 +65,7 @@ class KpiCriteriaController extends Controller
 
     public function destroy(KpiCriteria $criterion)
     {
+        $criterion->submissions()->delete();
         $criterion->delete();
 
         return redirect()->route('admin.criteria.index')

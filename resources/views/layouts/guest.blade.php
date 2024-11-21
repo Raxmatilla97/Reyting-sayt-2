@@ -19,7 +19,7 @@
         <div class="min-h-screen flex flex-col sm:justify-center items-center pt-6 sm:pt-0 bg-gray-100">
             <div>
                 <a href="/">
-                    <img class="h-50 mx-auto" src="https://qabul.cspu.uz/assets/thumb__90_90_0_0_crop.png" alt="">
+                    <img class="h-50 w-50 mx-auto" style="max-width: 150px" src="https://otm.cspu.uz/assets/images/logo3.png" alt="">
                 </a>
             </div>
 

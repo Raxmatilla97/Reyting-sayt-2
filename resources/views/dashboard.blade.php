@@ -53,7 +53,7 @@
                                         <div>
                                             <span class="font-semibold text-green-800">Diqqat! </span>
                                             <span class="text-green-700">Sayt mobil qurilmalar uchun
-                                                moslashtirildi.</span>
+                                                moslashtirish ishlari olib borilmoqda.</span>
                                         </div>
                                     </div>
                                 </div>

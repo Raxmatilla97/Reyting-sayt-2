@@ -6,22 +6,11 @@
             <div class="mt-2 px-7 py-3">
 
                 <div class="p-4 mb-4 text-left text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
-                    <p class="font-medium mb-2">6-noyabr, 2024-yil</p>
+                    <p class="font-medium mb-2">21-noyabr, 2024-yil</p>
                     <p class="mb-2">Hurmatli foydalanuvchilar, tizimda quyidagi yangi imkoniyatlar qo'shildi:</p>
                     <ul class="list-disc pl-5 space-y-2">
-                        <li>Saytning ko'rinishi va ishlatilishi yanada qulay qilindi</li>
-                        <li>Administrator uchun qo'shimcha imkoniyatlar yaratildi:
-                            <ul class="list-circle pl-5 mt-2 space-y-1 mb-2">
-                                <li>Talabalar ro'yxatini yuklab olish va yangilash mumkin</li>
-                                <li>Fakultet va kafedralar ma'lumotlari avtomatik yangilanadi (Ishlanmoqda)</li>
-                                <li>O'qituvchilarni tizimga avtomatik kiritish imkoniyati (Ishlanmoqda)</li>
-                                <li>O'qituvchilar lavozimlarini avtomatik yangilash (Ishlanmoqda)</li>
-                            </ul>
-                        </li>
-                        <li>Fakultet va kafedralarning reyting ballari hisoblash tizimi takomillashtirildi (Batafsil ma'lumotni kafedra sahifasida ko'rishingiz mumkin)</li>
-                        <li>"Yuborilgan ma'lumotlarim" sahifasi yangilandi</li>
-                        <li>O'qituvchilar sahifasi qayta ishlandi</li>
-                        <li>Qaytarilgan hujjatlarni qayta topshirish imkoniyati yaratildi</li>
+                        <li>Qo'shimcha KPI reytingini aniqlash uchun yangilanishlar kiritildi (hozirda test rejimida).</li>
+                        <li>Fakultet reyting ballarini hisoblash tizimi takomillashtirildi (kafedralar ballari yig'indisi fakultet o'qituvchilari soniga bo'lindi).</li>
                     </ul>
 
                     <p class="mb-2 mt-4">Yaqin kunlarda qo'shiladigan yangi imkoniyatlar:</p>

@@ -6,7 +6,7 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     <a href="{{ route('dashboard') }}" wire:navigate>
-                        <img class="h-10  mx-auto" src="https://qabul.cspu.uz/assets/thumb__90_90_0_0_crop.png"
+                        <img class="h-10  mx-auto" src="https://otm.cspu.uz/assets/images/logo3.png"
                             alt="">
                     </a>
                 </div>
@@ -131,9 +131,9 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                                 </svg>
                             </button>
-                    
-                            <div x-show="open" 
-                                 @click.away="open = false" 
+
+                            <div x-show="open"
+                                 @click.away="open = false"
                                  class="absolute right-0 z-50 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
                                  x-transition:enter="transition ease-out duration-200"
                                  x-transition:enter-start="transform opacity-0 scale-95"
@@ -143,13 +143,13 @@
                                  x-transition:leave-end="transform opacity-0 scale-95">
                                 <div class="rounded-md ring-1 ring-black ring-opacity-5 py-1">
                                     <!-- Export -->
-                                    <a href="{{ route('export') }}" 
+                                    <a href="{{ route('export') }}"
                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('export') ? 'bg-gray-100' : '' }}">
                                         {{ __('Eksport va Yangilash') }}
                                     </a>
-                    
+
                                     <!-- KPI Mezonlari -->
-                                    <a href="{{ route('admin.criteria.index') }}" 
+                                    <a href="{{ route('admin.criteria.index') }}"
                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.criteria.*') ? 'bg-gray-100' : '' }}">
                                         {{ __('KPI Mezonlari') }}
                                     </a>
