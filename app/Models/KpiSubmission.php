@@ -17,7 +17,9 @@ class KpiSubmission extends Model
         'proof_file',
         'status',
         'points',
-        'admin_comment'
+        'admin_comment',
+        'inspector_id',
+        'apilation_message'
     ];
 
     public function user()
@@ -25,11 +27,21 @@ class KpiSubmission extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function inspector()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+
      // KPI mezon bilan bog'lanish
      public function criteria()
      {
          return $this->belongsTo(KpiCriteria::class, 'criteria_id');
      }
- 
-   
+
+     public function getCategories()
+     {
+         return response()->json(\App\Models\KpiCriteria::categories());
+     }
+
 }

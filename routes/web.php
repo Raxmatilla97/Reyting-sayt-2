@@ -106,6 +106,15 @@ Route::middleware('auth')->group(function () {
     // KPI ma'lumotlarini yuborish
     Route::resource('kpi', KpiSubmissionController::class);
 
+
+    Route::get('/kpi-submissions/{id}/details', [KpiSubmissionController::class, 'getDetails'])
+    ->name('kpi-submissions.details');
+
+    Route::post('/kpi-submissions/{id}/apilation', [KpiSubmissionController::class, 'submitApilation'])
+    ->name('kpi-submissions.apilation');
+    Route::get('/api/categories', [KpiSubmissionController::class, 'getCategories']);
+    Route::get('/kpi/criteria/{category}', [KpiSubmissionController::class, 'getCriteria']);
+
     //Faqat adminlar uchun routelar
     Route::middleware(['auth', 'isadmin'])->group(function () {
         // Murojaatlarni ro'yxati va ko'rish
@@ -161,7 +170,7 @@ Route::middleware('auth')->group(function () {
         // KPI ma'lumotlarini ko'rish
         Route::get('/admin/kpi', [KpiReviewController::class, 'index'])->name('admin.kpi.index');
         Route::put('/admin/kpi/{submission}/review', [KpiReviewController::class, 'review'])->name('admin.kpi.review');
-        Route::get('/kpi/criteria/{category}', [KpiSubmissionController::class, 'getCriteria']);
+
         Route::prefix('admin')->name('admin.')->group(function () {
             Route::resource('criteria', KpiCriteriaController::class);
         });

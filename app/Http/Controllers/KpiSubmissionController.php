@@ -49,6 +49,7 @@ class KpiSubmissionController extends Controller
         }
 
         $validated['user_id'] = auth()->id();
+        $validated['inspector_id'] = auth()->id(); // bu yerni o'zgartirish kerak, qachon tekshiruvchi nomi aniq bo'lsa.
         $validated['status'] = 'pending';
 
         KpiSubmission::create($validated);
@@ -63,5 +64,35 @@ class KpiSubmissionController extends Controller
             ->get(['id', 'name', 'max_points', 'required_proof']);
 
         return response()->json($criteria);
+    }
+
+
+    public function getDetails($id)
+    {
+        $submission = KpiSubmission::with('criteria')->findOrFail($id);
+        return response()->json([
+            'description' => $submission->description,
+            'proof_file' => $submission->proof_file,
+            'status' => $submission->status,
+            'points' => $submission->points,
+            'admin_comment' => $submission->admin_comment,
+            'category' => $submission->category,
+            'criteria_name' => $submission->criteria->name ?? null,
+        ]);
+    }
+
+    public function submitApilation(Request $request, $id)
+    {
+        $submission = KpiSubmission::findOrFail($id);
+
+        $submission->update([
+            'status' => 'apilation',
+            'apilation_message' => $request->apilation_message
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Apellyatsiya muvaffaqiyatli yuborildi'
+        ]);
     }
 }
