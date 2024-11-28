@@ -15,68 +15,71 @@ use Illuminate\Support\Facades\Auth;
 class KpiReviewController extends Controller
 {
     public function index(Request $request)
-    {
-        $user = Auth::user();
-        $isAdmin = $user->is_admin;
+{
+    $user = Auth::user();
+    $isAdmin = $user->is_admin;
 
-        $query = KpiSubmission::with(['user', 'criteria'])
-            ->latest();
+    $query = KpiSubmission::with(['user', 'criteria'])
+        ->latest();
 
-        // Tekshiruvchi uchun filter
-        if (!$isAdmin) {
-            $query->where(function ($q) use ($user) {
-                $q->where('inspector_id', $user->id)
-                    ->whereIn('category', $user->kpi_review_categories ?? [])
-                    ->whereHas('user', function ($q) use ($user) {
-                        $q->where('department_id', $user->department_id);
+    // Tekshiruvchi uchun filter
+    if (!$isAdmin) {
+        $query->where(function ($q) use ($user) {
+            // Faqat ro'yxatdagi kategoriyalarga oid ma'lumotlarni olish
+            $q->whereIn('category', $user->kpi_review_categories ?? [])
+                // Ma'lumot yuborgan user fakulteti tekshiruvchining kpi_faculty_id si bilan bir xil bo'lishi kerak
+                ->whereHas('user', function ($sq) use ($user) {
+                    $sq->whereHas('department', function($dq) use ($user) {
+                        $dq->whereHas('faculty', function($fq) use ($user) {
+                            $fq->where('id', $user->kpi_faculty_id);
+                        });
                     });
-            });
-        }
-
-        // Status filter
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        // Category filter - faqat ruxsat berilgan kategoriyalarni ko'rsatish
-        if (!$isAdmin) {
-            $categories = array_intersect_key(
-                KpiCriteria::categories(),
-                array_flip($user->kpi_review_categories ?? [])
-            );
-        } else {
-            $categories = KpiCriteria::categories();
-        }
-
-        if (
-            $request->filled('category') &&
-            ($isAdmin || in_array($request->category, $user->kpi_review_categories ?? []))
-        ) {
-            $query->where('category', $request->category);
-        }
-
-        // Statistics
-        $statistics = [
-            'total' => $query->count(),
-            'pending' => $query->clone()->where('status', 'pending')->count(),
-            'approved' => $query->clone()->where('status', 'approved')->count(),
-            'rejected' => $query->clone()->where('status', 'rejected')->count(),
-        ];
-
-        $submissions = $query->paginate(15);
-
-        // Format dates
-        $submissions->each(function ($submission) {
-            $submission->formatted_date = Carbon::parse($submission->created_at)->diffForHumans();
+                });
         });
-
-        return view('dashboard.kpi.admin.index', compact(
-            'submissions',
-            'categories',
-            'statistics',
-            'isAdmin'
-        ));
     }
+
+    // Status filter
+    if ($request->filled('status')) {
+        $query->where('status', $request->status);
+    }
+
+    // Category filter - faqat ruxsat berilgan kategoriyalarni ko'rsatish
+    if (!$isAdmin) {
+        $categories = array_intersect_key(
+            KpiCriteria::categories(),
+            array_flip($user->kpi_review_categories ?? [])
+        );
+    } else {
+        $categories = KpiCriteria::categories();
+    }
+
+    if ($request->filled('category') &&
+        ($isAdmin || in_array($request->category, $user->kpi_review_categories ?? []))) {
+        $query->where('category', $request->category);
+    }
+
+    // Statistics
+    $statistics = [
+        'total' => $query->count(),
+        'pending' => $query->clone()->where('status', 'pending')->count(),
+        'approved' => $query->clone()->where('status', 'approved')->count(),
+        'rejected' => $query->clone()->where('status', 'rejected')->count(),
+    ];
+
+    $submissions = $query->paginate(15);
+
+    // Format dates
+    $submissions->each(function ($submission) {
+        $submission->formatted_date = Carbon::parse($submission->created_at)->diffForHumans();
+    });
+
+    return view('dashboard.kpi.admin.index', compact(
+        'submissions',
+        'categories',
+        'statistics',
+        'isAdmin'
+    ));
+}
 
     public function review(Request $request, KpiSubmission $submission)
     {
@@ -243,61 +246,51 @@ class KpiReviewController extends Controller
     }
 
     public function updateUserFaculty(Request $request, User $user)
-{
-    try {
-        $validated = $request->validate([
-            'faculty_id' => 'required|exists:faculties,id'
-        ]);
+    {
+        try {
+            $validated = $request->validate([
+                'faculty_id' => 'required|exists:faculties,id'
+            ]);
 
-        Log::info('Faculty update request', [
-            'user_id' => $user->id,
-            'faculty_id' => $validated['faculty_id'],
-            'request_data' => $request->all()
-        ]);
+            Log::info('Faculty update request', [
+                'user_id' => $user->id,
+                'faculty_id' => $validated['faculty_id'],
+                'request_data' => $request->all()
+            ]);
 
-        $department = Department::where('faculty_id', $validated['faculty_id'])
-            ->first();
+            // Foydalanuvchini KPI fakultetga biriktirish
+            $user->update([
+                'kpi_faculty_id' => $validated['faculty_id'],
+                'is_kpi_reviewer' => true
+            ]);
 
-        if (!$department) {
-            Log::error('No department found', ['faculty_id' => $validated['faculty_id']]);
             return response()->json([
-                'success' => false,
-                'message' => 'Fakultetda bo\'lim topilmadi'
-            ], 404);
-        }
-
-        $user->update([
-            'department_id' => $department->id,
-            'is_kpi_reviewer' => true
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Foydalanuvchi fakultetga muvaffaqiyatli biriktirildi',
-            'user' => [
-                'id' => $user->id,
-                'name' => $user->first_name . ' ' . $user->second_name . ' ' . $user->third_name,
-                'email' => $user->email,
-                'department' => [
-                    'faculty' => [
-                        'name' => $department->faculty->name
+                'success' => true,
+                'message' => 'Foydalanuvchi fakultetga muvaffaqiyatli biriktirildi',
+                'user' => [
+                    'id' => $user->id,
+                    'name' => $user->first_name . ' ' . $user->second_name . ' ' . $user->third_name,
+                    'email' => $user->email,
+                    'department' => [
+                        'faculty' => [
+                            'name' => Faculty::find($validated['faculty_id'])->name
+                        ]
                     ]
                 ]
-            ]
-        ]);
+            ]);
 
-    } catch (\Exception $e) {
-        Log::error('Update error', [
-            'user_id' => $user->id,
-            'error' => $e->getMessage()
-        ]);
+        } catch (\Exception $e) {
+            Log::error('Update error', [
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
 
-        return response()->json([
-            'success' => false,
-            'message' => 'Xatolik yuz berdi: ' . $e->getMessage()
-        ], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Xatolik yuz berdi: ' . $e->getMessage()
+            ], 500);
+        }
     }
-}
 
 
     public function getFacultyUsers(Faculty $faculty)

@@ -46,6 +46,8 @@ class User extends Authenticatable
         'status',
         'kpi_review_categories',
         'is_kpi_reviewer',
+        'kpi_faculty_id',
+
 
     ];
 
@@ -103,5 +105,10 @@ class User extends Authenticatable
         return $this->is_kpi_reviewer &&
             is_array($this->kpi_review_categories) &&
             in_array($category, $this->kpi_review_categories);
+    }
+
+    public function kpiFaculty()
+    {
+        return $this->belongsTo(Faculty::class, 'kpi_faculty_id');
     }
 }

@@ -12,10 +12,17 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            Schema::table('users', function (Blueprint $table) {
-                $table->json('kpi_review_categories')->nullable(); // array of categories
-                $table->boolean('is_kpi_reviewer')->default(false);
-            });
+            // is_kpi_reviewer ni boolean qilish
+            $table->boolean('is_kpi_reviewer')->default(false)->change();
+
+            // KPI fakultet uchun yangi ustun
+            $table->unsignedBigInteger('kpi_faculty_id')->nullable()->after('department_id');
+
+            // JSON formatdagi kategoriyalarni o'zgartirish
+            $table->json('kpi_review_categories')->nullable()->change();
+
+            // Foreign key
+            $table->foreign('kpi_faculty_id')->references('id')->on('faculties')->onDelete('set null');
         });
     }
 
@@ -25,7 +32,10 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['kpi_review_categories', 'is_kpi_reviewer']);
+            $table->dropForeign(['kpi_faculty_id']);
+            $table->dropColumn('kpi_faculty_id');
+            // O'zgartirilgan ustunlarni avvalgi holatiga qaytarish
+            $table->integer('is_kpi_reviewer')->default(0)->change();
         });
     }
 };
