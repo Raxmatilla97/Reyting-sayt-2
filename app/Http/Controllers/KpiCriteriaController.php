@@ -29,7 +29,7 @@ class KpiCriteriaController extends Controller
             'calculation_method' => 'required|string',
             'evaluation_period' => 'required|string',
             'required_proof' => 'nullable|string',
-            'sort_order' => 'required|integer|min:0'
+            'sort_order' => 'nullable|integer|min:0'
         ]);
 
         KpiCriteria::create($validated);

@@ -43,9 +43,12 @@ class User extends Authenticatable
         'user_type',
         'phone',
         'employee_id_number',
-        'status'
+        'status',
+        'kpi_review_categories',
+        'is_kpi_reviewer',
 
     ];
+
 
     /**
      * The attributes that should be hidden for serialization.
@@ -65,6 +68,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
+        'kpi_review_categories' => 'array',
+        'is_kpi_reviewer' => 'boolean',
     ];
 
     // Relation orqali bog'lanish
@@ -85,8 +90,18 @@ class User extends Authenticatable
     }
 
     public function kpiSubmissions()
-{
-    return $this->hasMany(KpiSubmission::class);
-}
+    {
+        return $this->hasMany(KpiSubmission::class);
+    }
 
+    public function canReviewKpiCategory($category)
+    {
+        if ($this->is_admin) {
+            return true;
+        }
+
+        return $this->is_kpi_reviewer &&
+            is_array($this->kpi_review_categories) &&
+            in_array($category, $this->kpi_review_categories);
+    }
 }

@@ -108,10 +108,10 @@ Route::middleware('auth')->group(function () {
 
 
     Route::get('/kpi-submissions/{id}/details', [KpiSubmissionController::class, 'getDetails'])
-    ->name('kpi-submissions.details');
+        ->name('kpi-submissions.details');
 
     Route::post('/kpi-submissions/{id}/apilation', [KpiSubmissionController::class, 'submitApilation'])
-    ->name('kpi-submissions.apilation');
+        ->name('kpi-submissions.apilation');
     Route::get('/api/categories', [KpiSubmissionController::class, 'getCategories']);
     Route::get('/kpi/criteria/{category}', [KpiSubmissionController::class, 'getCriteria']);
 
@@ -173,6 +173,23 @@ Route::middleware('auth')->group(function () {
 
         Route::prefix('admin')->name('admin.')->group(function () {
             Route::resource('criteria', KpiCriteriaController::class);
+        });
+
+        Route::prefix('admin/kpi-reviewers')->middleware(['auth'])->group(function () {
+            Route::get('/', [KpiReviewController::class, 'reviewersIndex'])
+                ->name('admin.kpi-reviewers.index');
+
+            Route::get('/search', [KpiReviewController::class, 'search'])
+                ->name('admin.kpi-reviewers.search');
+
+            Route::get('/user/{user}', [KpiReviewController::class, 'getUserDetails'])
+                ->name('admin.kpi-reviewers.user-details');
+
+            Route::post('/{user}/update-faculty', [KpiReviewController::class, 'updateUserFaculty'])
+                ->name('admin.kpi-reviewers.update-faculty');
+
+            Route::post('/{user}/update', [KpiReviewController::class, 'reviewersUpdate'])
+                ->name('admin.kpi-reviewers.update');
         });
     });
 

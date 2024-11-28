@@ -153,8 +153,16 @@
                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.criteria.*') ? 'bg-gray-100' : '' }}">
                                         {{ __('KPI Mezonlari') }}
                                     </a>
+
+                                     <!-- KPI tekshiruvchilar -->
+                                     <a href="{{ route('admin.kpi-reviewers.index') }}"
+                                     class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.kpi-reviewers.*') ? 'bg-gray-100' : '' }}">
+                                      {{ __('KPI Tekshiruvchilari') }}
+                                  </a>
                                 </div>
                             </div>
+
+
                         </div>
                     </div>
                 @endif

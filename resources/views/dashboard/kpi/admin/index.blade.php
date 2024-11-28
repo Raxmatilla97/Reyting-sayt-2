@@ -1,6 +1,67 @@
 <x-app-layout>
     <div class="py-12">
+
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+              <!-- Statistics Section -->
+          <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-blue-100">
+                        <svg class="h-8 w-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Jami arizalar</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $statistics['total'] }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-yellow-100">
+                        <svg class="h-8 w-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Kutilmoqda</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $statistics['pending'] }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-green-100">
+                        <svg class="h-8 w-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Tasdiqlangan</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $statistics['approved'] }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6">
+                <div class="flex items-center">
+                    <div class="p-3 rounded-full bg-red-100">
+                        <svg class="h-8 w-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </div>
+                    <div class="ml-4">
+                        <p class="text-sm font-medium text-gray-500">Rad etilgan</p>
+                        <p class="text-2xl font-semibold text-gray-900">{{ $statistics['rejected'] }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
                     <h2 class="text-2xl font-semibold text-gray-800 mb-6">KPI Tekshiruv</h2>
@@ -81,10 +142,10 @@
                                             <div class="text-sm text-gray-500">{{ $submission->description }}</div>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                {{ $submission->status === 'pending' ? 'bg-yellow-100 text-yellow-800' : 
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                                {{ $submission->status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
                                                    ($submission->status === 'approved' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800') }}">
-                                                {{ $submission->status === 'pending' ? 'Kutilmoqda' : 
+                                                {{ $submission->status === 'pending' ? 'Kutilmoqda' :
                                                    ($submission->status === 'approved' ? 'Tasdiqlangan' : 'Rad etilgan') }}
                                             </span>
                                         </td>
@@ -96,13 +157,13 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right">
                                             @if($submission->status === 'pending')
-                                                <button type="button" 
+                                                <button type="button"
                                                         onclick="openReviewModal('{{ $submission->id }}', '{{ $submission->criteria->max_points }}')"
                                                         class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded text-sm">
                                                     Baholash
                                                 </button>
                                             @else
-                                                <button type="button" 
+                                                <button type="button"
                                                         onclick="openReviewModal('{{ $submission->id }}', '{{ $submission->criteria->max_points }}')"
                                                         class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-3 rounded text-sm">
                                                     Ko'rish
@@ -141,7 +202,7 @@
                     <label class="block text-sm font-medium text-gray-700">Maksimal ball</label>
                     <p id="maxPointsInfo" class="text-sm text-gray-500"></p>
                 </div>
-                
+
                 <div>
                     <label for="status" class="block text-sm font-medium text-gray-700">Status</label>
                     <select id="status" name="status" required
@@ -186,11 +247,11 @@
             const form = document.getElementById('reviewForm');
             const maxPointsInfo = document.getElementById('maxPointsInfo');
             const pointsInput = document.getElementById('points');
-            
+
             currentMaxPoints = maxPoints;
             maxPointsInfo.textContent = `Maksimal ball: ${maxPoints}`;
             pointsInput.max = maxPoints;
-            
+
             form.action = `/admin/kpi/${submissionId}/review`;
             modal.classList.remove('hidden');
 
@@ -200,7 +261,7 @@
                     this.value = currentMaxPoints;
                 }
             });
-            
+
             // Status change handling
             document.getElementById('status').addEventListener('change', function() {
                 const pointsField = document.getElementById('points');
