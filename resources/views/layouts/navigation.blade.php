@@ -82,7 +82,7 @@
                     </x-nav-link>
                 </div>
 
-                @if (Auth::user()->is_admin)
+                @if (Auth::user()->is_kpi_reviewer)
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open"
@@ -104,23 +104,25 @@
                                 x-transition:leave-start="transform opacity-100 scale-100"
                                 x-transition:leave-end="transform opacity-0 scale-95">
                                 <div class="rounded-md ring-1 ring-black ring-opacity-5 py-1">
+                                    @if(Auth::user()->is_admin)
                                     <a href="{{ route('murojatlar.list') }}"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('murojatlar.list') ? 'bg-gray-100' : '' }}">
                                         {{ __('Fakultet va Kafedra reytingi') }}
                                     </a>
+                                    @endif
+
+                                    @if(Auth::user()->is_kpi_reviewer)
                                     <a href="{{ route('admin.kpi.index') }}"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->input('type') === 'demo1' ? 'bg-gray-100' : '' }}">
+                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->input('type') === 'admin.kpi.index' ? 'bg-gray-100' : '' }}">
                                         {{ __("O'qituvchi reytingi") }}
                                     </a>
-                                    {{-- <a href="{{ route('murojatlar.list', ['type' => 'demo2']) }}"
-                                        class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->input('type') === 'demo2' ? 'bg-gray-100' : '' }}">
-                                        {{ __('Demo 2') }}
-                                    </a> --}}
+                                @endif
                                 </div>
                             </div>
                         </div>
                     </div>
-
+                    @endif
+                    @if (Auth::user()->is_admin)
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex items-center">
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open"

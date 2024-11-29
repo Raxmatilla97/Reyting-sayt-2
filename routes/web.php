@@ -115,6 +115,29 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/categories', [KpiSubmissionController::class, 'getCategories']);
     Route::get('/kpi/criteria/{category}', [KpiSubmissionController::class, 'getCriteria']);
 
+    // Kpi ko'rib chiqish routerlari
+    Route::prefix('admin/kpi-reviewers')->middleware(['auth', 'is_kpi_reviewer'])->group(function () {
+        Route::get('/', [KpiReviewController::class, 'reviewersIndex'])
+            ->name('admin.kpi-reviewers.index');
+
+        Route::get('/search', [KpiReviewController::class, 'search'])
+            ->name('admin.kpi-reviewers.search');
+
+        Route::get('/user/{user}', [KpiReviewController::class, 'getUserDetails'])
+            ->name('admin.kpi-reviewers.user-details');
+
+        Route::post('/{user}/update-faculty', [KpiReviewController::class, 'updateUserFaculty'])
+            ->name('admin.kpi-reviewers.update-faculty');
+
+        Route::post('/{user}/update', [KpiReviewController::class, 'reviewersUpdate'])
+            ->name('admin.kpi-reviewers.update');
+
+        // KPI ma'lumotlarini ko'rish
+        Route::get('/kpi', [KpiReviewController::class, 'index'])->name('admin.kpi.index');
+        Route::put('/kpi/{submission}/review', [KpiReviewController::class, 'review'])->name('admin.kpi.review');
+    });
+
+
     //Faqat adminlar uchun routelar
     Route::middleware(['auth', 'isadmin'])->group(function () {
         // Murojaatlarni ro'yxati va ko'rish
@@ -167,29 +190,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/export/department-two/download/{filename}', [DepartmentTwoExcelController::class, 'downloadExcel'])
             ->name('excel.download_two');
 
-        // KPI ma'lumotlarini ko'rish
-        Route::get('/admin/kpi', [KpiReviewController::class, 'index'])->name('admin.kpi.index');
-        Route::put('/admin/kpi/{submission}/review', [KpiReviewController::class, 'review'])->name('admin.kpi.review');
-
         Route::prefix('admin')->name('admin.')->group(function () {
             Route::resource('criteria', KpiCriteriaController::class);
-        });
-
-        Route::prefix('admin/kpi-reviewers')->middleware(['auth'])->group(function () {
-            Route::get('/', [KpiReviewController::class, 'reviewersIndex'])
-                ->name('admin.kpi-reviewers.index');
-
-            Route::get('/search', [KpiReviewController::class, 'search'])
-                ->name('admin.kpi-reviewers.search');
-
-            Route::get('/user/{user}', [KpiReviewController::class, 'getUserDetails'])
-                ->name('admin.kpi-reviewers.user-details');
-
-            Route::post('/{user}/update-faculty', [KpiReviewController::class, 'updateUserFaculty'])
-                ->name('admin.kpi-reviewers.update-faculty');
-
-            Route::post('/{user}/update', [KpiReviewController::class, 'reviewersUpdate'])
-                ->name('admin.kpi-reviewers.update');
         });
     });
 
