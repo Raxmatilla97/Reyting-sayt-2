@@ -14,85 +14,110 @@ use Illuminate\Support\Facades\Auth;
 
 class KpiReviewController extends Controller
 {
+
     public function index(Request $request)
-{
-    $user = Auth::user();
-    $isAdmin = $user->is_admin;
+    {
+        $user = Auth::user();
+        $isAdmin = $user->is_admin;
 
-    $query = KpiSubmission::with(['user', 'criteria'])
-        ->latest();
+        // Statistika uchun asosiy query
+        $statsQuery = KpiSubmission::query();
 
-    // Tekshiruvchi uchun filter
-    if (!$isAdmin) {
-        $query->where(function ($q) use ($user) {
-            // Faqat ro'yxatdagi kategoriyalarga oid ma'lumotlarni olish
-            $q->whereIn('category', $user->kpi_review_categories ?? [])
-                // Ma'lumot yuborgan user fakulteti tekshiruvchining kpi_faculty_id si bilan bir xil bo'lishi kerak
-                ->whereHas('user', function ($sq) use ($user) {
-                    $sq->whereHas('department', function($dq) use ($user) {
-                        $dq->whereHas('faculty', function($fq) use ($user) {
+        // Agar admin bo'lmasa, statistika faqat unga tegishli ma'lumotlar uchun hisoblanadi
+        if (!$isAdmin && $user->is_kpi_reviewer) {
+            $statsQuery->where(function ($q) use ($user) {
+                $q->whereHas('user', function ($userQuery) use ($user) {
+                    $userQuery->whereHas('department', function ($dq) use ($user) {
+                        $dq->whereHas('faculty', function ($fq) use ($user) {
                             $fq->where('id', $user->kpi_faculty_id);
                         });
                     });
-                });
-        });
+                })
+                    ->whereIn('category', $user->kpi_review_categories ?? []);
+            });
+        }
+
+        // Statistikani hisoblash
+        $statistics = [
+            'total' => $statsQuery->count(),
+            'pending' => $statsQuery->clone()->where('status', 'pending')->count(),
+            'approved' => $statsQuery->clone()->where('status', 'approved')->count(),
+            'rejected' => $statsQuery->clone()->where('status', 'rejected')->count(),
+        ];
+
+        // Ma'lumotlar uchun asosiy query
+        $query = KpiSubmission::with(['user.department.faculty', 'criteria'])
+            ->latest();
+
+        // Administrator emas bo'lsa (tekshiruvchi)
+        if (!$isAdmin && $user->is_kpi_reviewer) {
+            $query->where(function ($q) use ($user) {
+                $q->whereHas('user', function ($userQuery) use ($user) {
+                    $userQuery->whereHas('department', function ($dq) use ($user) {
+                        $dq->whereHas('faculty', function ($fq) use ($user) {
+                            $fq->where('id', $user->kpi_faculty_id);
+                        });
+                    });
+                })
+                    ->whereIn('category', $user->kpi_review_categories ?? [])
+                    ->where(function ($subQ) use ($user) {
+                        $subQ->where('status', 'pending')  // Kutilayotgan ma'lumotlar
+                            ->orWhere('inspector_id', $user->id); // Yoki o'zi tekshirgan ma'lumotlar
+                    });
+            });
+        }
+
+        // Status filter
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        // Category filter - faqat ruxsat berilgan kategoriyalarni ko'rsatish
+        if (!$isAdmin) {
+            $categories = array_intersect_key(
+                KpiCriteria::categories(),
+                array_flip($user->kpi_review_categories ?? [])
+            );
+        } else {
+            $categories = KpiCriteria::categories();
+        }
+
+        if (
+            $request->filled('category') &&
+            ($isAdmin || in_array($request->category, $user->kpi_review_categories ?? []))
+        ) {
+            $query->where('category', $request->category);
+        }
+
+        $submissions = $query->paginate(15);
+
+        return view('dashboard.kpi.admin.index', compact(
+            'submissions',
+            'categories',
+            'statistics',
+            'isAdmin'
+        ));
     }
 
-    // Status filter
-    if ($request->filled('status')) {
-        $query->where('status', $request->status);
-    }
 
-    // Category filter - faqat ruxsat berilgan kategoriyalarni ko'rsatish
-    if (!$isAdmin) {
-        $categories = array_intersect_key(
-            KpiCriteria::categories(),
-            array_flip($user->kpi_review_categories ?? [])
-        );
-    } else {
-        $categories = KpiCriteria::categories();
-    }
-
-    if ($request->filled('category') &&
-        ($isAdmin || in_array($request->category, $user->kpi_review_categories ?? []))) {
-        $query->where('category', $request->category);
-    }
-
-    // Statistics
-    $statistics = [
-        'total' => $query->count(),
-        'pending' => $query->clone()->where('status', 'pending')->count(),
-        'approved' => $query->clone()->where('status', 'approved')->count(),
-        'rejected' => $query->clone()->where('status', 'rejected')->count(),
-    ];
-
-    $submissions = $query->paginate(15);
-
-    // Format dates
-    $submissions->each(function ($submission) {
-        $submission->formatted_date = Carbon::parse($submission->created_at)->diffForHumans();
-    });
-
-    return view('dashboard.kpi.admin.index', compact(
-        'submissions',
-        'categories',
-        'statistics',
-        'isAdmin'
-    ));
-}
-
-    public function review(Request $request, KpiSubmission $submission)
+    public function review(Request $request, KpiSubmission $kpiSubmission)
     {
         $user = Auth::user();
 
         // Ruxsatni tekshirish
-        if (
-            !$user->is_admin &&
-            ($submission->inspector_id !== $user->id ||
-                !in_array($submission->category, $user->kpi_review_categories ?? []) ||
-                $submission->user->department_id !== $user->department_id)
-        ) {
+        if (!$user->is_admin && !$user->is_kpi_reviewer) {
             return back()->with('error', 'Bu arizani ko\'rib chiqish uchun ruxsat yo\'q');
+        }
+
+        // Agar tekshiruvchi bo'lsa qo'shimcha huquqlarni tekshirish
+        if (!$user->is_admin && $user->is_kpi_reviewer) {
+            // Fakultet va kategoriya tekshirish
+            $hasPermission = $kpiSubmission->user->department->faculty->id === $user->kpi_faculty_id &&
+                in_array($kpiSubmission->category, $user->kpi_review_categories ?? []);
+
+            if (!$hasPermission) {
+                return back()->with('error', 'Bu arizani ko\'rib chiqish uchun ruxsat yo\'q');
+            }
         }
 
         $validated = $request->validate([
@@ -101,7 +126,10 @@ class KpiReviewController extends Controller
             'admin_comment' => 'required|string',
         ]);
 
-        $submission->update($validated);
+        // Tekshiruvchi ID sini saqlash
+        $validated['inspector_id'] = $user->id;
+
+        $kpiSubmission->update($validated);
 
         return redirect()->route('admin.kpi.index')
             ->with('success', 'Ariza muvaffaqiyatli ko\'rib chiqildi');
@@ -144,7 +172,7 @@ class KpiReviewController extends Controller
 
         $users = $query->orderBy('first_name')->paginate(15);
         $reviewerCount = User::where('is_kpi_reviewer', true)->count();
-        $faculties = Faculty::all();
+        $faculties = Faculty::where('status', 1)->get();
         $categories = [
             'teaching' => "O'quv va o'quv-uslubiy ishlar",
             'research' => "Ilmiy va innovatsiyalarga oid ishlar",
@@ -199,10 +227,19 @@ class KpiReviewController extends Controller
     public function reviewersUpdate(Request $request, User $user)
     {
         try {
-            $user->update([
-                'is_kpi_reviewer' => !empty($request->categories),
-                'kpi_review_categories' => $request->categories ?? []
-            ]);
+            // Agar kategoriyalar bo'sh bo'lsa yoki umuman yuborilmagan bo'lsa
+            if (empty($request->categories)) {
+                $user->update([
+                    'is_kpi_reviewer' => false,
+                    'kpi_review_categories' => null,
+                    'kpi_faculty_id' => null
+                ]);
+            } else {
+                $user->update([
+                    'is_kpi_reviewer' => true,
+                    'kpi_review_categories' => $request->categories
+                ]);
+            }
 
             return response()->json([
                 'success' => true,
@@ -210,7 +247,6 @@ class KpiReviewController extends Controller
                 'is_kpi_reviewer' => $user->is_kpi_reviewer,
                 'categories' => $user->kpi_review_categories
             ]);
-
         } catch (\Exception $e) {
             Log::error('Error updating reviewer categories', [
                 'user_id' => $user->id,
@@ -278,7 +314,6 @@ class KpiReviewController extends Controller
                     ]
                 ]
             ]);
-
         } catch (\Exception $e) {
             Log::error('Update error', [
                 'user_id' => $user->id,
