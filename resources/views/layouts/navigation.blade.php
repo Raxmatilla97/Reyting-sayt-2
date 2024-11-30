@@ -82,7 +82,7 @@
                     </x-nav-link>
                 </div>
 
-                @if (Auth::user()->is_kpi_reviewer)
+                @if (Auth::user()->is_admin || Auth::user()->is_kpi_reviewer)
                     <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open"
