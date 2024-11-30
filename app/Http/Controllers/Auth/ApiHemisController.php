@@ -17,54 +17,49 @@ class ApiHemisController extends Controller
 {
     public function redirectToAuthorization(Request $request)
     {
-        if (Auth::check()) {
-            return redirect('/dashboard');
-        }
-
+        // Auth::check() ni olib tashlash yoki boshqa logika qo'shish
         $employeeProvider = $this->getEmployeeProvider();
         $authorizationUrl = $employeeProvider->getAuthorizationUrl();
+
+        // Session'ga state'ni saqlash
+        session(['oauth2state' => $employeeProvider->getState()]);
 
         return redirect()->away($authorizationUrl);
     }
 
     public function handleAuthorizationCallback(Request $request)
-    {
-        if (Auth::check()) {
-            return redirect('/dashboard');
+{
+    try {
+        $code = $request->query('code');
+        if (!$code) {
+            throw new \Exception("HEMIS API dan code qabul qilinmadi!");
         }
 
-        try {
-            $code = $request->query('code');
-            $state = $request->query('state');
+        $employeeProvider = $this->getEmployeeProvider();
+        $accessToken = $employeeProvider->getAccessToken('authorization_code', [
+            'code' => $code
+        ]);
 
-            if (!$code) {
-                throw new \Exception("HEMIS API dan code qabul qilinmadi!");
-            }
+        $resourceOwner = $employeeProvider->getResourceOwner($accessToken);
+        $userDetails = $resourceOwner->toArray();
 
-            $employeeProvider = $this->getEmployeeProvider();
+        $this->validateUserDetails($userDetails);
+        $user = $this->findOrCreateUser($userDetails);
 
-            $accessToken = $employeeProvider->getAccessToken('authorization_code', [
-                'code' => $code
-            ]);
-
-            $resourceOwner = $employeeProvider->getResourceOwner($accessToken);
-            $userDetails = $resourceOwner->toArray();
-
-            $this->validateUserDetails($userDetails);
-
-            $user = $this->findOrCreateUser($userDetails);
-
-            if (!$user) {
-                throw new \Exception("Foydalanuvchi yaratishda xatolik yuz berdi.");
-            }
-
-            Auth::login($user);
-            return $this->redirectUserBasedOnRole($user);
-        } catch (\Exception $e) {
-            \Log::error('Login jarayonida xatolik: ' . $e->getMessage());
-            return redirect('/login')->withErrors(['oauth_error' => $e->getMessage()]);
+        if (!$user) {
+            throw new \Exception("Foydalanuvchi yaratishda xatolik yuz berdi.");
         }
+
+        Auth::login($user);
+
+        // Aniq bir route'ga yo'naltirish
+        return redirect()->route('dashboard');
+
+    } catch (\Exception $e) {
+        \Log::error('Login jarayonida xatolik: ' . $e->getMessage());
+        return redirect()->route('login')->withErrors(['oauth_error' => $e->getMessage()]);
     }
+}
 
     private function getEmployeeProvider()
     {
