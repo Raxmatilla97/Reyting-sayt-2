@@ -111,7 +111,7 @@
                                     </a>
                                     @endif
 
-                                    @if(Auth::user()->is_kpi_reviewer)
+                                    @if(Auth::user()->is_admin ||Auth::user()->is_kpi_reviewer)
                                     <a href="{{ route('admin.kpi.index') }}"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->input('type') === 'admin.kpi.index' ? 'bg-gray-100' : '' }}">
                                         {{ __("O'qituvchi reytingi") }}
