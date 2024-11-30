@@ -9,16 +9,16 @@ use Illuminate\Support\Facades\Auth;
 
 class CheckIsAdmin
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
     public function handle(Request $request, Closure $next): Response
     {
+        // Agar autentifikatsiya qilinmagan bo'lsa
+        if (!Auth::check()) {
+            return redirect()->route('login');
+        }
 
-        if(!Auth::user()->isAdmin()){
-            return redirect()->route('dashboard');
+        // Admin emas bo'lsa
+        if (!Auth::user()->isAdmin()) {
+            return redirect()->route('dashboard')->with('error', 'Bu sahifaga kirish uchun admin huquqi kerak.');
         }
 
         return $next($request);
