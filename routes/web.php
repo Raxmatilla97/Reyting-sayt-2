@@ -123,7 +123,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/kpi/criteria/{category}', [KpiSubmissionController::class, 'getCriteria']);
 
     // Kpi ko'rib chiqish routerlari
-    Route::prefix('admin/kpi-reviewers')->middleware(['auth', 'is_kpi_reviewer'])->group(function () {
+    Route::prefix('admin/kpi-reviewers')->middleware(['auth', 'isadmin', 'is_kpi_reviewer'])->group(function () {
         Route::get('/', [KpiReviewController::class, 'reviewersIndex'])
             ->name('admin.kpi-reviewers.index');
 
