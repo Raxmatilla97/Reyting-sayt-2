@@ -111,42 +111,60 @@ class PointCalculationService
         try {
             $totalPoints = 0;
             $totalTeachers = 0;
+            $totalStudents = 0; // Yangi qo'shildi
             $departmentsData = [];
+            $totalInfos = 0;
 
             // Debug
             \Log::info('Starting faculty calculation:', ['faculty_id' => $faculty->name]);
 
+            // Fakultet talabalar sonini hisoblash - YANGI QO'SHILDI
+            $totalStudents = StudentsCountForDepart::whereIn(
+                'departament_id',
+                $faculty->departments->where('status', 1)->pluck('id')
+            )
+                ->where('status', 1)
+                ->sum('number');
+
             // Har bir kafedra uchun ballarni hisoblash
             foreach ($faculty->departments->where('status', 1) as $department) {
                 $calculationResult = $this->calculateDepartmentPoints($department);
+
                 // Debug
                 \Log::info('Department calculation:', [
                     'department_id' => $department->name,
-                    'total_n' => $calculationResult['total_n']
+                    'total_n' => $calculationResult['total_n'],
+                    'students' => $calculationResult['student_count'] // Yangi qo'shildi
                 ]);
 
                 // Umumiy balga qo'shish
                 $totalPoints += $calculationResult['total_n'];
                 $totalTeachers += $calculationResult['teacher_count'];
+                $totalInfos += $calculationResult['total_infos'];
 
                 $departmentsData[] = [
                     'department_name' => $department->name,
                     'total_n' => $calculationResult['total_n'],
                     'teacher_count' => $calculationResult['teacher_count'],
-                    'extra_points' => $calculationResult['extra_points']
+                    'student_count' => $calculationResult['student_count'], // Yangi qo'shildi
+                    'extra_points' => $calculationResult['extra_points'],
+                    'calculations' => $calculationResult['calculations']
                 ];
             }
 
             // Debug
             \Log::info('Faculty calculation result:', [
                 'faculty_id' => $faculty->id,
-                'total_points' => $totalPoints
+                'total_points' => $totalPoints,
+                'total_students' => $totalStudents // Yangi qo'shildi
             ]);
 
             return [
                 'total_points' => round($totalPoints, 2),
                 'total_teachers' => $totalTeachers,
-                'departments_data' => $departmentsData
+                'total_students' => $totalStudents, // Yangi qo'shildi
+                'departments_data' => $departmentsData,
+                'total_infos' => $totalInfos
             ];
         } catch (\Exception $e) {
             \Log::error('Error in calculateFacultyPoints:', [
@@ -157,7 +175,9 @@ class PointCalculationService
             return [
                 'total_points' => 0,
                 'total_teachers' => 0,
-                'departments_data' => []
+                'total_students' => 0,
+                'departments_data' => [],
+                'total_infos' => 0
             ];
         }
     }

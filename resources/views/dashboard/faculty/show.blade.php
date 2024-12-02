@@ -258,6 +258,8 @@
                                                 </div>
 
                                             </div>
+
+
                                         </div>
                                     </div>
                                 </div>
@@ -282,6 +284,10 @@
                                             <div id="radarChart" class="h-[400px]"></div>
                                         </div>
                                     </div>
+                                </div>
+
+                                <div class="mt-5">
+                                    {!! $pointsCalculationExplanation !!}
                                 </div>
                             </div>
 

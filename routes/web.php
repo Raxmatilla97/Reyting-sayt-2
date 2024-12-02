@@ -16,7 +16,6 @@ use App\Http\Controllers\PointUserDeportamentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudentsCountForDepartController;
 use App\Http\Controllers\Export\Two\DepartmentTwoExcelController;
-use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 

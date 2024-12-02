@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use App\Models\PointUserDeportament;
 use Illuminate\Support\Facades\Http;
+use App\Models\StudentsCountForDepart;
 use Illuminate\Support\Facades\Config;
 use App\Services\PointCalculationService;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -173,27 +174,33 @@ class FacultyController extends Controller
 
         // Service ma'lumotlarini department ma'lumotlari bilan birlashtirish
         $departments = $faculty->departments
-            ->map(function ($department) use ($departmentsData) {
-                $departmentInfo = collect($departmentsData)->firstWhere('department_name', $department->name);
+            ->where('status', 1)
+            ->map(function ($department) use ($calculationResult) {
+                // departments_data ni department_name bo'yicha qidirish
+                $departmentData = collect($calculationResult['departments_data'])
+                    ->firstWhere('department_name', $department->name);
 
                 return [
                     'department' => $department,
                     'points' => [
-                        'total_points' => $departmentInfo['total_n'] ?? 0,
-                        'teacher_count' => $departmentInfo['teacher_count'] ?? 0,
-                        'extra_points' => $departmentInfo['extra_points'] ?? 0,
+                        'total_points' => $departmentData['total_n'] ?? 0,
+                        'teacher_count' => $departmentData['teacher_count'] ?? 0,
+                        'extra_points' => $departmentData['extra_points'] ?? 0,
                         'approved_count' => $department->point_user_deportaments()
-                        ->whereHas('employee', function($q) {
-                            $q->where('status', 1);
-                        })
-                        ->where('status', 1)
-                        ->count()
+                            ->whereHas('employee', function ($q) {
+                                $q->where('status', 1);
+                            })
+                            ->where('status', 1)
+                            ->count()
                     ]
                 ];
-            });
+            })
+            ->values()
+            ->all();
+
 
         // Bar chart uchun ma'lumotlarni tayyorlash
-        $barChartData = $departments->map(function ($item) {
+        $barChartData = collect($departments)->map(function ($item) {
             return [
                 'x' => mb_substr($item['department']->name, 0, 15),
                 'full_name' => $item['department']->name,
@@ -228,6 +235,28 @@ class FacultyController extends Controller
             'series' => array_values($radarChartData)
         ];
 
+
+        // PointCalculationService dan fakultet ma'lumotlarini olish
+        $calculationResult = $this->pointCalculationService->calculateFacultyPoints($faculty);
+
+        // Fakultetning barcha talabalar sonini hisoblash
+        $totalStudents = StudentsCountForDepart::whereIn('departament_id', $faculty->departments->where('status', 1)->pluck('id'))
+            ->where('status', 1)
+            ->sum('number');
+
+        // Talabalar soni 0 bo'lmasligi uchun
+        $totalStudents = $totalStudents ?: 1;
+
+        // HTML generatsiya
+        $pointsCalculationExplanation = $this->generateFacultyCalculationHTML(
+            $faculty,
+            $departments,
+            $totalTeachers,
+            $totalStudents,
+            $totalPoints,
+            $totalInfos
+        );
+
         return view('dashboard.faculty.show', compact(
             'faculty',
             'pointUserInformations',
@@ -239,7 +268,8 @@ class FacultyController extends Controller
             'departments',
             'barChartData',
             'radarData',
-            'departEmployee'
+            'departEmployee',
+            'pointsCalculationExplanation',
         ));
     }
 
@@ -432,4 +462,244 @@ class FacultyController extends Controller
 
         return response()->json(['message' => $message]);
     }
+
+
+   /**
+ * Fakultet reytingini yo'nalishlar kesimida hisoblash va HTML generatsiya
+ */
+protected function generateFacultyCalculationHTML($faculty, $departmentsData, $totalTeachers, $totalStudents, $totalPoints, $totalInfos)
+{
+    \Log::info('Starting generateFacultyCalculationHTML', [
+        'faculty' => $faculty->name,
+        'totalTeachers' => $totalTeachers,
+        'totalStudents' => $totalStudents,
+        'totalPoints' => $totalPoints,
+        'totalInfos' => $totalInfos
+    ]);
+
+    // Konfiguratsiyadan yo'nalishlar ro'yxatini olish
+    $departmentCodlari = Config::get('dep_emp_tables.department');
+    $employeeCodlari = Config::get('dep_emp_tables.employee');
+    $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
+
+    \Log::info('Configuration loaded', [
+        'departmentCodlari' => count($departmentCodlari),
+        'employeeCodlari' => count($employeeCodlari),
+        'totalCodes' => count($jadvallarCodlari)
+    ]);
+
+    // Talabalar soniga bo'linadigan jadvallar
+    $studentDivisorTables = [
+        'table_2_3_2',
+        'table_2_4_1',
+        'table_2_4_2_b',
+        'table_3_4_1',
+        'table_3_4_2',
+        'table_4_1'
+    ];
+
+    \Log::info('Student divisor tables', ['tables' => $studentDivisorTables]);
+
+    // Yo'nalishlar bo'yicha ma'lumotlarni yig'ish
+    $directionalData = [];
+    foreach ($jadvallarCodlari as $code => $name) {
+        $recordsCount = 0;
+        $maxPoint = Config::get('max_points_dep_emp.department.' . $code . '.max') ??
+            Config::get('max_points_dep_emp.employee.' . $code . '.max') ?? 0;
+
+        // Barcha kafedralar bo'yicha shu yo'nalishda yuborilgan ma'lumotlarni sanash
+        foreach ($faculty->departments->where('status', 1) as $department) {
+            $count = $department->point_user_deportaments()
+                ->whereHas('employee', function ($q) {
+                    $q->where('status', 1);
+                })
+                ->where($code . 'id', '!=', null)
+                ->where('status', 1)
+                ->count();
+
+            $recordsCount += $count;
+
+            \Log::info("Department records for $code", [
+                'department' => $department->name,
+                'count' => $count,
+                'running_total' => $recordsCount
+            ]);
+        }
+
+        if ($recordsCount > 0) {
+            $subtotal = $recordsCount * $maxPoint;
+            $divisor = in_array($code, $studentDivisorTables) ? $totalStudents : $totalTeachers;
+            $divisor = $divisor ?: 1; // 0 ga bo'linishni oldini olish
+
+            $N = min($subtotal / $divisor, $maxPoint);
+
+            \Log::info("Calculation for direction $code", [
+                'recordsCount' => $recordsCount,
+                'maxPoint' => $maxPoint,
+                'subtotal' => $subtotal,
+                'divisor' => $divisor,
+                'isDivisorStudents' => in_array($code, $studentDivisorTables),
+                'N' => $N
+            ]);
+
+            $directionalData[] = [
+                'direction' => $code,
+                'name' => $name,
+                'records_count' => $recordsCount,
+                'max_point' => $maxPoint,
+                'sub_total' => $subtotal,
+                'divisor' => $divisor,
+                'N' => round($N, 2),
+                'original_N' => round($subtotal / $divisor, 2),
+                'is_limited' => $subtotal / $divisor > $maxPoint,
+                'divisor_type' => in_array($code, $studentDivisorTables) ? 'Talabalar' : "O'qituvchilar"
+            ];
+        }
+    }
+
+    \Log::info('Directional data collected', [
+        'total_directions' => count($directionalData),
+        'student_divisor_count' => count(array_filter($directionalData, function($item) {
+            return $item['divisor_type'] === 'Talabalar';
+        }))
+    ]);
+
+    $html = '
+    <div class="w-full p-4 bg-gray-50 rounded-lg">
+        <h2 class="text-xl font-bold mb-4 text-gray-800">FAKULTET REYTINGINI HISOBLASH TARTIBI</h2>
+
+        <div class="mb-4 text-sm flex gap-4">
+            <span class="flex items-center">
+                <div class="w-4 h-4 bg-green-200 mr-2"></div>
+                Yuborilgan yo\'nalish ma\'lumotlar soni
+            </span>
+            <span class="flex items-center">
+                <div class="w-4 h-4 bg-blue-200 mr-2"></div>
+                Yo\'nalish maksimal balli
+            </span>
+            <span class="flex items-center">
+                <div class="w-4 h-4 bg-yellow-200 mr-2"></div>
+                Ko\'paytma
+            </span>
+            <span class="flex items-center">
+                <div class="w-4 h-4 bg-indigo-200 mr-2"></div>
+                O\'qituvchilar soni
+            </span>
+            <span class="flex items-center">
+                <div class="w-4 h-4 bg-pink-200 mr-2"></div>
+                Talabalar soni
+            </span>
+            <span class="flex items-center">
+                <div class="w-4 h-4 bg-purple-200 mr-2"></div>
+                Natija (N)
+            </span>
+        </div>';
+
+    // O'qituvchilar soniga bo'linadigan yo'nalishlar
+    $html .= '
+        <div class="mb-6">
+            <h3 class="font-semibold mb-2 text-gray-700">O\'qituvchilar soniga bo\'linadigan yo\'nalishlar:</h3>
+            <div class="flex flex-wrap gap-4">';
+
+    $teacherDivisorCount = 0;
+    foreach ($directionalData as $data) {
+        if ($data['divisor_type'] === "O'qituvchilar") {
+            $teacherDivisorCount++;
+            $limitExplanation = $data['is_limited']
+                ? "<span class='text-red-600'>(${data['original_N']} > ${data['max_point']} = ${data['N']})</span>"
+                : '';
+
+            $html .= "
+            <div class='bg-white p-2 rounded shadow-sm flex items-center gap-2 text-sm'>
+                <span class='text-gray-700'>{$data['direction']}:</span>
+                <span class='bg-green-200 px-2 py-1 rounded'>{$data['records_count']}</span>
+                <span>×</span>
+                <span class='bg-blue-200 px-2 py-1 rounded'>{$data['max_point']}</span>
+                <span>=</span>
+                <span class='bg-yellow-200 px-2 py-1 rounded'>{$data['sub_total']}</span>
+                <span>÷</span>
+                <span class='bg-indigo-200 px-2 py-1 rounded'>{$data['divisor']}</span>
+                <span>=</span>
+                <span class='bg-purple-200 px-2 py-1 rounded'>{$data['N']}</span>
+                {$limitExplanation}
+            </div>";
+        }
+    }
+
+    \Log::info('Teacher divisor section generated', ['count' => $teacherDivisorCount]);
+
+    $html .= '</div></div>';
+
+    // Talabalar soniga bo'linadigan yo'nalishlar
+    $html .= '
+        <div class="mb-6">
+            <h3 class="font-semibold mb-2 text-gray-700">Talabalar soniga bo\'linadigan yo\'nalishlar:</h3>
+            <div class="flex flex-wrap gap-4">';
+
+    $studentDivisorCount = 0;
+    foreach ($directionalData as $data) {
+        if ($data['divisor_type'] === 'Talabalar') {
+            $studentDivisorCount++;
+            $limitExplanation = $data['is_limited']
+                ? "<span class='text-red-600'>(${data['original_N']} > ${data['max_point']} = ${data['N']})</span>"
+                : '';
+
+            $html .= "
+            <div class='bg-white p-2 rounded shadow-sm flex items-center gap-2 text-sm'>
+                <span class='text-gray-700'>{$data['direction']}:</span>
+                <span class='bg-green-200 px-2 py-1 rounded'>{$data['records_count']}</span>
+                <span>×</span>
+                <span class='bg-blue-200 px-2 py-1 rounded'>{$data['max_point']}</span>
+                <span>=</span>
+                <span class='bg-yellow-200 px-2 py-1 rounded'>{$data['sub_total']}</span>
+                <span>÷</span>
+                <span class='bg-pink-200 px-2 py-1 rounded'>{$data['divisor']}</span>
+                <span>=</span>
+                <span class='bg-purple-200 px-2 py-1 rounded'>{$data['N']}</span>
+                {$limitExplanation}
+            </div>";
+        }
+    }
+
+    \Log::info('Student divisor section generated', ['count' => $studentDivisorCount]);
+
+    $html .= '</div></div>';
+
+    // Yakuniy natijalar
+    $totalN = array_sum(array_column($directionalData, 'N'));
+
+    $html .= "
+        <div class='bg-white p-4 rounded shadow-sm'>
+            <div class='flex flex-col gap-4'>
+                <div class='flex items-center justify-between'>
+                    <span class='text-gray-600'>Fakultet o'qituvchilari soni:</span>
+                    <span class='bg-indigo-200 px-3 py-1 rounded font-medium'>{$totalTeachers}</span>
+                </div>
+                <div class='flex items-center justify-between'>
+                    <span class='text-gray-600'>Fakultet talabalari soni:</span>
+                    <span class='bg-pink-200 px-3 py-1 rounded font-medium'>{$totalStudents}</span>
+                </div>
+                <div class='flex items-center justify-between'>
+                    <span class='text-gray-600'>Yuborilgan ma'lumotlar soni:</span>
+                    <span class='bg-green-200 px-3 py-1 rounded font-medium'>{$totalInfos}</span>
+                </div>
+                <div class='flex items-center justify-between'>
+                    <span class='text-gray-600'>Barcha yo'nalishlar bo'yicha N yig'indisi:</span>
+                    <span class='bg-yellow-200 px-3 py-1 rounded font-medium'>" . round($totalN, 2) . "</span>
+                </div>
+            </div>
+
+            <div class='mt-4 text-lg font-semibold text-center bg-gray-800 text-white py-2 rounded'>
+                FAKULTET REYTINGI: " . round($totalN, 2) . "
+            </div>
+        </div>
+    </div>";
+
+    \Log::info('HTML generation completed', [
+        'totalN' => $totalN,
+        'htmlLength' => strlen($html)
+    ]);
+
+    return $html;
+}
 }
