@@ -45,10 +45,64 @@ class FacultyController extends Controller
                         ->count();
                 });
 
-            // Fakultet reytingini hisoblash - umumiy ball / o'qituvchilar soni
-            $facultyRating = $facultyTotalTeachers > 0
-                ? round($calculationResult['total_points'] / $facultyTotalTeachers, 2)
-                : 0;
+            // Fakultet talabalar sonini hisoblash
+            $facultyTotalStudents = StudentsCountForDepart::whereIn(
+                'departament_id',
+                $faculty->departments->where('status', 1)->pluck('id')
+            )
+                ->where('status', 1)
+                ->sum('number');
+
+            // Talabalar soni 0 bo'lmasligi uchun
+            $facultyTotalStudents = $facultyTotalStudents ?: 1;
+
+            // Talabalar soniga bo'linadigan jadvallar
+            $studentDivisorTables = [
+                'table_2_3_2',
+                'table_2_4_1',
+                'table_2_4_2_b',
+                'table_3_4_1',
+                'table_3_4_2',
+                'table_4_1'
+            ];
+
+            // Konfiguratsiyadan yo'nalishlar ro'yxatini olish
+            $departmentCodlari = Config::get('dep_emp_tables.department');
+            $employeeCodlari = Config::get('dep_emp_tables.employee');
+            $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
+
+            // Umumiy ball yig'indisi
+            $totalN = 0;
+
+            foreach ($jadvallarCodlari as $code => $name) {
+                $recordsCount = 0;
+                $maxPoint = Config::get('max_points_dep_emp.department.' . $code . '.max') ??
+                    Config::get('max_points_dep_emp.employee.' . $code . '.max') ?? 0;
+
+                foreach ($faculty->departments->where('status', 1) as $department) {
+                    $columnName = $code . 'id';
+                    $count = $department->point_user_deportaments()
+                        ->whereHas('employee', function ($q) {
+                            $q->where('status', 1);
+                        })
+                        ->where($columnName, '!=', null)
+                        ->where('status', 1)
+                        ->count();
+
+                    $recordsCount += $count;
+                }
+
+                if ($recordsCount > 0) {
+                    $subtotal = $recordsCount * $maxPoint;
+                    // Talabalar soniga bo'linadigan jadvallarni tekshirish
+                    $isDivisorStudent = in_array(rtrim($code, '_'), $studentDivisorTables);
+                    $divisor = $isDivisorStudent ? $facultyTotalStudents : $facultyTotalTeachers;
+                    $divisor = $divisor ?: 1; // 0 ga bo'linishni oldini olish
+
+                    $N = min($subtotal / $divisor, $maxPoint);
+                    $totalN += $N;
+                }
+            }
 
             return (object)[
                 'id' => $faculty->id,
@@ -56,7 +110,7 @@ class FacultyController extends Controller
                 'slug' => $faculty->slug,
                 'status' => $faculty->status,
                 'departments' => $faculty->departments,
-                'total_points' => $facultyRating, // o'zgartirildi
+                'total_points' => round($totalN, 2),
                 'total_teachers' => $facultyTotalTeachers
             ];
         });
@@ -77,196 +131,233 @@ class FacultyController extends Controller
         return view('dashboard.faculty.index', compact('faculties'));
     }
 
+
     public function facultyShow($slug)
-    {
-        $faculty = Faculty::where('slug', $slug)->firstOrFail();
+{
+    $faculty = Faculty::where('slug', $slug)->firstOrFail();
 
-        $pointUserInformations = PointUserDeportament::whereIn(
-            'departament_id',
-            $faculty->departments->where('status', 1)->pluck('id')
-        )
-            ->whereHas('employee', function ($q) {
-                $q->where('status', 1);
-            })
-            ->orderBy('created_at', 'desc')
-            ->paginate('15');
+    $pointUserInformations = PointUserDeportament::whereIn(
+        'departament_id',
+        $faculty->departments->where('status', 1)->pluck('id')
+    )
+        ->whereHas('employee', function ($q) {
+            $q->where('status', 1);
+        })
+        ->orderBy('created_at', 'desc')
+        ->paginate('15');
 
-        // Department va Employee konfiguratsiyalarini olish
-        $departmentCodlari = Config::get('dep_emp_tables.department');
-        $employeeCodlari = Config::get('dep_emp_tables.employee');
+    // Department va Employee konfiguratsiyalarini olish
+    $departmentCodlari = Config::get('dep_emp_tables.department');
+    $employeeCodlari = Config::get('dep_emp_tables.employee');
 
-        // Ikkala massivni birlashtirish
-        $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
+    // Ikkala massivni birlashtirish
+    $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
 
-        // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
-        $arrayKey = [];
-        foreach ($jadvallarCodlari as $key => $value) {
-            $arrayKey[$key . 'id'] = $key;
-        }
+    // Talabalar soniga bo'linadigan jadvallar
+    $studentDivisorTables = [
+        'table_2_3_2',
+        'table_2_4_1',
+        'table_2_4_2_b',
+        'table_3_4_1',
+        'table_3_4_2',
+        'table_4_1'
+    ];
 
-        // Ma'lumotlar massivini tekshirish
-        foreach ($pointUserInformations as $pointUserInformation) {
-            foreach ($arrayKey as $column => $originalKey) {
-                if (isset($pointUserInformation->$column)) {
-                    $pointUserInformation->murojaat_nomi = $jadvallarCodlari[$originalKey];
-                    $pointUserInformation->murojaat_codi = $originalKey;
-                    break;
-                }
-            }
-        }
-
-        // Fakultet uchun PointCalculationService dan foydalanish
-        $calculationResult = $this->pointCalculationService->calculateFacultyPoints($faculty);
-
-        // Fakultet o'qituvchilari sonini hisoblash
-        $totalTeachers = $faculty->departments
-            ->where('status', 1)
-            ->sum(function ($department) {
-                return DB::table('users')
-                    ->where('department_id', $department->id)
-                    ->where('status', 1)
-                    ->count();
-            });
-
-        // Fakultet umumiy ma'lumotlar soni
-        $totalInfos = $faculty->departments
-            ->where('status', 1)
-            ->sum(function ($department) {
-                return $department->point_user_deportaments()
-                    ->whereHas('employee', function ($q) {
-                        $q->where('status', 1);
-                    })
-                    ->where('status', 1)
-                    ->count();
-            });
-
-        // Fakultetning barcha talabalar sonini hisoblash
-        $totalStudents = StudentsCountForDepart::whereIn('departament_id', $faculty->departments->where('status', 1)->pluck('id'))
-            ->where('status', 1)
-            ->sum('number');
-
-        // Talabalar soni 0 bo'lmasligi uchun
-        $totalStudents = $totalStudents ?: 1;
-
-        // Fakultet reytingini hisoblash - umumiy ball / o'qituvchilar soni
-        $totalPoints = $totalTeachers > 0
-            ? round($calculationResult['total_points'] / $totalTeachers, 2)
-            : 0;
-
-        $departmentsData = $calculationResult['departments_data'];
-
-        // Eng so'nggi ma'lumot vaqti va egasini aniqlash
-        $latestInfo = PointUserDeportament::whereIn(
-            'departament_id',
-            $faculty->departments->where('status', 1)->pluck('id')
-        )
-            ->whereHas('employee', function ($q) {
-                $q->where('status', 1);
-            })
-            ->where('status', 1)
-            ->with(['employee' => function ($q) {
-                $q->where('status', 1);
-            }])
-            ->latest()
-            ->first();
-
-        if ($latestInfo && $latestInfo->employee) {
-            $timeAgo = $latestInfo->created_at->diffForHumans();
-            $fullName = $latestInfo->employee->full_name ?? "Ma'lumot topilmadi!";
-            $departEmployee = $latestInfo->employee->department->name ?? "Ma'lumot topilmadi!";
-        } else {
-            $timeAgo = "Ma'lumot yo'q";
-            $fullName = "Ma'lumot topilmadi!";
-            $departEmployee = "Ma'lumot topilmadi!";
-        }
-
-        // Service ma'lumotlarini department ma'lumotlari bilan birlashtirish
-        $departments = $faculty->departments
-            ->where('status', 1)
-            ->map(function ($department) use ($calculationResult) {
-                // departments_data ni department_name bo'yicha qidirish
-                $departmentData = collect($calculationResult['departments_data'])
-                    ->firstWhere('department_name', $department->name);
-
-                return [
-                    'department' => $department,
-                    'points' => [
-                        'total_points' => $departmentData['total_n'] ?? 0,
-                        'teacher_count' => $departmentData['teacher_count'] ?? 0,
-                        'extra_points' => $departmentData['extra_points'] ?? 0,
-                        'approved_count' => $department->point_user_deportaments()
-                            ->whereHas('employee', function ($q) {
-                                $q->where('status', 1);
-                            })
-                            ->where('status', 1)
-                            ->count()
-                    ]
-                ];
-            })
-            ->values()
-            ->all();
-
-        // Bar chart uchun ma'lumotlarni tayyorlash
-        $barChartData = collect($departments)->map(function ($item) {
-            return [
-                'x' => mb_substr($item['department']->name, 0, 15),
-                'full_name' => $item['department']->name,
-                'y' => round($item['points']['total_points'], 2)
-            ];
-        })->values()->toArray();
-
-        // Radar chart uchun ma'lumotlarni yig'ish
-        $radarChartData = [];
-        foreach ($faculty->departments->where('status', 1) as $department) {
-            foreach ($jadvallarCodlari as $key => $value) {
-                $count = $department->point_user_deportaments()
-                    ->whereHas('employee', function ($q) {
-                        $q->where('status', 1);
-                    })
-                    ->where($key . 'id', '!=', null)
-                    ->where('status', 1)
-                    ->count();
-
-                if ($count > 0) {
-                    if (!isset($radarChartData[$key])) {
-                        $radarChartData[$key] = 0;
-                    }
-                    $radarChartData[$key] += $count;
-                }
-            }
-        }
-
-        // Radar chart uchun ma'lumotlarni formatlash
-        $radarData = [
-            'categories' => array_keys($radarChartData),
-            'series' => array_values($radarChartData)
-        ];
-
-        // HTML generatsiya
-        $pointsCalculationExplanation = $this->generateFacultyCalculationHTML(
-            $faculty,
-            $departments,
-            $totalTeachers,
-            $totalStudents,
-            $totalPoints,
-            $totalInfos
-        );
-
-        return view('dashboard.faculty.show', compact(
-            'faculty',
-            'pointUserInformations',
-            'totalPoints',
-            'totalTeachers',
-            'totalInfos',
-            'timeAgo',
-            'fullName',
-            'departments',
-            'barChartData',
-            'radarData',
-            'departEmployee',
-            'pointsCalculationExplanation',
-        ));
+    // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
+    $arrayKey = [];
+    foreach ($jadvallarCodlari as $key => $value) {
+        $arrayKey[$key . 'id'] = $key;
     }
+
+    // Ma'lumotlar massivini tekshirish
+    foreach ($pointUserInformations as $pointUserInformation) {
+        foreach ($arrayKey as $column => $originalKey) {
+            if (isset($pointUserInformation->$column)) {
+                $pointUserInformation->murojaat_nomi = $jadvallarCodlari[$originalKey];
+                $pointUserInformation->murojaat_codi = $originalKey;
+                break;
+            }
+        }
+    }
+
+    // Fakultet o'qituvchilari sonini hisoblash
+    $totalTeachers = $faculty->departments
+        ->where('status', 1)
+        ->sum(function ($department) {
+            return DB::table('users')
+                ->where('department_id', $department->id)
+                ->where('status', 1)
+                ->count();
+        });
+
+    // Fakultet umumiy ma'lumotlar soni
+    $totalInfos = $faculty->departments
+        ->where('status', 1)
+        ->sum(function ($department) {
+            return $department->point_user_deportaments()
+                ->whereHas('employee', function ($q) {
+                    $q->where('status', 1);
+                })
+                ->where('status', 1)
+                ->count();
+        });
+
+    // Fakultetning barcha talabalar sonini hisoblash
+    $totalStudents = StudentsCountForDepart::whereIn('departament_id', $faculty->departments->where('status', 1)->pluck('id'))
+        ->where('status', 1)
+        ->sum('number');
+
+    // Talabalar soni 0 bo'lmasligi uchun
+    $totalStudents = $totalStudents ?: 1;
+
+    // Fakultet umumiy ballini hisoblash
+    $totalN = 0;
+    foreach ($jadvallarCodlari as $code => $name) {
+        $recordsCount = 0;
+        $maxPoint = Config::get('max_points_dep_emp.department.' . $code . '.max') ??
+            Config::get('max_points_dep_emp.employee.' . $code . '.max') ?? 0;
+
+        foreach ($faculty->departments->where('status', 1) as $department) {
+            $columnName = $code . 'id';
+            $count = $department->point_user_deportaments()
+                ->whereHas('employee', function ($q) {
+                    $q->where('status', 1);
+                })
+                ->where($columnName, '!=', null)
+                ->where('status', 1)
+                ->count();
+
+            $recordsCount += $count;
+        }
+
+        if ($recordsCount > 0) {
+            $subtotal = $recordsCount * $maxPoint;
+            // Talabalar soniga bo'linadigan jadvallarni tekshirish
+            $isDivisorStudent = in_array(rtrim($code, '_'), $studentDivisorTables);
+            $divisor = $isDivisorStudent ? $totalStudents : $totalTeachers;
+            $divisor = $divisor ?: 1; // 0 ga bo'linishni oldini olish
+
+            $N = min($subtotal / $divisor, $maxPoint);
+            $totalN += $N;
+        }
+    }
+
+    // Fakultet reytingi
+    $totalPoints = round($totalN, 2);
+    $departmentsData = $this->pointCalculationService->calculateFacultyPoints($faculty)['departments_data'];
+
+    // Eng so'nggi ma'lumot vaqti va egasini aniqlash
+    $latestInfo = PointUserDeportament::whereIn(
+        'departament_id',
+        $faculty->departments->where('status', 1)->pluck('id')
+    )
+        ->whereHas('employee', function ($q) {
+            $q->where('status', 1);
+        })
+        ->where('status', 1)
+        ->with(['employee' => function ($q) {
+            $q->where('status', 1);
+        }])
+        ->latest()
+        ->first();
+
+    if ($latestInfo && $latestInfo->employee) {
+        $timeAgo = $latestInfo->created_at->diffForHumans();
+        $fullName = $latestInfo->employee->full_name ?? "Ma'lumot topilmadi!";
+        $departEmployee = $latestInfo->employee->department->name ?? "Ma'lumot topilmadi!";
+    } else {
+        $timeAgo = "Ma'lumot yo'q";
+        $fullName = "Ma'lumot topilmadi!";
+        $departEmployee = "Ma'lumot topilmadi!";
+    }
+
+    // Service ma'lumotlarini department ma'lumotlari bilan birlashtirish
+    $departments = $faculty->departments
+    ->where('status', 1)
+    ->map(function ($department) use ($departmentsData) { // $calculationResult o'rniga $departmentsData
+        // departments_data ni department_name bo'yicha qidirish
+        $departmentData = collect($departmentsData)
+            ->firstWhere('department_name', $department->name);
+
+        return [
+            'department' => $department,
+            'points' => [
+                'total_points' => $departmentData['total_n'] ?? 0,
+                'teacher_count' => $departmentData['teacher_count'] ?? 0,
+                'extra_points' => $departmentData['extra_points'] ?? 0,
+                'approved_count' => $department->point_user_deportaments()
+                    ->whereHas('employee', function ($q) {
+                        $q->where('status', 1);
+                    })
+                    ->where('status', 1)
+                    ->count()
+            ]
+        ];
+    })
+    ->values()
+    ->all();
+
+    // Bar chart uchun ma'lumotlarni tayyorlash
+    $barChartData = collect($departments)->map(function ($item) {
+        return [
+            'x' => mb_substr($item['department']->name, 0, 15),
+            'full_name' => $item['department']->name,
+            'y' => round($item['points']['total_points'], 2)
+        ];
+    })->values()->toArray();
+
+    // Radar chart uchun ma'lumotlarni yig'ish
+    $radarChartData = [];
+    foreach ($faculty->departments->where('status', 1) as $department) {
+        foreach ($jadvallarCodlari as $key => $value) {
+            $count = $department->point_user_deportaments()
+                ->whereHas('employee', function ($q) {
+                    $q->where('status', 1);
+                })
+                ->where($key . 'id', '!=', null)
+                ->where('status', 1)
+                ->count();
+
+            if ($count > 0) {
+                if (!isset($radarChartData[$key])) {
+                    $radarChartData[$key] = 0;
+                }
+                $radarChartData[$key] += $count;
+            }
+        }
+    }
+
+    // Radar chart uchun ma'lumotlarni formatlash
+    $radarData = [
+        'categories' => array_keys($radarChartData),
+        'series' => array_values($radarChartData)
+    ];
+
+    // HTML generatsiya
+    $pointsCalculationExplanation = $this->generateFacultyCalculationHTML(
+        $faculty,
+        $departments,
+        $totalTeachers,
+        $totalStudents,
+        $totalPoints,
+        $totalInfos
+    );
+
+    return view('dashboard.faculty.show', compact(
+        'faculty',
+        'pointUserInformations',
+        'totalPoints',
+        'totalTeachers',
+        'totalInfos',
+        'timeAgo',
+        'fullName',
+        'departments',
+        'barChartData',
+        'radarData',
+        'departEmployee',
+        'pointsCalculationExplanation',
+    ));
+}
 
 
     public function getItemDetails($id)

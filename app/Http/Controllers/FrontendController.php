@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Faculty;
+use Illuminate\Support\Facades\DB;
+use App\Models\StudentsCountForDepart;
+use Illuminate\Support\Facades\Config;
 use App\Services\PointCalculationService;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Collection as SupportCollection;
@@ -23,9 +26,6 @@ class FrontendController extends Controller
             ->with(['departments.employee', 'departments.point_user_deportaments.departPoint'])
             ->get();
 
-        // Config faylidan o'qituvchilar sonini olish
-        $departmentCounts = config('departament_tichers_count') ?? include(config_path('departament_tichers_count.php'));
-
         // Fakultetlar, bo'limlar va xodimlar uchun point'larni hisoblash
         $topFaculties = $this->calculateFacultyPoints($faculties);
         $topDepartments = $this->calculateDepartmentPoints($faculties);
@@ -38,29 +38,78 @@ class FrontendController extends Controller
     {
         $facultiesWithPoints = new SupportCollection();
 
+        // Talabalar soniga bo'linadigan jadvallar
+        $studentDivisorTables = [
+            'table_2_3_2',
+            'table_2_4_1',
+            'table_2_4_2_b',
+            'table_3_4_1',
+            'table_3_4_2',
+            'table_4_1'
+        ];
+
         foreach ($faculties as $faculty) {
-            // Fakultet ballarini hisoblash
-            $points = $this->pointCalculationService->calculateFacultyPoints($faculty);
+            // Department va Employee konfiguratsiyalarini olish
+            $departmentCodlari = Config::get('dep_emp_tables.department');
+            $employeeCodlari = Config::get('dep_emp_tables.employee');
+            $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
 
             // Fakultet o'qituvchilari sonini hisoblash
-            $facultyTotalTeachers = $faculty->departments
+            $totalTeachers = $faculty->departments
                 ->where('status', 1)
                 ->sum(function ($department) {
-                    return $department->employee
+                    return DB::table('users')
+                        ->where('department_id', $department->id)
                         ->where('status', 1)
                         ->count();
                 });
 
-            // Fakultet reytingini hisoblash - umumiy ball / o'qituvchilar soni
-            $facultyRating = $facultyTotalTeachers > 0
-                ? round($points['total_points'] / $facultyTotalTeachers, 2)
-                : 0;
+            // Fakultet talabalar sonini hisoblash
+            $totalStudents = StudentsCountForDepart::whereIn('departament_id',
+                $faculty->departments->where('status', 1)->pluck('id'))
+                ->where('status', 1)
+                ->sum('number');
+
+            // Talabalar soni 0 bo'lmasligi uchun
+            $totalStudents = $totalStudents ?: 1;
+
+            // Fakultet umumiy ballini hisoblash
+            $totalN = 0;
+            foreach ($jadvallarCodlari as $code => $name) {
+                $recordsCount = 0;
+                $maxPoint = Config::get('max_points_dep_emp.department.' . $code . '.max') ??
+                    Config::get('max_points_dep_emp.employee.' . $code . '.max') ?? 0;
+
+                foreach ($faculty->departments->where('status', 1) as $department) {
+                    $columnName = $code . 'id';
+                    $count = $department->point_user_deportaments()
+                        ->whereHas('employee', function ($q) {
+                            $q->where('status', 1);
+                        })
+                        ->where($columnName, '!=', null)
+                        ->where('status', 1)
+                        ->count();
+
+                    $recordsCount += $count;
+                }
+
+                if ($recordsCount > 0) {
+                    $subtotal = $recordsCount * $maxPoint;
+                    // Talabalar soniga bo'linadigan jadvallarni tekshirish
+                    $isDivisorStudent = in_array(rtrim($code, '_'), $studentDivisorTables);
+                    $divisor = $isDivisorStudent ? $totalStudents : $totalTeachers;
+                    $divisor = $divisor ?: 1; // 0 ga bo'linishni oldini olish
+
+                    $N = min($subtotal / $divisor, $maxPoint);
+                    $totalN += $N;
+                }
+            }
 
             $facultyData = [
                 'id' => $faculty->id,
                 'name' => $faculty->name,
-                'total_points' => $facultyRating, // o'zgartirildi
-                'total_teachers' => $facultyTotalTeachers,
+                'total_points' => round($totalN, 2),
+                'total_teachers' => $totalTeachers,
                 'image' => $faculty->image ?? null,
                 'status' => $faculty->status
             ];
@@ -70,6 +119,7 @@ class FrontendController extends Controller
 
         return $facultiesWithPoints->where('status', 1)->sortByDesc('total_points');
     }
+
 
     private function calculateDepartmentPoints(Collection $faculties): SupportCollection
     {
