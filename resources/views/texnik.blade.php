@@ -6,11 +6,11 @@
             <div class="mt-2 px-7 py-3">
 
                 <div class="p-4 mb-4 text-left text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
-                    <p class="font-medium mb-2">21-noyabr, 2024-yil</p>
+                    <p class="font-medium mb-2">02-dekabr, 2024-yil</p>
                     <p class="mb-2">Hurmatli foydalanuvchilar, tizimda quyidagi yangi imkoniyatlar qo'shildi:</p>
                     <ul class="list-disc pl-5 space-y-2">
-                        <li>Qo'shimcha KPI reytingini aniqlash uchun yangilanishlar kiritildi (hozirda test rejimida).</li>
-                        <li>Fakultet reyting ballarini hisoblash tizimi takomillashtirildi (kafedralar ballari yig'indisi fakultet o'qituvchilari soniga bo'lindi).</li>
+                        <li>Qo'shimcha o'qituvchilar KPI reytingini aniqlash uchun yangilanishlar kiritildi (hozirda test rejimida).</li>
+                        <li>Fakultet reyting ballarini hisoblash tizimi takomillashtirildi.</li>
                     </ul>
 
                     <p class="mb-2 mt-4">Yaqin kunlarda qo'shiladigan yangi imkoniyatlar:</p>
