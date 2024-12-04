@@ -274,79 +274,79 @@
 
             @push('scripts')
                 <script>
-                function generateExcel() {
-    const button = document.getElementById('excelGenerateButton');
-    const progressModal = document.getElementById('excelProgressModal');
-    const progressBar = document.getElementById('excelProgressBar');
-    const progressText = document.getElementById('excelProgressText');
-    const statusMessage = document.getElementById('excelStatusMessage');
+                    function generateExcel() {
+                        const button = document.getElementById('excelGenerateButton');
+                        const progressModal = document.getElementById('excelProgressModal');
+                        const progressBar = document.getElementById('excelProgressBar');
+                        const progressText = document.getElementById('excelProgressText');
+                        const statusMessage = document.getElementById('excelStatusMessage');
 
-    // UI ni tayyorlash
-    button.disabled = true;
-    button.classList.add('opacity-75', 'cursor-not-allowed');
-    progressModal.classList.remove('hidden');
-    progressBar.style.width = '0%';
-    progressText.textContent = '0%';
-    statusMessage.textContent = 'Boshlanmoqda...';
+                        // UI ni tayyorlash
+                        button.disabled = true;
+                        button.classList.add('opacity-75', 'cursor-not-allowed');
+                        progressModal.classList.remove('hidden');
+                        progressBar.style.width = '0%';
+                        progressText.textContent = '0%';
+                        statusMessage.textContent = 'Boshlanmoqda...';
 
-    // EventSource yaratish
-    const eventSource = new EventSource('{{ route("excel.generate_two") }}');
+                        // EventSource yaratish
+                        const eventSource = new EventSource('{{ route('excel.generate_two') }}');
 
-    // SSE event handler
-    eventSource.onmessage = function(event) {
-        const data = JSON.parse(event.data);
+                        // SSE event handler
+                        eventSource.onmessage = function(event) {
+                            const data = JSON.parse(event.data);
 
-        // Progress va xabarni yangilash
-        progressBar.style.width = data.progress + '%';
-        progressText.textContent = data.progress + '%';
-        statusMessage.textContent = data.message;
+                            // Progress va xabarni yangilash
+                            progressBar.style.width = data.progress + '%';
+                            progressText.textContent = data.progress + '%';
+                            statusMessage.textContent = data.message;
 
-        // Agar jarayon tugagan bo'lsa
-        if (data.progress >= 100 && data.success) {
-            eventSource.close();
+                            // Agar jarayon tugagan bo'lsa
+                            if (data.progress >= 100 && data.success) {
+                                eventSource.close();
 
-            // Faylni yuklab olish
-            setTimeout(() => {
-                window.location.href = data.download_url;
-            }, 1000);
+                                // Faylni yuklab olish
+                                setTimeout(() => {
+                                    window.location.href = data.download_url;
+                                }, 1000);
 
-            // Modal va buttonni qayta tiklash
-            setTimeout(() => {
-                progressModal.classList.add('hidden');
-                button.disabled = false;
-                button.classList.remove('opacity-75', 'cursor-not-allowed');
-            }, 2000);
-        }
+                                // Modal va buttonni qayta tiklash
+                                setTimeout(() => {
+                                    progressModal.classList.add('hidden');
+                                    button.disabled = false;
+                                    button.classList.remove('opacity-75', 'cursor-not-allowed');
+                                }, 2000);
+                            }
 
-        // Xatolik bo'lsa
-        if (data.success === false) {
-            eventSource.close();
-            statusMessage.textContent = data.message;
-            statusMessage.classList.add('text-red-600');
+                            // Xatolik bo'lsa
+                            if (data.success === false) {
+                                eventSource.close();
+                                statusMessage.textContent = data.message;
+                                statusMessage.classList.add('text-red-600');
 
-            setTimeout(() => {
-                progressModal.classList.add('hidden');
-                button.disabled = false;
-                button.classList.remove('opacity-75', 'cursor-not-allowed');
-            }, 3000);
-        }
-    };
+                                setTimeout(() => {
+                                    progressModal.classList.add('hidden');
+                                    button.disabled = false;
+                                    button.classList.remove('opacity-75', 'cursor-not-allowed');
+                                }, 3000);
+                            }
+                        };
 
-    // SSE xatolik handler
-    eventSource.onerror = function(error) {
-        console.error('SSE Error:', error);
-        eventSource.close();
+                        // SSE xatolik handler
+                        eventSource.onerror = function(error) {
+                            console.error('SSE Error:', error);
+                            eventSource.close();
 
-        statusMessage.textContent = 'Serverda xatolik yuz berdi';
-        statusMessage.classList.add('text-red-600');
+                            statusMessage.textContent = 'Serverda xatolik yuz berdi';
+                            statusMessage.classList.add('text-red-600');
 
-        setTimeout(() => {
-            progressModal.classList.add('hidden');
-            button.disabled = false;
-            button.classList.remove('opacity-75', 'cursor-not-allowed');
-        }, 3000);
-    };
-}
+                            setTimeout(() => {
+                                progressModal.classList.add('hidden');
+                                button.disabled = false;
+                                button.classList.remove('opacity-75', 'cursor-not-allowed');
+                            }, 3000);
+                        };
+                    }
                 </script>
             @endpush
 
@@ -467,7 +467,7 @@
                     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
                     // Ajax so'rov
-                    fetch('/delete-rejected-data', {
+                    fetch('/admin/delete-rejected-data', {
                             method: 'POST',
                             headers: {
                                 'X-CSRF-TOKEN': token,
@@ -745,7 +745,7 @@
         }
 
         function connectEventSource() {
-            eventSource = new EventSource('/download');
+            eventSource = new EventSource('/admin/download');
             lastUpdateTime = Date.now();
 
             eventSource.onopen = function(event) {
@@ -864,7 +864,7 @@
             progressWrapper.classList.remove('hidden');
 
             // Create EventSource connection
-            eventSource = new EventSource('/update-teacher-departments');
+            eventSource = new EventSource('/admin/update-teacher-departments');
 
             // Handle incoming messages
             eventSource.onmessage = function(event) {
@@ -936,7 +936,7 @@
 
             if (isUpdating) {
                 try {
-                    const response = await fetch('/stop-departments-update', {
+                    const response = await fetch('/admin/stop-departments-update', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -963,7 +963,7 @@
             progressContainer.classList.remove('hidden');
             changesContainer.innerHTML = ''; // O'zgarishlar konteynerini tozalash
 
-            const eventSource = new EventSource('/update-departments');
+            const eventSource = new EventSource('/admin/update-departments');
 
             eventSource.onmessage = function(event) {
                 try {
@@ -1083,7 +1083,7 @@
             progressContainer.classList.remove('hidden');
             resultsContainer.innerHTML = '';
 
-            registrationEventSource = new EventSource('/register-all-teachers');
+            registrationEventSource = new EventSource('/admin/register-all-teachers');
 
             registrationEventSource.onmessage = function(event) {
                 const data = JSON.parse(event.data);
@@ -1127,7 +1127,7 @@
 
         function stopTeachersRegistration() {
             if (registrationEventSource) {
-                fetch('/stop-teachers-registration', {
+                fetch('/admin/stop-teachers-registration', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
