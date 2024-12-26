@@ -59,7 +59,7 @@ class ExportInfosController extends Controller
         return new StreamedResponse(function () {
             try {
                 ini_set('memory_limit', '40G');
-                set_time_limit(6000);
+                set_time_limit(600);
 
                 $this->sendUpdate('Boshlash', 0);
 
@@ -99,13 +99,13 @@ class ExportInfosController extends Controller
                     if (method_exists($this, $methodName)) {
                         PointUserDeportament::with([$table])
                             ->where('status', 1)
-                            ->chunk(5000, function($chunk) use ($sheet, $methodName) {
+                            ->chunk(80000, function($chunk) use ($sheet, $methodName) {
                                 $this->$methodName($sheet, $chunk);
                             });
                     } else {
                         PointUserDeportament::with([$table])
                             ->where('status', 1)
-                            ->chunk(5000, function($chunk) use ($sheet, $table) {
+                            ->chunk(80000, function($chunk) use ($sheet, $table) {
                                 $this->fillDefaultData($sheet, $chunk, $table);
                             });
                     }
@@ -164,7 +164,7 @@ class ExportInfosController extends Controller
             ini_set('memory_limit', '40G'); // 8GB ga oshirildi
 
             // Ma'lumotlarni qismlab olish
-            $chunkSize = 5000; // Chunkning hajmi kamaytirildi
+            $chunkSize = 80000; // Chunkning hajmi kamaytirildi
             $totalChunks = ceil($pointUserDeportaments->count() / $chunkSize);
             $currentChunk = 0;
 

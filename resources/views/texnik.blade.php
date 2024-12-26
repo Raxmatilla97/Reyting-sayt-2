@@ -4,26 +4,29 @@
             <i class="fas fa-exclamation-circle text-5xl text-yellow-500 mb-4"></i>
             <h3 class="text-2xl leading-6 font-bold text-gray-900 mb-4">Yangi o'zgarishlar haqida ma'lumot</h3>
             <div class="mt-2 px-7 py-3">
-
                 <div class="p-4 mb-4 text-left text-sm text-blue-800 rounded-lg bg-blue-50" role="alert">
-                    <p class="font-medium mb-2">02-dekabr, 2024-yil</p>
-                    <p class="mb-2">Hurmatli foydalanuvchilar, tizimda quyidagi yangi imkoniyatlar qo'shildi:</p>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li>Qo'shimcha o'qituvchilar KPI reytingini aniqlash uchun yangilanishlar kiritildi (hozirda test rejimida).</li>
-                        <li>Fakultet reyting ballarini hisoblash tizimi takomillashtirildi.</li>
-                    </ul>
-
-                    <p class="mb-2 mt-4">Yaqin kunlarda qo'shiladigan yangi imkoniyatlar:</p>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li>KPI reyting tizimiga yangi qulayliklar qo'shiladi</li>
-                        <li>Ma'lumotlarni saqlash uchun qo'shimcha export funksiyasi</li>
-                    </ul>
-                    <p class="mb-2 mt-4 text-red-600">Eslatma: Tizimda ayrim kamchiliklar bo'lishi mumkin. Ularni yaqin kunlarda bartaraf etamiz va tizimni yanada takomillashtiramiz.</p>
+                    <p class="font-medium mb-2">26-dekabr, 2024-yil</p>
+                    <p class="mb-2">Hurmatli OTM.CSPU.UZ foydalanuvchilari!</p>
+                    <p class="leading-relaxed">
+                        Saytimizda amalga oshirilayotgan barcha yangilanishlar, qo'shilayotgan yangi imkoniyatlar va tizimning ishida yuzaga kelishi mumkin bo'lgan texnik nosozliklar haqidagi dolzarb ma'lumotlarni tezkor ravishda olish uchun rasmiy Telegram kanalimizga a'zo bo'lishingizni tavsiya etamiz. Kanalimiz orqali siz tizimning ishlash jarayoni, yangi funksiyalar va muhim e'lonlar haqida birinchilardan xabardor bo'lasiz.
+                    </p>
+                    <p class="mt-4 italic text-blue-700">
+                        Tizimdan yanada samarali foydalanish va so'nggi yangilanishlardan xabardor bo'lish uchun quyidagi Telegram kanalimizga ulaning!
+                    </p>
                 </div>
 
-                <div class="text-right">
+                <div class="text-right space-y-2">
+                    <!-- Previous button -->
                     <a href="https://t.me/Raxmatilla_Fayziyev" target="_blank" rel="noopener noreferrer" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
                         Xatolik topsangiz bog'laning
+                    </a>
+
+                    <!-- New Telegram channel button -->
+                    <a href="https://t.me/cspu_rttm_info_offical" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-white bg-[#0088cc] hover:bg-[#0077b5] focus:ring-4 focus:ring-[#0088cc]/50 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2">
+                        <svg class="w-4 h-4 me-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19.777 4.43a1.5 1.5 0 0 1 2.085 1.752l-2.652 12.584a1.5 1.5 0 0 1-2.303.965l-5.186-3.38-2.9 2.9a1 1 0 0 1-1.7-.708L7.27 14l-4.622-3.01a1.5 1.5 0 0 1 .407-2.676l16.722-3.885ZM7.672 13.264l3.827 2.492 5.64-5.64-7.777 4.547a1.5 1.5 0 0 0-.106.064l-1.584 4.644 1.584-4.644a1.5 1.5 0 0 0-1.584-1.463Z"/>
+                        </svg>
+                        Yangilanishlarni kuzatib boring
                     </a>
                 </div>
             </div>

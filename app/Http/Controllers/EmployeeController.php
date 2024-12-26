@@ -64,40 +64,36 @@ class EmployeeController extends Controller
     public function employeeShow($employee_id)
     {
         try {
-            // employee_id bo'yicha xodimni topishga harakat qilamiz
+            // Xodimni topish
             $employee = Employee::where('employee_id_number', $employee_id)->firstOrFail();
 
-            // Xodimga tegishli point ma'lumotlarini olamiz
+            // Xodimga tegishli point ma'lumotlarini olish
             $pointUserInformations = PointUserDeportament::where('user_id', $employee->id)
                 ->orderBy('created_at', 'desc')
                 ->paginate(15);
 
-            // Department va Employee konfiguratsiyalarini olish
+            // Department va Employee config konfiguratsiyalarini olish
             $departmentCodlari = Config::get('dep_emp_tables.department');
             $employeeCodlari = Config::get('dep_emp_tables.employee');
-
-            // Ikkala massivni birlashtirish
             $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
 
-            // Config fayllaridan label nomlarini olish
+            // Label nomlarini config fayllaridan olish
             $employeeLabels = Config::get('employee_form_fields');
             $departmentLabels = Config::get('department_forms_fields');
             $allLabels = array_merge($employeeLabels, $departmentLabels);
 
-            // Har bir massiv elementiga "key" nomli yangi maydonni qo'shish
+            // Key nomli maydonlarni yaratish
             $arrayKey = [];
             foreach ($jadvallarCodlari as $key => $value) {
                 $arrayKey[$key . 'id'] = $key;
             }
 
-            // Ma'lumotlar massivini tekshirish
+            // Murojaat nomlarini qo'shish
             foreach ($pointUserInformations as $item) {
                 foreach ($arrayKey as $column => $originalKey) {
                     if (isset($item->$column)) {
-                        // Config faylidan label nomini olish
                         $labelKey = $originalKey . '_';
                         $label = isset($allLabels[$labelKey]) ? $allLabels[$labelKey]['label'] : $jadvallarCodlari[$originalKey];
-
                         $item->murojaat_nomi = $label;
                         $item->murojaat_codi = $originalKey;
                         break;
@@ -106,34 +102,36 @@ class EmployeeController extends Controller
             }
 
             // Umumiy ballarni hisoblash
-            $totalPointsSuccess = PointUserDeportament::where('user_id', $employee->id)
-                ->where('status', 1);
+            $totalPoints = PointUserDeportament::where('user_id', $employee->id)
+                ->where('status', 1)
+                ->sum('point');
 
-            $totalPoints = $totalPointsSuccess->sum('point');
-            $totalInfos = $totalPointsSuccess->count() ? $totalPointsSuccess->count() : 0;
+            $totalInfos = PointUserDeportament::where('user_id', $employee->id)
+                ->where('status', 1)
+                ->count();
 
+            // Departamentga o'tgan ballar yig'indisi
+            $departamentPointTotal = DepartPoints::whereIn('point_user_deport_id', function ($query) use ($employee) {
+                $query->select('id')
+                    ->from('point_user_deportaments')
+                    ->where('user_id', $employee->id)
+                    ->where('status', 1);
+            })->sum('point');
 
-            // O'qituvchining barcha departamentga o'tib ketgan ballari yi'gindisi
-            $pointUserInformation = PointUserDeportament::where('user_id', $employee->id)
-                ->where('status', 1)->get();
+            // Statistika uchun ma'lumotlarni olish
+            $endDate = now();
+            $startDate = now()->subDays(80);
 
-            $departamentPointTotal = 0;
-            foreach ($pointUserInformation as $pointEntry) {
-                $departamentPointTotal += DepartPoints::where('point_user_deport_id', $pointEntry->id)->sum('point');
-            }
-
-            // $totalPoints = $employee->department ? $totalPoints : 'N/A';
-
-            // Statistika uchun barcha ma'lumotlarni olish (paginatsiyasiz)
-            $allUserInformations = PointUserDeportament::where('user_id', $employee->id)
+            // Barcha ma'lumotlarni olish
+            $statistics = PointUserDeportament::where('user_id', $employee->id)
+                ->whereBetween('created_at', [$startDate, $endDate])
                 ->orderBy('created_at', 'desc')
                 ->get();
 
-            // Kunlik statistika uchun ma'lumotlarni guruhlash
-            $dailyStats = $allUserInformations
-                ->groupBy(function ($item) {
-                    return $item->created_at->format('Y-m-d');
-                })
+            // Ma'lumotlarni kunlar bo'yicha guruhlash
+            $dailyStats = $statistics->groupBy(function ($item) {
+                return $item->created_at->format('Y-m-d');
+            })
                 ->map(function ($group) {
                     return [
                         'total' => $group->count(),
@@ -142,20 +140,23 @@ class EmployeeController extends Controller
                     ];
                 });
 
-
-            return view('dashboard.employee.show', compact('employee', 'pointUserInformations', 'totalPoints', 'departamentPointTotal', 'totalInfos', 'dailyStats'));
+            // Kunlarni tartiblab olish
+            $dailyStats = $dailyStats->sortKeys();
+            return view('dashboard.employee.show', compact(
+                'employee',
+                'pointUserInformations',
+                'totalPoints',
+                'departamentPointTotal',
+                'totalInfos',
+                'dailyStats'
+            ));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-
-            // Xodim topilmasa, xato xabarini ko'rsatamiz
             return back()->with('error', "ID: $employee_id bo'lgan xodim topilmadi.");
         } catch (\Exception $e) {
-
-            // Boshqa xatoliklar uchun
             \Log::error('Xodim ma\'lumotlarini olishda xatolik: ' . $e->getMessage());
-            return back()->with('error', 'Ma\'lumotlarni olishda xatolik yuz berdi. Iltimos, keyinroq qayta urinib ko\'ring.');
+            return back()->with('error', 'Ma\'lumotlarni olishda xatolik yuz berdi.');
         }
     }
-
 
     public function mySubmittedInformation()
     {

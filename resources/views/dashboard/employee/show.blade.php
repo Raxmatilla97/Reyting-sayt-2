@@ -144,122 +144,117 @@
 
 
                     <script>
-                        // Stacked Column Chart Configuration
-                        const lineChartOptions = {
-                            series: [{
-                                name: 'Jami yuborilgan',
-                                data: @json($dailyStats->pluck('total'))
-                            }, {
-                                name: 'Maqullangan',
-                                data: @json($dailyStats->pluck('accepted'))
-                            }, {
-                                name: 'Rad etilgan',
-                                data: @json($dailyStats->pluck('rejected'))
-                            }],
-                            chart: {
-                                type: 'bar',
-                                height: 400,
-                                stacked: true,
-                                toolbar: {
-                                    show: true
-                                },
-                                zoom: {
-                                    enabled: true
-                                }
-                            },
-                            colors: ['#FFB547', '#22C55E', '#EF4444'], // Sariq, Yashil, Qizil
-                            plotOptions: {
-                                bar: {
-                                    horizontal: false,
-                                    columnWidth: '20%',
-                                    borderRadius: 0,
-                                    distributed: false,
-                                    rangeBarOverlap: true,
-                                    rangeBarGroupRows: false,
-                                    barHeight: '70%',
-                                    isDumbbell: false,
-                                    isFunnel: false,
-                                    isCylinder: false,
-                                    isVertical: true,
-                                    dataLabels: {
-                                        position: 'top'
-                                    }
-                                },
-                            },
-                            dataLabels: {
-                                enabled: true,
-                                formatter: function(val) {
-                                    return val > 0 ? val : '';
-                                },
-                                style: {
-                                    fontSize: '12px'
-                                }
-                            },
-                            stroke: {
-                                show: true,
-                                width: 1,
-                                colors: ['transparent']
-                            },
-                            grid: {
-                                show: true,
-                                xaxis: {
-                                    lines: {
-                                        show: false
-                                    }
-                                },
-                                yaxis: {
-                                    lines: {
-                                        show: true
-                                    }
-                                }
-                            },
-                            xaxis: {
-                                categories: @json($dailyStats->reverse()->keys()),
-                                labels: {
-                                    rotate: -45,
-                                    rotateAlways: true,
-                                    style: {
-                                        fontSize: '12px'
-                                    }
-                                },
-                                tickPlacement: 'on',
-                                axisTicks: {
-                                    show: true
-                                },
-                                axisBorder: {
-                                    show: true
-                                }
-                            },
-                            yaxis: {
-                                title: {
-                                    text: "Ma'lumotlar soni"
-                                },
-                                min: 0,
-                                max: function(max) {
-                                    return max + 1;
-                                }
-                            },
-                            fill: {
-                                opacity: 1
-                            },
-                            legend: {
-                                position: 'top',
-                                horizontalAlign: 'center'
-                            },
-                            tooltip: {
-                                shared: true,
-                                intersect: false,
-                                y: {
-                                    formatter: function(val) {
-                                        return val + " ta"
-                                    }
-                                }
-                            }
-                        };
-
-                        // Render Chart
                         document.addEventListener("DOMContentLoaded", function() {
                             if (document.getElementById('line-chart')) {
+                                const lineChartOptions = {
+                                    series: [{
+                                        name: 'Jami yuborilgan',
+                                        data: @json($dailyStats->pluck('total')->values())
+                                    }, {
+                                        name: 'Maqullangan',
+                                        data: @json($dailyStats->pluck('accepted')->values())
+                                    }, {
+                                        name: 'Rad etilgan',
+                                        data: @json($dailyStats->pluck('rejected')->values())
+                                    }],
+                                    chart: {
+                                        type: 'bar',
+                                        height: 400,
+                                        toolbar: {
+                                            show: true,
+                                            tools: {
+                                                download: true,
+                                                selection: false,
+                                                zoom: true,
+                                                zoomin: true,
+                                                zoomout: true,
+                                                pan: true,
+                                            }
+                                        }
+                                    },
+                                    plotOptions: {
+                                        bar: {
+                                            horizontal: false,
+                                            columnWidth: '55%',
+                                            borderRadius: 2,
+                                            dataLabels: {
+                                                position: 'top'
+                                            }
+                                        },
+                                    },
+                                    colors: ['#4F46E5', '#22C55E', '#EF4444'],
+                                    dataLabels: {
+                                        enabled: true,
+                                        formatter: function(val) {
+                                            return val > 0 ? val : '';
+                                        },
+                                        style: {
+                                            fontSize: '12px',
+                                            fontWeight: 600,
+                                            colors: ["#333"]
+                                        },
+                                        offsetY: -20
+                                    },
+                                    xaxis: {
+                                        categories: @json($dailyStats->keys()),
+                                        labels: {
+                                            rotate: -45,
+                                            rotateAlways: true,
+                                            style: {
+                                                fontSize: '12px',
+                                                fontWeight: 500
+                                            },
+                                            formatter: function(value) {
+                                                const date = new Date(value);
+                                                const day = String(date.getDate()).padStart(2, '0');
+                                                const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                return `${day}.${month}`;
+                                            }
+                                        },
+                                        tickAmount: 10
+                                    },
+                                    yaxis: {
+                                        title: {
+                                            text: "Ma'lumotlar soni",
+                                            style: {
+                                                fontSize: '14px',
+                                                fontWeight: 500
+                                            }
+                                        },
+                                        labels: {
+                                            formatter: function(val) {
+                                                return Math.round(val);
+                                            }
+                                        },
+                                        min: 0
+                                    },
+                                    tooltip: {
+                                        shared: true,
+                                        intersect: false,
+                                        y: {
+                                            formatter: function(val) {
+                                                return val + " ta";
+                                            }
+                                        },
+                                        x: {
+                                            formatter: function(value) {
+                                                const date = new Date(value);
+                                                return date.toLocaleDateString('uz-UZ', {
+                                                    year: 'numeric',
+                                                    month: '2-digit',
+                                                    day: '2-digit'
+                                                });
+                                            }
+                                        }
+                                    },
+                                    legend: {
+                                        position: 'top',
+                                        horizontalAlign: 'center',
+                                        offsetY: 0,
+                                        fontSize: '14px'
+                                    }
+                                };
+
                                 const lineChart = new ApexCharts(document.getElementById('line-chart'), lineChartOptions);
                                 lineChart.render();
                             }
