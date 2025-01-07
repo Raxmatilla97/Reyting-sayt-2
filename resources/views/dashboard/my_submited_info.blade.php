@@ -303,7 +303,7 @@
                         }
                     },
                     xaxis: {
-                        categories: @json($dailyStats->reverse()->keys()),
+                        categories: @json($dailyStats->keys()),
                         labels: {
                             rotate: -45,
                             rotateAlways: true,

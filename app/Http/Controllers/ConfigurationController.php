@@ -182,325 +182,340 @@ class ConfigurationController extends Controller
      * $controller->updateDepartments();
      */
 
-    public function updateDepartments()
-    {
-        try {
-            header('Content-Type: text/event-stream');
-            header('Cache-Control: no-cache');
-            header('Connection: keep-alive');
-            header('X-Accel-Buffering: no');
+     public function updateDepartments()
+     {
+         try {
+             header('Content-Type: text/event-stream');
+             header('Cache-Control: no-cache');
+             header('Connection: keep-alive');
+             header('X-Accel-Buffering: no');
 
-            // O'zgarishlar ro'yxatini saqlash uchun array
-            $changes = [
-                'updated_faculties' => [],
-                'deleted_faculties' => [],
-                'new_faculties' => [],
-                'updated_departments' => [],
-                'deleted_departments' => [],
-                'new_departments' => []
-            ];
+             // O'zgarishlar ro'yxatini saqlash uchun array
+             $changes = [
+                 'updated_faculties' => [],
+                 'deleted_faculties' => [],
+                 'new_faculties' => [],
+                 'updated_departments' => [],
+                 'deleted_departments' => [],
+                 'new_departments' => []
+             ];
 
-            $this->sendUpdate('Jarayon boshlandi', 0);
+             $this->sendUpdate('Jarayon boshlandi', 0);
 
-            $token = env('API_HEMIS_TOKEN');
-            $baseUrl = env('API_HEMIS_URL');
+             $token = env('API_HEMIS_TOKEN');
+             $baseUrl = env('API_HEMIS_URL');
 
-            // Fakultetlarni olish
-            $this->sendUpdate('Fakultetlar ro\'yxati yuklanmoqda...', 5);
-            $fakultetlarUrl = $baseUrl . '/rest/v1/data/department-list?limit=200&active=1&_structure_type=11&localityType.name=Mahalliy&structureType.name=Fakultet';
-            $fakultetlarResponse = json_decode(file_get_contents(
-                $fakultetlarUrl,
-                false,
-                stream_context_create([
-                    'http' => [
-                        'method' => 'GET',
-                        'header' => [
-                            'Authorization: Bearer ' . $token,
-                            'Content-Type: application/json'
-                        ]
-                    ]
-                ])
-            ), true);
+             // Fakultetlarni olish
+             $this->sendUpdate('Fakultetlar ro\'yxati yuklanmoqda...', 5);
+             $fakultetlarUrl = $baseUrl . '/rest/v1/data/department-list?limit=200&active=1&_structure_type=11&localityType.name=Mahalliy&structureType.name=Fakultet';
+             $fakultetlarResponse = json_decode(file_get_contents(
+                 $fakultetlarUrl,
+                 false,
+                 stream_context_create([
+                     'http' => [
+                         'method' => 'GET',
+                         'header' => [
+                             'Authorization: Bearer ' . $token,
+                             'Content-Type: application/json'
+                         ]
+                     ]
+                 ])
+             ), true);
 
-            // Kafedralarni olish
-            $this->sendUpdate('Kafedralar ro\'yxati yuklanmoqda...', 10);
-            $kafedralarUrl = $baseUrl . '/rest/v1/data/department-list?limit=200&active=1&_structure_type=12&structureType.name=Kafedra';
-            $kafedralarResponse = json_decode(file_get_contents(
-                $kafedralarUrl,
-                false,
-                stream_context_create([
-                    'http' => [
-                        'method' => 'GET',
-                        'header' => [
-                            'Authorization: Bearer ' . $token,
-                            'Content-Type: application/json'
-                        ]
-                    ]
-                ])
-            ), true);
+             // Kafedralarni olish
+             $this->sendUpdate('Kafedralar ro\'yxati yuklanmoqda...', 10);
+             $kafedralarUrl = $baseUrl . '/rest/v1/data/department-list?limit=200&active=1&_structure_type=12&structureType.name=Kafedra';
+             $kafedralarResponse = json_decode(file_get_contents(
+                 $kafedralarUrl,
+                 false,
+                 stream_context_create([
+                     'http' => [
+                         'method' => 'GET',
+                         'header' => [
+                             'Authorization: Bearer ' . $token,
+                             'Content-Type: application/json'
+                         ]
+                     ]
+                 ])
+             ), true);
 
-            $hemisFakultetlar = collect($fakultetlarResponse['data']['items']);
-            $hemisKafedralar = collect($kafedralarResponse['data']['items']);
+             $hemisFakultetlar = collect($fakultetlarResponse['data']['items']);
+             $hemisKafedralar = collect($kafedralarResponse['data']['items']);
 
-            // Fakultetlarni yangilash
-            $this->sendUpdate('Fakultetlar tekshirilmoqda...', 20);
+             // Fakultetlarni yangilash
+             $this->sendUpdate('Fakultetlar tekshirilmoqda...', 20);
+             $localFakultetlar = Faculty::all();
 
-            $localFakultetlar = Faculty::all();
+             // Mavjud fakultetlarni tekshirish va yangilash
+             foreach ($localFakultetlar as $fakultet) {
+                 $hemisFakultet = $hemisFakultetlar->firstWhere('id', $fakultet->id);
 
-            foreach ($localFakultetlar as $fakultet) {
-                $hemisFakultet = $hemisFakultetlar->firstWhere('id', $fakultet->id);
+                 if ($hemisFakultet) {
+                     // Fakultet topildi, nomini tekshirish
+                     $hemisName = $hemisFakultet['name'] . ' fakulteti';
+                     if ($hemisName !== $fakultet->name) {
+                         $oldName = $fakultet->name;
+                         $fakultet->name = $hemisName;
+                         $fakultet->slug = Str::slug($hemisFakultet['name'] . "-fakulteti-sahifasi");
+                         $fakultet->save();
 
-                if ($hemisFakultet) {
-                    // Fakultet topildi, nomini tekshirish
-                    $hemisName = $hemisFakultet['name'] . ' fakulteti';
-                    if ($hemisName !== $fakultet->name) {
-                        $oldName = $fakultet->name;
-                        $fakultet->name = $hemisName;
-                        $fakultet->slug = Str::slug($hemisFakultet['name'] . "-fakulteti-sahifasi");
-                        $fakultet->save();
+                         $changes['updated_faculties'][] = [
+                             'id' => $fakultet->id,
+                             'old_name' => $oldName,
+                             'new_name' => $hemisName
+                         ];
 
-                        $changes['updated_faculties'][] = [
-                            'id' => $fakultet->id,
-                            'old_name' => $oldName,
-                            'new_name' => $hemisName
-                        ];
+                         Log::info("Fakultet nomi yangilandi", [
+                             'id' => $fakultet->id,
+                             'old_name' => $oldName,
+                             'new_name' => $hemisName
+                         ]);
+                     }
+                 } else {
+                     // Fakultet HEMISda yo'q
+                     $fakultet->status = false;
+                     $fakultet->save();
 
-                        Log::info("Fakultet nomi yangilandi", [
-                            'id' => $fakultet->id,
-                            'old_name' => $oldName,
-                            'new_name' => $hemisName
-                        ]);
-                    }
-                } else {
-                    // Fakultet HEMISda yo'q
-                    $fakultet->status = false;
-                    $fakultet->save();
+                     $changes['deleted_faculties'][] = [
+                         'id' => $fakultet->id,
+                         'name' => $fakultet->name
+                     ];
 
-                    $changes['deleted_faculties'][] = [
-                        'id' => $fakultet->id,
-                        'name' => $fakultet->name
-                    ];
+                     Log::info("Fakultet o'chirildi", [
+                         'id' => $fakultet->id,
+                         'name' => $fakultet->name
+                     ]);
+                 }
+             }
 
-                    Log::info("Fakultet o'chirildi", [
-                        'id' => $fakultet->id,
-                        'name' => $fakultet->name
-                    ]);
-                }
-            }
+             // Yangi fakultetlarni qo'shish
+             $this->sendUpdate('Yangi fakultetlar qo\'shilmoqda...', 35);
+             foreach ($hemisFakultetlar as $hemisFakultet) {
+                 // ID bo'yicha fakultetni tekshirish
+                 $existingFaculty = Faculty::find($hemisFakultet['id']);
 
-            // Kafedralarni yangilash
-            $this->sendUpdate('Kafedralar tekshirilmoqda...', 50);
+                 if (!$existingFaculty) {
+                     $newName = $hemisFakultet['name'] . ' fakulteti';
+                     Faculty::create([
+                         'id' => $hemisFakultet['id'],
+                         'name' => $newName,
+                         'slug' => Str::slug($hemisFakultet['name'] . "-fakulteti-sahifasi"),
+                         'status' => true
+                     ]);
 
-            $localKafedralar = Department::all();
+                     $changes['new_faculties'][] = [
+                         'id' => $hemisFakultet['id'],
+                         'name' => $newName
+                     ];
 
-            foreach ($localKafedralar as $kafedra) {
-                $hemisKafedra = $hemisKafedralar->firstWhere('id', $kafedra->id);
+                     Log::info("Yangi fakultet qo'shildi", [
+                         'id' => $hemisFakultet['id'],
+                         'name' => $newName
+                     ]);
+                 }
+             }
 
-                if ($hemisKafedra) {
-                    $needsUpdate = false;
-                    $departmentChanges = [];
-                    $hemisName = $hemisKafedra['name'] . ' kafedrasi';
+             // Kafedralarni yangilash
+             $this->sendUpdate('Kafedralar tekshirilmoqda...', 50);
+             $localKafedralar = Department::all();
 
-                    // Nomi o'zgarganmi tekshirish
-                    if ($hemisName !== $kafedra->name) {
-                        $oldName = $kafedra->name;
-                        $kafedra->name = $hemisName;
-                        $kafedra->slug = Str::slug($hemisKafedra['name'] . "-kafedra-sahifasi");
-                        $needsUpdate = true;
-                        $departmentChanges['name'] = [
-                            'old' => $oldName,
-                            'new' => $hemisName
-                        ];
-                    }
+             // Mavjud kafedralarni tekshirish
+             foreach ($localKafedralar as $kafedra) {
+                 $hemisKafedra = $hemisKafedralar->firstWhere('id', $kafedra->id);
 
-                    // Faculty ID o'zgarganmi tekshirish
-                    if ($hemisKafedra['parent'] !== $kafedra->faculty_id) {
-                        $oldFacultyId = $kafedra->faculty_id;
-                        $kafedra->faculty_id = $hemisKafedra['parent'];
-                        $needsUpdate = true;
-                        $departmentChanges['faculty'] = [
-                            'old' => Faculty::find($oldFacultyId)?->name ?? 'Noma\'lum',
-                            'new' => Faculty::find($hemisKafedra['parent'])?->name ?? 'Noma\'lum'
-                        ];
-                    }
+                 if (!$hemisKafedra) {
+                     // Agar HEMISda topilmasa, o'chirilgan deb belgilaymiz
+                     $kafedra->status = false;
+                     $kafedra->save();
 
-                    if ($needsUpdate) {
-                        $kafedra->save();
+                     $changes['deleted_departments'][] = [
+                         'id' => $kafedra->id,
+                         'name' => $kafedra->name,
+                         'faculty' => Faculty::find($kafedra->faculty_id)?->name ?? 'Noma\'lum'
+                     ];
 
-                        $changes['updated_departments'][] = [
-                            'id' => $kafedra->id,
-                            'changes' => $departmentChanges
-                        ];
+                     Log::info("Kafedra o'chirildi", [
+                         'id' => $kafedra->id,
+                         'name' => $kafedra->name,
+                         'faculty' => Faculty::find($kafedra->faculty_id)?->name ?? 'Noma\'lum'
+                     ]);
 
-                        Log::info("Kafedra yangilandi", [
-                            'id' => $kafedra->id,
-                            'changes' => $departmentChanges
-                        ]);
-                    }
-                } else {
-                    // Kafedra HEMISda yo'q
-                    $kafedra->status = false;
-                    $kafedra->save();
+                     continue;
+                 }
 
-                    $changes['deleted_departments'][] = [
-                        'id' => $kafedra->id,
-                        'name' => $kafedra->name,
-                        'faculty' => Faculty::find($kafedra->faculty_id)?->name ?? 'Noma\'lum'
-                    ];
+                 // HEMISda topilgan bo'lsa, ma'lumotlarni yangilaymiz
+                 $needsUpdate = false;
+                 $departmentChanges = [];
+                 $hemisName = $hemisKafedra['name'] . ' kafedrasi';
 
-                    Log::info("Kafedra o'chirildi", [
-                        'id' => $kafedra->id,
-                        'name' => $kafedra->name,
-                        'faculty' => Faculty::find($kafedra->faculty_id)?->name ?? 'Noma\'lum'
-                    ]);
-                }
-            }
+                 if ($hemisName !== $kafedra->name) {
+                     $oldName = $kafedra->name;
+                     $kafedra->name = $hemisName;
+                     $kafedra->slug = Str::slug($hemisKafedra['name'] . "-kafedra-sahifasi");
+                     $needsUpdate = true;
+                     $departmentChanges['name'] = [
+                         'old' => $oldName,
+                         'new' => $hemisName
+                     ];
+                 }
 
-            // Yangi fakultetlarni qo'shish
-            $this->sendUpdate('Yangi fakultet va kafedralar tekshirilmoqda...', 80);
+                 if ($hemisKafedra['parent'] !== $kafedra->faculty_id) {
+                     $oldFacultyId = $kafedra->faculty_id;
+                     $kafedra->faculty_id = $hemisKafedra['parent'];
+                     $needsUpdate = true;
+                     $departmentChanges['faculty'] = [
+                         'old' => Faculty::find($oldFacultyId)?->name ?? 'Noma\'lum',
+                         'new' => Faculty::find($hemisKafedra['parent'])?->name ?? 'Noma\'lum'
+                     ];
+                 }
 
-            foreach ($hemisFakultetlar as $hemisFakultet) {
-                if (!$localFakultetlar->contains('id', $hemisFakultet['id'])) {
-                    $newName = $hemisFakultet['name'] . ' fakulteti';
-                    Faculty::create([
-                        'id' => $hemisFakultet['id'],
-                        'name' => $newName,
-                        'slug' => Str::slug($hemisFakultet['name'] . "-fakulteti-sahifasi"),
-                        'status' => true
-                    ]);
+                 if ($needsUpdate) {
+                     $kafedra->save();
 
-                    $changes['new_faculties'][] = [
-                        'id' => $hemisFakultet['id'],
-                        'name' => $newName
-                    ];
+                     $changes['updated_departments'][] = [
+                         'id' => $kafedra->id,
+                         'changes' => $departmentChanges
+                     ];
 
-                    Log::info("Yangi fakultet qo'shildi", [
-                        'id' => $hemisFakultet['id'],
-                        'name' => $newName
-                    ]);
-                }
-            }
+                     Log::info("Kafedra yangilandi", [
+                         'id' => $kafedra->id,
+                         'changes' => $departmentChanges
+                     ]);
+                 }
+             }
 
-            // Yangi kafedralarni qo'shish
-            foreach ($hemisKafedralar as $hemisKafedra) {
-                if (!$localKafedralar->contains('id', $hemisKafedra['id'])) {
-                    $newName = $hemisKafedra['name'] . ' kafedrasi';
-                    Department::create([
-                        'id' => $hemisKafedra['id'],
-                        'name' => $newName,
-                        'slug' => Str::slug($hemisKafedra['name'] . "-kafedra-sahifasi"),
-                        'faculty_id' => $hemisKafedra['parent'],
-                        'status' => true
-                    ]);
+             // Yangi kafedralarni qo'shish
+             $this->sendUpdate('Yangi kafedralar qo\'shilmoqda...', 80);
+             foreach ($hemisKafedralar as $hemisKafedra) {
+                 // ID bo'yicha mavjud kafedralarni tekshirish
+                 $existingDepartment = Department::find($hemisKafedra['id']);
 
-                    $changes['new_departments'][] = [
-                        'id' => $hemisKafedra['id'],
-                        'name' => $newName,
-                        'faculty' => Faculty::find($hemisKafedra['parent'])?->name ?? 'Noma\'lum'
-                    ];
+                 if (!$existingDepartment) {
+                     $newName = $hemisKafedra['name'] . ' kafedrasi';
+                     Department::create([
+                         'id' => $hemisKafedra['id'],
+                         'name' => $newName,
+                         'slug' => Str::slug($hemisKafedra['name'] . "-kafedra-sahifasi"),
+                         'faculty_id' => $hemisKafedra['parent'],
+                         'status' => true
+                     ]);
 
-                    Log::info("Yangi kafedra qo'shildi", [
-                        'id' => $hemisKafedra['id'],
-                        'name' => $newName,
-                        'faculty' => Faculty::find($hemisKafedra['parent'])?->name ?? 'Noma\'lum'
-                    ]);
-                }
-            }
+                     $changes['new_departments'][] = [
+                         'id' => $hemisKafedra['id'],
+                         'name' => $newName,
+                         'faculty' => Faculty::find($hemisKafedra['parent'])?->name ?? 'Noma\'lum'
+                     ];
 
-            // O'zgarishlar hisoboti
-            $summary = $this->generateChangeSummary($changes);
-            $this->sendUpdate("Jarayon muvaffaqiyatli yakunlandi.\n\n" . $summary, 100);
+                     Log::info("Yangi kafedra qo'shildi", [
+                         'id' => $hemisKafedra['id'],
+                         'name' => $newName,
+                         'faculty' => Faculty::find($hemisKafedra['parent'])?->name ?? 'Noma\'lum'
+                     ]);
+                 }
+             }
 
-            die();
-        } catch (\Exception $e) {
-            Log::error('Fakultet va kafedralarni yangilashda xatolik: ' . $e->getMessage());
-            $this->sendUpdate('Xatolik yuz berdi: ' . $e->getMessage(), 100);
-            die();
-        }
-    }
+             // O'zgarishlar hisoboti
+             $summary = $this->generateChangeSummary($changes);
+             $this->sendUpdate("Jarayon muvaffaqiyatli yakunlandi.\n\n" . $summary, 100);
 
-    private function generateChangeSummary($changes)
-    {
-        $summary = [];
-        $hasChanges = false;
+             die();
+         } catch (\Exception $e) {
+             Log::error('Fakultet va kafedralarni yangilashda xatolik: ' . $e->getMessage());
+             $this->sendUpdate('Xatolik yuz berdi: ' . $e->getMessage(), 100);
+             die();
+         }
+     }
 
-        // Yangilangan fakultetlar
-        if (!empty($changes['updated_faculties'])) {
-            $hasChanges = true;
-            $summary[] = "Yangilangan fakultetlar:";
-            foreach ($changes['updated_faculties'] as $faculty) {
-                $summary[] = "- {$faculty['old_name']} → {$faculty['new_name']}";
-            }
-        }
+     private function sendUpdate($message, $progress)
+     {
+         echo "data: " . json_encode([
+             'message' => $message,
+             'progress' => $progress
+         ]) . "\n\n";
+         ob_flush();
+         flush();
+     }
 
-        // O'chirilgan fakultetlar
-        if (!empty($changes['deleted_faculties'])) {
-            $hasChanges = true;
-            $summary[] = "\nO'chirilgan fakultetlar:";
-            foreach ($changes['deleted_faculties'] as $faculty) {
-                $summary[] = "- {$faculty['name']}";
-            }
-        }
+     private function generateChangeSummary($changes)
+     {
+         $summary = [];
+         $hasChanges = false;
 
-        // Yangi fakultetlar
-        if (!empty($changes['new_faculties'])) {
-            $hasChanges = true;
-            $summary[] = "\nYangi qo'shilgan fakultetlar:";
-            foreach ($changes['new_faculties'] as $faculty) {
-                $summary[] = "- {$faculty['name']}";
-            }
-        }
+         // Yangilangan fakultetlar
+         if (!empty($changes['updated_faculties'])) {
+             $hasChanges = true;
+             $summary[] = "Yangilangan fakultetlar:";
+             foreach ($changes['updated_faculties'] as $faculty) {
+                 $summary[] = "- {$faculty['old_name']} → {$faculty['new_name']}";
+             }
+         }
 
-        // Yangilangan kafedralar
-        if (!empty($changes['updated_departments'])) {
-            $hasChanges = true;
-            $summary[] = "\nYangilangan kafedralar:";
-            foreach ($changes['updated_departments'] as $dept) {
-                if (isset($dept['changes']['name'])) {
-                    $summary[] = "- {$dept['changes']['name']['old']} → {$dept['changes']['name']['new']}";
-                }
-                if (isset($dept['changes']['faculty'])) {
-                    $summary[] = "  Fakulteti: {$dept['changes']['faculty']['old']} → {$dept['changes']['faculty']['new']}";
-                }
-            }
-        }
+         // O'chirilgan fakultetlar
+         if (!empty($changes['deleted_faculties'])) {
+             $hasChanges = true;
+             $summary[] = "\nO'chirilgan fakultetlar:";
+             foreach ($changes['deleted_faculties'] as $faculty) {
+                 $summary[] = "- {$faculty['name']}";
+             }
+         }
 
-        // O'chirilgan kafedralar
-        if (!empty($changes['deleted_departments'])) {
-            $hasChanges = true;
-            $summary[] = "\nO'chirilgan kafedralar:";
-            foreach ($changes['deleted_departments'] as $dept) {
-                $summary[] = "- {$dept['name']} ({$dept['faculty']})";
-            }
-        }
+         // Yangi fakultetlar
+         if (!empty($changes['new_faculties'])) {
+             $hasChanges = true;
+             $summary[] = "\nYangi qo'shilgan fakultetlar:";
+             foreach ($changes['new_faculties'] as $faculty) {
+                 $summary[] = "- {$faculty['name']}";
+             }
+         }
 
-        // Yangi kafedralar
-        if (!empty($changes['new_departments'])) {
-            $hasChanges = true;
-            $summary[] = "\nYangi qo'shilgan kafedralar:";
-            foreach ($changes['new_departments'] as $dept) {
-                $summary[] = "- {$dept['name']} ({$dept['faculty']})";
-            }
-        }
+         // Yangilangan kafedralar
+         if (!empty($changes['updated_departments'])) {
+             $hasChanges = true;
+             $summary[] = "\nYangilangan kafedralar:";
+             foreach ($changes['updated_departments'] as $dept) {
+                 if (isset($dept['changes']['name'])) {
+                     $summary[] = "- {$dept['changes']['name']['old']} → {$dept['changes']['name']['new']}";
+                 }
+                 if (isset($dept['changes']['faculty'])) {
+                     $summary[] = "  Fakulteti: {$dept['changes']['faculty']['old']} → {$dept['changes']['faculty']['new']}";
+                 }
+             }
+         }
 
-        if (!$hasChanges) {
-            return "Jarayon yakunlandi. Hech qanday o'zgarish topilmadi.";
-        }
+         // O'chirilgan kafedralar
+         if (!empty($changes['deleted_departments'])) {
+             $hasChanges = true;
+             $summary[] = "\nO'chirilgan kafedralar:";
+             foreach ($changes['deleted_departments'] as $dept) {
+                 $summary[] = "- {$dept['name']} ({$dept['faculty']})";
+             }
+         }
 
-        return implode("\n", $summary);
-    }
+         // Yangi kafedralar
+         if (!empty($changes['new_departments'])) {
+             $hasChanges = true;
+             $summary[] = "\nYangi qo'shilgan kafedralar:";
+             foreach ($changes['new_departments'] as $dept) {
+                 $summary[] = "- {$dept['name']} ({$dept['faculty']})";
+             }
+         }
 
+         if (!$hasChanges) {
+             return "Jarayon yakunlandi. Hech qanday o'zgarish topilmadi.";
+         }
 
-    public function stopDepartmentsUpdate()
-    {
-        Cache::put('update_departments_status', 'stopped', 600);
-        Log::info('Jarayon foydalanuvchi tomonidan to\'xtatildi');
-        return response()->json([
-            'success' => true,
-            'message' => 'Jarayon to\'xtatildi',
-        ]);
-    }
+         return implode("\n", $summary);
+     }
 
+     public function stopDepartmentsUpdate()
+     {
+         Cache::put('update_departments_status', 'stopped', 600);
+         Log::info('Jarayon foydalanuvchi tomonidan to\'xtatildi');
+         return response()->json([
+             'success' => true,
+             'message' => 'Jarayon to\'xtatildi',
+         ]);
+     }
 
     /**
      * O'qituvchining ma'lumotlarini HEMIS tizimidan olish va yangilash

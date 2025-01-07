@@ -4,13 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Employee;
 use App\Models\PointUserDeportament;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use App\Models\DepartPoints;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class EmployeeController extends Controller
 {
@@ -58,6 +57,52 @@ class EmployeeController extends Controller
         $jadvallar_codlari = Config::get('dep_emp_tables.employee');;
 
         return view('dashboard.employee_category_choose', compact('jadvallar_codlari'));
+    }
+
+    public function export(Request $request)
+    {
+        // Get all employees with their departments
+        $employees = Employee::with('department')->get();
+
+        // Create new Spreadsheet object
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+
+        // Set headers
+        $sheet->setCellValue('A1', '№');
+        $sheet->setCellValue('B1', 'F.I.O');
+        $sheet->setCellValue('C1', 'Kafedra');
+        $sheet->setCellValue('D1', 'Holat');
+        $sheet->setCellValue('E1', 'Ball');
+
+        // Add data
+        $row = 2;
+        foreach ($employees as $index => $employee) {
+            $sheet->setCellValue('A' . $row, $index + 1);
+            $sheet->setCellValue('B' . $row, ucwords(strtolower($employee->FullName ?? 'Kuzatuvchi')));
+            $sheet->setCellValue('C' . $row, $employee->department ? $employee->department->name : 'N/A');
+            $sheet->setCellValue('D' . $row, $employee->status ? 'Aktiv' : 'Aktiv emas');
+            $sheet->setCellValue('E' . $row, round($employee->department ?
+                $employee->department->point_user_deportaments()
+                ->where('status', 1)
+                ->where('user_id', $employee->id)
+                ->sum('point') : 0, 2));
+            $row++;
+        }
+
+        // Auto-size columns
+        foreach (range('A', 'E') as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        // Create writer and prepare response
+        $writer = new Xlsx($spreadsheet);
+        $fileName = 'oqituvchilar_royxati_' . date('Y-m-d') . '.xlsx';
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="' . urlencode($fileName) . '"');
+        $writer->save('php://output');
+        exit;
     }
 
 
@@ -192,31 +237,31 @@ class EmployeeController extends Controller
                 ->where('user_id', $user->id);
         })->sum('point');
 
-        // Statistika uchun barcha ma'lumotlar (paginatsiyasiz)
-        $allUserInformations = PointUserDeportament::where('user_id', $user->id)
-            ->orderBy('created_at', 'desc')
-            ->get();
-
-        // Kunlik statistika uchun ma'lumotlarni guruhlash
-        $dailyStats = $allUserInformations
-            ->groupBy(function ($item) {
-                return $item->created_at->format('Y-m-d');
-            })
-            ->map(function ($group) {
-                return [
-                    'total' => $group->count(),
-                    'accepted' => $group->where('status', 1)->count(),
-                    'rejected' => $group->where('status', 0)->count()
-                ];
+        // Kunlik statistika uchun so'nggi 80 kunlik ma'lumotlarni olish
+        $dailyStats = DB::table('point_user_deportaments')
+            ->select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('COUNT(*) as total'),
+                DB::raw('SUM(CASE WHEN status = 1 THEN 1 ELSE 0 END) as accepted'),
+                DB::raw('SUM(CASE WHEN status = 0 THEN 1 ELSE 0 END) as rejected')
+            )
+            ->where('user_id', $user->id)
+            ->where('created_at', '>=', now()->subDays(365))
+            ->groupBy('date')
+            ->orderBy('date', 'asc')
+            ->get()
+            ->mapWithKeys(function ($item) {
+                return [$item->date => [
+                    'total' => (int)$item->total,
+                    'accepted' => (int)$item->accepted,
+                    'rejected' => (int)$item->rejected
+                ]];
             });
-
 
         // Ma'lumotlar massivini tekshirish
         foreach ($pointUserInformations as $pointUserInformation) {
             foreach ($arrayKey as $column => $originalKey) {
-                // column tekshiriladi
                 if (isset($pointUserInformation->$column)) {
-                    // $murojaat_nomi o'rnatiladi
                     $pointUserInformation->murojaat_nomi = $jadvallarCodlari[$originalKey];
                     $pointUserInformation->murojaat_codi = $originalKey;
                     break;

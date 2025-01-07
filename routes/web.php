@@ -129,6 +129,9 @@ Route::middleware('auth')->group(function () {
             Route::get('/get-current-user', function () {
                 return response()->json(['id' => Auth::id()]);
             });
+
+            // O'qituvchilarni ro'yxatini excelga olish
+            Route::get('/dashboard/employees/export', [EmployeeController::class, 'export'])->name('dashboard.employees.export');
         });
     });
 });

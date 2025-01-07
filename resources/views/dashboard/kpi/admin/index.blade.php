@@ -1,7 +1,7 @@
 <x-app-layout>
     <div class="py-12">
 
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-9xl mx-auto sm:px-6 lg:px-8">
             <!-- Statistics Section -->
             <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div class="bg-white overflow-hidden shadow-sm rounded-lg p-6">
