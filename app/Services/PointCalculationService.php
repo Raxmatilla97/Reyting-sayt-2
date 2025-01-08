@@ -185,50 +185,7 @@ class PointCalculationService
     /**
      * Yo'nalishlar bo'yicha ballarni hisoblash
      */
-    protected function calculateDirectionalPoints($department, $allMaxPoints, $teacherCount, $studentCount)
-    {
-        $calculations = [];
 
-        foreach ($allMaxPoints as $direction => $points) {
-            $columnName = $direction . 'id';
-            // Faqat aktiv xodimlar yuborgan va tasdiqlangan ma'lumotlarni sanash
-            $recordsCount = $department->point_user_deportaments()
-                ->whereHas('employee', function ($q) {
-                    $q->where('status', 1);
-                })
-                ->where('status', 1)
-                ->whereNotNull($columnName)
-                ->count();
-
-
-            if ($recordsCount > 0) {
-                $maxPoint = $points['max'];
-                $directionBase = rtrim($direction, '_');
-                $divisor = in_array($directionBase, $this->studentDivisorTables)
-                    ? ($studentCount ?: 1)
-                    : ($teacherCount ?: 1);
-
-                $subtotal = $recordsCount * $maxPoint;
-                $N = min($subtotal / $divisor, $maxPoint);
-
-                $calculations[] = [
-                    'direction' => $direction,
-                    'records_count' => $recordsCount,
-                    'max_point' => $maxPoint,
-                    'sub_total' => $subtotal,
-                    'divisor' => $divisor,
-                    'N' => round($N, 2),
-                    'original_N' => round($subtotal / $divisor, 2),
-                    'is_limited' => $subtotal / $divisor > $maxPoint,
-                    'divisor_type' => in_array($directionBase, $this->studentDivisorTables)
-                        ? 'Talabalar soni'
-                        : "O'qituvchilar soni"
-                ];
-            }
-        }
-
-        return $calculations;
-    }
 
     /**
      * Qo'shimcha ballarni hisoblash
@@ -260,9 +217,100 @@ class PointCalculationService
     /**
      * HTML generatsiya
      */
+    protected function calculateDirectionalPoints($department, $allMaxPoints, $teacherCount, $studentCount)
+    {
+        $calculations = [];
+
+        $uniqueColumns = [
+            'table_1_6_1_a_' => ['table' => 'table_1_6_1_a_', 'field' => 'ilmiy_maqola_nomi'],
+            'table_2_2_1_' => ['table' => 'table_2_2_1_', 'field' => 'darslik_nomi'],
+            'table_2_2_2_' => ['table' => 'table_2_2_2_', 'field' => 'qollanma_nomi']
+        ];
+
+        foreach ($allMaxPoints as $direction => $points) {
+            $columnName = $direction . 'id';
+            $records = 0;
+
+            if (array_key_exists($direction, $uniqueColumns)) {
+                $tableInfo = $uniqueColumns[$direction];
+                $tableName = $tableInfo['table'];
+                $fieldName = $tableInfo['field'];
+
+                // Umumiy soni
+                $totalCount = $department->point_user_deportaments()
+                    ->whereHas('employee', function ($q) {
+                        $q->where('status', 1);
+                    })
+                    ->where('status', 1)
+                    ->whereNotNull($columnName)
+                    ->count();
+
+                // Unikal sonni hisoblash
+                $uniqueCount = DB::table('point_user_deportaments as p')
+                    ->select(DB::raw("COUNT(DISTINCT t.{$fieldName}) as count"))
+                    ->join("{$tableName} as t", "t.id", "=", "p.{$columnName}")
+                    ->join('users as u', 'u.id', '=', 'p.user_id')
+                    ->where('p.departament_id', $department->id)
+                    ->where('p.status', 1)
+                    ->where('u.status', 1)
+                    ->whereNotNull("p.{$columnName}")
+                    ->value('count');
+
+                $records = $uniqueCount; // Unikal sonni ishlatamiz
+
+                $additionalInfo = [
+                    'total_count' => $totalCount,
+                    'unique_count' => $uniqueCount,
+                    'is_unique' => true
+                ];
+            } else {
+                $records = $department->point_user_deportaments()
+                    ->whereHas('employee', function ($q) {
+                        $q->where('status', 1);
+                    })
+                    ->where('status', 1)
+                    ->whereNotNull($columnName)
+                    ->count();
+
+                $additionalInfo = [
+                    'total_count' => $records,
+                    'unique_count' => $records,
+                    'is_unique' => false
+                ];
+            }
+
+            if ($records > 0) {
+                $maxPoint = $points['max'];
+                $directionBase = rtrim($direction, '_');
+                $divisor = in_array($directionBase, $this->studentDivisorTables)
+                    ? ($studentCount ?: 1)
+                    : ($teacherCount ?: 1);
+
+                $subtotal = $records * $maxPoint; // Unikal son bilan ko'paytiramiz
+                $N = min($subtotal / $divisor, $maxPoint);
+
+                $calculations[] = [
+                    'direction' => $direction,
+                    'records_count' => $records, // Unikal son
+                    'max_point' => $maxPoint,
+                    'sub_total' => $subtotal,
+                    'divisor' => $divisor,
+                    'N' => round($N, 2),
+                    'original_N' => round($subtotal / $divisor, 2),
+                    'is_limited' => $subtotal / $divisor > $maxPoint,
+                    'divisor_type' => in_array($directionBase, $this->studentDivisorTables)
+                        ? 'Talabalar soni'
+                        : "O'qituvchilar soni",
+                    'additional_info' => $additionalInfo
+                ];
+            }
+        }
+
+        return $calculations;
+    }
+
     public function generateCalculationHTML($calculations, $teacherCount, $studentCount, $totalN, $totalInfos)
     {
-        // Talaba soniga bo'linadigan yo'nalishlar
         $studentDivisorTables = [
             'table_2_3_2',
             'table_2_4_1',
@@ -273,40 +321,45 @@ class PointCalculationService
         ];
 
         $html = '
-        <div class="w-full p-4 bg-gray-50 rounded-lg">
-            <h2 class="text-xl font-bold mb-4 text-gray-800">KAFEDRA REYTINGINI HISOBLASH TARTIBI</h2>
+    <div class="w-full p-4 bg-gray-50 rounded-lg">
+        <h2 class="text-xl font-bold mb-4 text-gray-800">KAFEDRA REYTINGINI HISOBLASH TARTIBI</h2>
 
-            <div class="mb-4 text-sm flex gap-4">
-                <span class="flex items-center">
-                    <div class="w-4 h-4 bg-green-200 mr-2"></div>
-                    Yuborilgan yo\'nalish ma\'lumotlar soni
-                </span>
-                <span class="flex items-center">
-                    <div class="w-4 h-4 bg-blue-200 mr-2"></div>
-                    Yo\'nalish maksimal balli
-                </span>
-                <span class="flex items-center">
-                    <div class="w-4 h-4 bg-yellow-200 mr-2"></div>
-                    Ko\'paytma
-                </span>
-                <span class="flex items-center">
-                    <div class="w-4 h-4 bg-indigo-200 mr-2"></div>
-                    O\'qituvchilar soni
-                </span>
-                <span class="flex items-center">
-                    <div class="w-4 h-4 bg-pink-200 mr-2"></div>
-                    Talabalar soni
-                </span>
-                <span class="flex items-center">
-                    <div class="w-4 h-4 bg-purple-200 mr-2"></div>
-                    Natija (N)
-                </span>
-            </div>
+        <div class="mb-4 text-sm flex flex-wrap gap-4">
+            <span class="flex items-center">
+                <div class="w-4 h-4 bg-green-200 mr-2"></div>
+                Yo\'nalish ma\'lumotlar soni
+            </span>
+            <span class="flex items-center">
+                <div class="w-4 h-4 bg-red-200 mr-2"></div>
+               Ham mualliflik maqolalar soni (qisqartirma)
+            </span>
+            <span class="flex items-center">
+                <div class="w-4 h-4 bg-blue-200 mr-2"></div>
+                Yo\'nalish maksimal balli
+            </span>
+            <span class="flex items-center">
+                <div class="w-4 h-4 bg-yellow-200 mr-2"></div>
+                Ko\'paytma
+            </span>
+            <span class="flex items-center">
+                <div class="w-4 h-4 bg-indigo-200 mr-2"></div>
+                O\'qituvchilar soni
+            </span>
+            <span class="flex items-center">
+                <div class="w-4 h-4 bg-pink-200 mr-2"></div>
+                Talabalar soni
+            </span>
+            <span class="flex items-center">
+                <div class="w-4 h-4 bg-purple-200 mr-2"></div>
+                Natija (N)
+            </span>
+        </div>';
 
-            <!-- O\'qituvchilar soniga bo\'linadigan yo\'nalishlar -->
-            <div class="mb-6">
-                <h3 class="font-semibold mb-2 text-gray-700">O\'qituvchilar soniga bo\'linadigan yo\'nalishlar:</h3>
-                <div class="flex flex-wrap gap-4">';
+        // O'qituvchilar soniga bo'linadigan yo'nalishlar
+        $html .= '
+        <div class="mb-6">
+            <h3 class="font-semibold mb-2 text-gray-700">O\'qituvchilar soniga bo\'linadigan yo\'nalishlar:</h3>
+            <div class="flex flex-wrap gap-4">';
 
         foreach ($calculations as $calc) {
             $directionBase = rtrim($calc['direction'], '_');
@@ -314,21 +367,26 @@ class PointCalculationService
                 $limitExplanation = $calc['is_limited'] ?
                     "<span class='text-red-600'>(${calc['original_N']} > ${calc['max_point']} = ${calc['N']})</span>" : '';
 
-                $html .= "
-                <div class='bg-white p-2 rounded shadow-sm flex items-center gap-2 text-sm'>
-                    <span class='text-gray-700'>{$calc['direction']}:</span>
-                    <span class='bg-green-200 px-2 py-1 rounded'>{$calc['records_count']}</span>
-                    <span>×</span>
-                    <span class='bg-blue-200 px-2 py-1 rounded'>{$calc['max_point']}</span>
-                    <span>=</span>
-                    <span class='bg-yellow-200 px-2 py-1 rounded'>{$calc['sub_total']}</span>
-                    <span>÷</span>
-                    <span class='bg-indigo-200 px-2 py-1 rounded'>{$calc['divisor']}</span>
-                    <span>=</span>
-                    <span class='bg-purple-200 px-2 py-1 rounded'>{$calc['N']}</span>
-                    {$limitExplanation}
+                $countDisplay = !empty($calc['additional_info']) && $calc['additional_info']['is_unique'] ?
+                    "<span class='bg-green-200 px-2 py-1 rounded'>{$calc['additional_info']['total_count']}</span>
+                 <span class='text-gray-600 mx-1'>→</span>
+                 <span class='bg-red-200 px-2 py-1 rounded'>{$calc['additional_info']['unique_count']}</span>" :
+                    "<span class='bg-green-200 px-2 py-1 rounded'>{$calc['records_count']}</span>";
 
-                </div>";
+                $html .= "
+            <div class='bg-white p-2 rounded shadow-sm flex items-center gap-2 text-sm'>
+                <span class='text-gray-700'>{$calc['direction']}:</span>
+                {$countDisplay}
+                <span>×</span>
+                <span class='bg-blue-200 px-2 py-1 rounded'>{$calc['max_point']}</span>
+                <span>=</span>
+                <span class='bg-yellow-200 px-2 py-1 rounded'>{$calc['sub_total']}</span>
+                <span>÷</span>
+                <span class='bg-indigo-200 px-2 py-1 rounded'>{$calc['divisor']}</span>
+                <span>=</span>
+                <span class='bg-purple-200 px-2 py-1 rounded'>{$calc['N']}</span>
+                {$limitExplanation}
+            </div>";
             }
         }
 
@@ -336,9 +394,9 @@ class PointCalculationService
 
         // Talaba soniga bo'linadigan yo'nalishlar
         $html .= '
-            <div class="mb-6">
-                <h3 class="font-semibold mb-2 text-gray-700">Talaba soniga bo\'linadigan yo\'nalishlar:</h3>
-                <div class="flex flex-wrap gap-4">';
+        <div class="mb-6">
+            <h3 class="font-semibold mb-2 text-gray-700">Talaba soniga bo\'linadigan yo\'nalishlar:</h3>
+            <div class="flex flex-wrap gap-4">';
 
         foreach ($calculations as $calc) {
             $directionBase = rtrim($calc['direction'], '_');
@@ -346,53 +404,74 @@ class PointCalculationService
                 $limitExplanation = $calc['is_limited'] ?
                     "<span class='text-red-600'>(${calc['original_N']} > ${calc['max_point']} = ${calc['N']})</span>" : '';
 
-                $html .= "
-                <div class='bg-white p-2 rounded shadow-sm flex items-center gap-2 text-sm'>
-                    <span class='text-gray-700'>{$calc['direction']}:</span>
-                    <span class='bg-green-200 px-2 py-1 rounded'>{$calc['records_count']}</span>
-                    <span>×</span>
-                    <span class='bg-blue-200 px-2 py-1 rounded'>{$calc['max_point']}</span>
-                    <span>=</span>
-                    <span class='bg-yellow-200 px-2 py-1 rounded'>{$calc['sub_total']}</span>
-                    <span>÷</span>
-                    <span class='bg-pink-200 px-2 py-1 rounded'>{$calc['divisor']}</span>
-                    <span>=</span>
-                    <span class='bg-purple-200 px-2 py-1 rounded'>{$calc['N']}</span>
-                    {$limitExplanation}
+                $countDisplay = !empty($calc['additional_info']) && $calc['additional_info']['is_unique'] ?
+                    "<span class='bg-green-200 px-2 py-1 rounded'>{$calc['additional_info']['total_count']}</span>
+                 <span class='text-gray-600 mx-1'>→</span>
+                 <span class='bg-red-200 px-2 py-1 rounded'>{$calc['additional_info']['unique_count']}</span>" :
+                    "<span class='bg-green-200 px-2 py-1 rounded'>{$calc['records_count']}</span>";
 
-                </div>";
+                $html .= "
+            <div class='bg-white p-2 rounded shadow-sm flex items-center gap-2 text-sm'>
+                <span class='text-gray-700'>{$calc['direction']}:</span>
+                {$countDisplay}
+                <span>×</span>
+                <span class='bg-blue-200 px-2 py-1 rounded'>{$calc['max_point']}</span>
+                <span>=</span>
+                <span class='bg-yellow-200 px-2 py-1 rounded'>{$calc['sub_total']}</span>
+                <span>÷</span>
+                <span class='bg-pink-200 px-2 py-1 rounded'>{$calc['divisor']}</span>
+                <span>=</span>
+                <span class='bg-purple-200 px-2 py-1 rounded'>{$calc['N']}</span>
+                {$limitExplanation}
+            </div>";
             }
         }
 
         $html .= '</div></div>';
 
+        // Hisoblanmagan ma'lumotlar sonini hisoblash
+        $totalNonUnique = 0;
+        foreach ($calculations as $calc) {
+            if (!empty($calc['additional_info']) && $calc['additional_info']['is_unique']) {
+                $totalNonUnique += ($calc['additional_info']['total_count'] - $calc['additional_info']['unique_count']);
+            }
+        }
+
+        // Yakuniy statistika
+        $uniqueInfoCount = $totalInfos - $totalNonUnique;
+
         // Yakuniy natijalar
         $html .= "
-            <div class='bg-white p-4 rounded shadow-sm'>
-                <div class='flex flex-col gap-4'>
-                    <div class='flex items-center justify-between'>
-                        <span class='text-gray-600'>O'qituvchilar soni:</span>
-                        <span class='bg-indigo-200 px-3 py-1 rounded font-medium'>{$teacherCount}</span>
-                    </div>
-                    <div class='flex items-center justify-between'>
-                        <span class='text-gray-600'>Talabalar soni:</span>
-                        <span class='bg-pink-200 px-3 py-1 rounded font-medium'>{$studentCount}</span>
-                    </div>
-                    <div class='flex items-center justify-between'>
-                        <span class='text-gray-600'>Yuborilgan ma'lumotlar soni:</span>
+        <div class='bg-white p-4 rounded shadow-sm'>
+            <div class='flex flex-col gap-4'>
+                <div class='flex items-center justify-between'>
+                    <span class='text-gray-600'>O'qituvchilar soni:</span>
+                    <span class='bg-indigo-200 px-3 py-1 rounded font-medium'>{$teacherCount}</span>
+                </div>
+                <div class='flex items-center justify-between'>
+                    <span class='text-gray-600'>Talabalar soni:</span>
+                    <span class='bg-pink-200 px-3 py-1 rounded font-medium'>{$studentCount}</span>
+                </div>
+                <div class='flex items-center justify-between'>
+                    <span class='text-gray-600'>Yuborilgan ma'lumotlar soni:</span>
+                    <div class='flex items-center gap-2'>
                         <span class='bg-green-200 px-3 py-1 rounded font-medium'>{$totalInfos}</span>
-                    </div>
-                    <div class='flex items-center justify-between'>
-                        <span class='text-gray-600'>Barcha yo'nalishlar bo'yicha N yig'indisi:</span>
-                        <span class='bg-purple-200 px-3 py-1 rounded font-medium'>" . round($totalN, 2) . "</span>
+                        <span class='text-gray-600'>→</span>
+                        <span class='bg-red-200 px-3 py-1 rounded font-medium'>{$uniqueInfoCount}</span>
+                        <span class='text-sm text-gray-500'>(Hisoblanmagan: {$totalNonUnique})</span>
                     </div>
                 </div>
-
-                <div class='mt-4 text-lg font-semibold text-center bg-gray-800 text-white py-2 rounded'>
-                    KAFEDRA REYTINGI: " . round($totalN, 2) . "
+                <div class='flex items-center justify-between'>
+                    <span class='text-gray-600'>Barcha yo'nalishlar bo'yicha N yig'indisi:</span>
+                    <span class='bg-purple-200 px-3 py-1 rounded font-medium'>" . round($totalN, 2) . "</span>
                 </div>
             </div>
-        </div>";
+
+            <div class='mt-4 text-lg font-semibold text-center bg-gray-800 text-white py-2 rounded'>
+                KAFEDRA REYTINGI: " . round($totalN, 2) . "
+            </div>
+        </div>
+    </div>";
 
         return $html;
     }
