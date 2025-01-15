@@ -35,7 +35,7 @@
                                 <div class="flex items-center space-x-4">
                                     <div class="flex-shrink-0">
                                         <img class="w-14 h-14 rounded-xl shadow-md object-cover border-2 border-white"
-                                            src="{{ '/storage/users/image' }}/{{ $item->employee->image }}"
+                                            src="{{ $item->employee->image ? asset('storage/users/image/' . $item->employee->image) : 'https://otm.cspu.uz/storage/users/image/image_1729094435_670fe3233b26d.jpg' }}"
                                             alt="">
                                     </div>
                                     <div class="flex-1 min-w-0">
