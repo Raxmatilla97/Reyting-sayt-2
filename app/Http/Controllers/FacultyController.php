@@ -9,6 +9,7 @@ use App\Models\PointUserDeportament;
 use Illuminate\Support\Facades\Http;
 use App\Models\StudentsCountForDepart;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Http\Request;
 use App\Services\PointCalculationService;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -111,6 +112,7 @@ class FacultyController extends Controller
                 'status' => $faculty->status,
                 'departments' => $faculty->departments,
                 'total_points' => round($totalN, 2),
+                'custom_points' => $faculty->custom_points,
                 'total_teachers' => $facultyTotalTeachers
             ];
         });
@@ -765,5 +767,19 @@ class FacultyController extends Controller
                    FAKULTET REYTINGI: " . round($totalN, 2) . "
                </div>
            </div>";
+    }
+
+    public function updateCustomPoints(Request $request)
+    {
+        $request->validate([
+            'faculty_id' => 'required|exists:faculties,id',
+            'points' => 'required|numeric'
+        ]);
+
+        $faculty = Faculty::findOrFail($request->faculty_id);
+        $faculty->custom_points = $request->points;
+        $faculty->save();
+
+        return response()->json(['success' => true]);
     }
 }

@@ -63,7 +63,8 @@
                                                             {{ $item->status ? 'Aktiv' : 'Aktiv emas' }}
                                                         </span>
                                                         <span class=" text-lg text-right font-semibold text-blue-600">
-                                                            {{ $item->totalPoints }} ball
+                                                            {{ $item->custom_points ? $item->custom_points : $item->total_points }} ball
+
                                                         </span>
                                                     </div>
                                                 </div>
@@ -139,7 +140,7 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <div class="text-xl font-semibold text-blue-600">
-                                                    {{ $item->totalPoints }}
+                                                    {{ $item->custom_points ?? $item->totalPoints }} ball
                                                 </div>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">

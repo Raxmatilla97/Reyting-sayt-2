@@ -132,6 +132,12 @@ Route::middleware('auth')->group(function () {
 
             // O'qituvchilarni ro'yxatini excelga olish
             Route::get('/dashboard/employees/export', [EmployeeController::class, 'export'])->name('dashboard.employees.export');
+
+            // Custom point departament
+            Route::post('/departments/custom-points', [DepartmentController::class, 'updateCustomPoints']);
+
+             // Custom point fakulty
+             Route::post('/faculties/custom-points', [FacultyController::class, 'updateCustomPoints']);
         });
     });
 });

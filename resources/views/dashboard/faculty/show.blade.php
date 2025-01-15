@@ -115,7 +115,7 @@
                                                 </div>
 
                                                 <!-- Umumiy ballar -->
-                                                <div
+                                                {{-- <div
                                                     class="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow">
                                                     <div class="flex items-center gap-4">
                                                         <div class="p-3 bg-green-100 rounded-full">
@@ -135,7 +135,9 @@
                                                             </span>
                                                         </div>
                                                     </div>
-                                                </div>
+                                                </div> --}}
+
+                                                @include('dashboard.faculty.custom_points')
 
                                                 <!-- Ma'lumotlar soni -->
                                                 <div
@@ -265,7 +267,13 @@
                                 </div>
 
 
-                                <!-- Chartlar uchun container -->
+
+                                <!-- HTML qismi -->
+                                <div class="glitch-container relative mt-2">
+                                    <!-- Asosiy kontent -->
+                                    <div class="p-4 mt-4 text-sm rounded-lg bg-blue-50 shadow-md glitch-effect main-content" role="alert">
+
+                                            <!-- Chartlar uchun container -->
                                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                                     <!-- Bar Chart -->
                                     <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -286,9 +294,233 @@
                                     </div>
                                 </div>
 
-                                <div class="mt-5">
-                                    {!! $pointsCalculationExplanation !!}
+                                        {!! $pointsCalculationExplanation !!}
+                                    </div>
+
+                                    <!-- Harakatlanuvchi chiziqlar -->
+                                    <div class="moving-lines"></div>
+                                    <div class="moving-lines-reverse"></div>
+
+                                    <!-- Glitch overlay -->
+                                    <div class="glitch-overlay"></div>
+
+                                    <!-- Alert overlay -->
+                                    <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
+                                        <div class="cyber-alert">
+                                            <div class="alert-content">
+                                                <div class="alert-icon">⚠️</div>
+                                                <div class="alert-text">Avtomatik hisob kitob funksiyasi o'chirildi!</div>
+                                                <div class="alert-scanner"></div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+
+                                <!-- CSS qismi -->
+                                <style>
+                                .glitch-container {
+                                    position: relative;
+                                    overflow: hidden;
+                                }
+
+                                .main-content {
+                                    animation: glitch 1s infinite;
+                                    opacity: 0.5;
+                                    filter: blur(3px);
+                                    background: rgba(0, 0, 255, 0.1);
+                                    position: relative;
+                                    z-index: 1;
+                                    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+                                }
+
+                                .moving-lines, .moving-lines-reverse {
+                                    position: absolute;
+                                    top: 0;
+                                    left: -100%;
+                                    right: -100%;
+                                    bottom: 0;
+                                    width: 200%;
+                                    z-index: 2;
+                                    pointer-events: none;
+                                }
+
+                                .moving-lines {
+                                    background: repeating-linear-gradient(
+                                        -60deg,
+                                        transparent,
+                                        transparent 20px,
+                                        rgba(255, 0, 0, 0.2) 20px,
+                                        rgba(255, 0, 0, 0.2) 40px
+                                    );
+                                    animation: moveLines 4s linear infinite;
+                                }
+
+                                .moving-lines-reverse {
+                                    background: repeating-linear-gradient(
+                                        -60deg,
+                                        transparent,
+                                        transparent 20px,
+                                        rgba(0, 255, 255, 0.1) 20px,
+                                        rgba(0, 255, 255, 0.1) 40px
+                                    );
+                                    animation: moveLines 5s linear infinite;
+                                }
+
+                                .glitch-overlay {
+                                    position: absolute;
+                                    top: 0;
+                                    left: 0;
+                                    right: 0;
+                                    bottom: 0;
+                                    background: linear-gradient(90deg,
+                                        rgba(0, 0, 255, 0.1),
+                                        rgba(0, 255, 255, 0.1)
+                                    );
+                                    mix-blend-mode: overlay;
+                                    animation: colorShift 3s infinite alternate;
+                                    z-index: 3;
+                                }
+
+                                .cyber-alert {
+                                    background: rgba(0, 100, 255, 0.9);
+                                    padding: 1rem 2rem;
+                                    border-radius: 8px;
+                                    box-shadow:
+                                        0 0 10px #0066ff,
+                                        0 0 20px rgba(0, 100, 255, 0.5),
+                                        0 0 30px rgba(0, 100, 255, 0.3);
+                                    animation: alertPulse 2s infinite;
+                                    position: relative;
+                                    overflow: hidden;
+                                }
+
+                                .alert-content {
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 10px;
+                                    position: relative;
+                                }
+
+                                .alert-icon {
+                                    font-size: 1.5rem;
+                                    animation: shake 0.5s infinite;
+                                }
+
+                                .alert-text {
+                                    color: white;
+                                    font-weight: bold;
+                                    text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+                                    animation: textGlow 1s infinite alternate;
+                                }
+
+                                .alert-scanner {
+                                    position: absolute;
+                                    top: 0;
+                                    left: -100%;
+                                    width: 50%;
+                                    height: 100%;
+                                    background: linear-gradient(
+                                        to right,
+                                        transparent,
+                                        rgba(255, 255, 255, 0.4),
+                                        transparent
+                                    );
+                                    animation: scan 2s linear infinite;
+                                }
+
+                                @keyframes moveLines {
+                                    0% {
+                                        transform: translateX(0);
+                                    }
+                                    100% {
+                                        transform: translateX(50%);
+                                    }
+                                }
+
+                                @keyframes glitch {
+                                    0% {
+                                        transform: translate(0);
+                                        filter: blur(3px);
+                                    }
+                                    20% {
+                                        transform: translate(-2px, 2px);
+                                        filter: blur(4px) hue-rotate(5deg);
+                                    }
+                                    40% {
+                                        transform: translate(-2px, -2px);
+                                        opacity: 0.6;
+                                        filter: blur(5px) hue-rotate(-5deg);
+                                    }
+                                    60% {
+                                        transform: translate(2px, 2px);
+                                        filter: blur(6px) hue-rotate(5deg);
+                                    }
+                                    80% {
+                                        transform: translate(2px, -2px);
+                                        opacity: 0.4;
+                                        filter: blur(5px) hue-rotate(-5deg);
+                                    }
+                                    100% {
+                                        transform: translate(0);
+                                        filter: blur(3px);
+                                    }
+                                }
+
+                                @keyframes colorShift {
+                                    0% {
+                                        opacity: 0.3;
+                                        background-position: 0% 50%;
+                                    }
+                                    100% {
+                                        opacity: 0.5;
+                                        background-position: 100% 50%;
+                                    }
+                                }
+
+                                @keyframes alertPulse {
+                                    0%, 100% {
+                                        transform: scale(1);
+                                        box-shadow:
+                                            0 0 10px #0066ff,
+                                            0 0 20px rgba(0, 100, 255, 0.5),
+                                            0 0 30px rgba(0, 100, 255, 0.3);
+                                    }
+                                    50% {
+                                        transform: scale(1.05);
+                                        box-shadow:
+                                            0 0 15px #0066ff,
+                                            0 0 25px rgba(0, 100, 255, 0.5),
+                                            0 0 35px rgba(0, 100, 255, 0.3);
+                                    }
+                                }
+
+                                @keyframes shake {
+                                    0%, 100% { transform: translateX(0); }
+                                    25% { transform: translateX(-1px) rotate(-5deg); }
+                                    75% { transform: translateX(1px) rotate(5deg); }
+                                }
+
+                                @keyframes textGlow {
+                                    0% {
+                                        text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+                                    }
+                                    100% {
+                                        text-shadow: 0 0 10px rgba(255, 255, 255, 0.8),
+                                                    0 0 15px rgba(255, 255, 255, 0.5);
+                                    }
+                                }
+
+                                @keyframes scan {
+                                    0% {
+                                        left: -100%;
+                                    }
+                                    100% {
+                                        left: 200%;
+                                    }
+                                }
+                                </style>
+
+
                             </div>
 
                             <!-- Department List Tab -->
@@ -359,7 +591,8 @@
                                                     <td class="px-6 py-4 whitespace-nowrap">
                                                         <span
                                                             class="px-3 py-1 inline-flex text-lg leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
-                                                            {{ $points['total_points'] }}
+
+                                                            {{ $department->custom_points ?? $points['total_points']  }} ball
                                                         </span>
                                                     </td>
                                                 </tr>

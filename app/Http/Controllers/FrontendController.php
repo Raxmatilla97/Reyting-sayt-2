@@ -110,6 +110,7 @@ class FrontendController extends Controller
                 'name' => $faculty->name,
                 'total_points' => round($totalN, 2),
                 'total_teachers' => $totalTeachers,
+                'custom_points' => $faculty->custom_points,
                 'image' => $faculty->image ?? null,
                 'status' => $faculty->status
             ];
@@ -134,6 +135,7 @@ class FrontendController extends Controller
                         'id' => $department->id,
                         'name' => $department->name,
                         'faculty_name' => $faculty->name,
+                        'custom_points' => $department->custom_points,
                         'total_points' => $points['total_n'],
                         'image' => $department->image ?? null,
                         'status' => $department->status

@@ -168,4 +168,18 @@ class DepartmentController extends Controller
 
         return $mostRecentEntry ? $mostRecentEntry->employee->full_name : "Ma'lumot topilmadi!";
     }
+
+    public function updateCustomPoints(Request $request)
+    {
+        $request->validate([
+            'department_id' => 'required|exists:departments,id',
+            'points' => 'required|numeric'
+        ]);
+
+        $department = Department::findOrFail($request->department_id);
+        $department->custom_points = $request->points;
+        $department->save();
+
+        return response()->json(['success' => true]);
+    }
 }
