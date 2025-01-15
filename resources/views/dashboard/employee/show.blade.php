@@ -26,7 +26,7 @@
                             <!-- Profile Image -->
                             <div class="shrink-0 mt-6">
                                 <img class="w-40  rounded-xl shadow-lg border-4 border-white object-cover"
-                                    src="{{ $employee->image ? asset('storage/users/image/' . $employee->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
+                                    src="{{ $employee->image ? asset('storage/users/image/' . $employee->image) : 'https://otm.cspu.uz/storage/users/image/image_1729094435_670fe3233b26d.jpg' }}"
                                     alt="{{ $employee->FullName }}">
                             </div>
 

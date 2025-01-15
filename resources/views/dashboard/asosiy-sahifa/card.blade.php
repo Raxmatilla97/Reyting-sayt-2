@@ -3,7 +3,7 @@
     </div>
     <div class="flex flex-col items-center pb-3">
         <img class="w-24 h-24 mb-3 rounded-full shadow-lg"
-            src="{{ $auth->image ? asset('storage/users/image/' . $auth->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
+            src="{{ $auth->image ? asset('storage/users/image/' . $auth->image) : 'https://otm.cspu.uz/storage/users/image/image_1729094435_670fe3233b26d.jpg' }}"
             alt="User image" />
         <h5 class="mb-1 text-xl font-medium text-gray-900 text-center">
             {{ $auth->second_name ?? 'Kuzatuvchi' }} {{ $auth->first_name ?? '' }}

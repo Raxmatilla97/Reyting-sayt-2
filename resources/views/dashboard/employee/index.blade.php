@@ -156,7 +156,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <div class="flex items-center">
                                                 <img class="h-10 w-10 rounded-lg object-cover"
-                                                    src="{{ $item->image ? asset('storage/users/image/' . $item->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
+                                                    src="{{ $item->image ? asset('storage/users/image/' . $item->image) : 'https://otm.cspu.uz/storage/users/image/image_1729094435_670fe3233b26d.jpg' }}"
                                                     alt="">
                                                 <div class="ml-4">
                                                     <div class="text-sm font-medium text-gray-900">

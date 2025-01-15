@@ -27,7 +27,7 @@
         @if ($user->image)
         <div class="flex justify-center items-center mb-4">
             <div class="w-24 h-24 rounded-full overflow-hidden">
-                <img src="{{ $user->image ? asset('storage/users/image/' . $user->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
+                <img src="{{ $user->image ? asset('storage/users/image/' . $user->image) : 'https://otm.cspu.uz/storage/users/image/image_1729094435_670fe3233b26d.jpg' }}"
                     alt="Profil rasmi" class="w-full h-full object-cover">
             </div>
         </div>
