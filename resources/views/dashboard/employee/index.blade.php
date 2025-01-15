@@ -76,7 +76,7 @@
                                     <div class="flex items-center space-x-4">
                                         <div class="flex-shrink-0">
                                             <img class="h-16 w-16 rounded-xl shadow object-cover"
-                                                src="{{ $item->image ? asset('storage/users/image/' . $item->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
+                                                src="{{ $item->image ? asset('storage/users/image/' . $item->image) : 'https://otm.cspu.uz/storage/users/image/image_1729094435_670fe3233b26d.jpg' }}"
                                                 alt="">
                                         </div>
                                         <div class="flex-1 min-w-0">
