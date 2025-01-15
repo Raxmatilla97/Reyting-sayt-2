@@ -267,26 +267,26 @@
                                 </div>
 
 
-                                            <!-- Chartlar uchun container -->
-                                            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-                                                <!-- Bar Chart -->
-                                                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                                                    <div class="p-6">
-                                                        <h2 class="text-lg font-semibold text-gray-700 mb-4">Kafedralar reytingi
-                                                        </h2>
-                                                        <div id="barChart" class="h-[400px]"></div>
-                                                    </div>
-                                                </div>
-            
-                                                <!-- Radar Chart -->
-                                                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                                                    <div class="p-6">
-                                                        <h2 class="text-lg font-semibold text-gray-700 mb-4">Yo'nalishlar bo'yicha
-                                                            ma'lumotlar</h2>
-                                                        <div id="radarChart" class="h-[400px]"></div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                <!-- Chartlar uchun container -->
+                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+                                    <!-- Bar Chart -->
+                                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                                        <div class="p-6">
+                                            <h2 class="text-lg font-semibold text-gray-700 mb-4">Kafedralar reytingi
+                                            </h2>
+                                            <div id="barChart" class="h-[400px]"></div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Radar Chart -->
+                                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                                        <div class="p-6">
+                                            <h2 class="text-lg font-semibold text-gray-700 mb-4">Yo'nalishlar bo'yicha
+                                                ma'lumotlar</h2>
+                                            <div id="radarChart" class="h-[400px]"></div>
+                                        </div>
+                                    </div>
+                                </div>
             
 
                                 <!-- HTML qismi -->
