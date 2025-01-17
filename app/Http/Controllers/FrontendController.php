@@ -37,7 +37,7 @@ class FrontendController extends Controller
     private function calculateFacultyPoints(Collection $faculties): SupportCollection
     {
         $facultiesWithPoints = new SupportCollection();
-
+    
         // Talabalar soniga bo'linadigan jadvallar
         $studentDivisorTables = [
             'table_2_3_2',
@@ -47,13 +47,13 @@ class FrontendController extends Controller
             'table_3_4_2',
             'table_4_1'
         ];
-
+    
         foreach ($faculties as $faculty) {
             // Department va Employee konfiguratsiyalarini olish
             $departmentCodlari = Config::get('dep_emp_tables.department');
             $employeeCodlari = Config::get('dep_emp_tables.employee');
             $jadvallarCodlari = array_merge($departmentCodlari, $employeeCodlari);
-
+    
             // Fakultet o'qituvchilari sonini hisoblash
             $totalTeachers = $faculty->departments
                 ->where('status', 1)
@@ -63,48 +63,55 @@ class FrontendController extends Controller
                         ->where('status', 1)
                         ->count();
                 });
-
+    
             // Fakultet talabalar sonini hisoblash
             $totalStudents = StudentsCountForDepart::whereIn('departament_id',
                 $faculty->departments->where('status', 1)->pluck('id'))
                 ->where('status', 1)
                 ->sum('number');
-
+    
             // Talabalar soni 0 bo'lmasligi uchun
             $totalStudents = $totalStudents ?: 1;
-
+    
             // Fakultet umumiy ballini hisoblash
             $totalN = 0;
-            foreach ($jadvallarCodlari as $code => $name) {
-                $recordsCount = 0;
-                $maxPoint = Config::get('max_points_dep_emp.department.' . $code . '.max') ??
-                    Config::get('max_points_dep_emp.employee.' . $code . '.max') ?? 0;
-
-                foreach ($faculty->departments->where('status', 1) as $department) {
-                    $columnName = $code . 'id';
-                    $count = $department->point_user_deportaments()
-                        ->whereHas('employee', function ($q) {
-                            $q->where('status', 1);
-                        })
-                        ->where($columnName, '!=', null)
-                        ->where('status', 1)
-                        ->count();
-
-                    $recordsCount += $count;
+            
+            // Agar custom_points null bo'lsa, ballni hisoblash
+            if ($faculty->custom_points === null) {
+                foreach ($jadvallarCodlari as $code => $name) {
+                    $recordsCount = 0;
+                    $maxPoint = Config::get('max_points_dep_emp.department.' . $code . '.max') ??
+                        Config::get('max_points_dep_emp.employee.' . $code . '.max') ?? 0;
+    
+                    foreach ($faculty->departments->where('status', 1) as $department) {
+                        $columnName = $code . 'id';
+                        $count = $department->point_user_deportaments()
+                            ->whereHas('employee', function ($q) {
+                                $q->where('status', 1);
+                            })
+                            ->where($columnName, '!=', null)
+                            ->where('status', 1)
+                            ->count();
+    
+                        $recordsCount += $count;
+                    }
+    
+                    if ($recordsCount > 0) {
+                        $subtotal = $recordsCount * $maxPoint;
+                        // Talabalar soniga bo'linadigan jadvallarni tekshirish
+                        $isDivisorStudent = in_array(rtrim($code, '_'), $studentDivisorTables);
+                        $divisor = $isDivisorStudent ? $totalStudents : $totalTeachers;
+                        $divisor = $divisor ?: 1; // 0 ga bo'linishni oldini olish
+    
+                        $N = min($subtotal / $divisor, $maxPoint);
+                        $totalN += $N;
+                    }
                 }
-
-                if ($recordsCount > 0) {
-                    $subtotal = $recordsCount * $maxPoint;
-                    // Talabalar soniga bo'linadigan jadvallarni tekshirish
-                    $isDivisorStudent = in_array(rtrim($code, '_'), $studentDivisorTables);
-                    $divisor = $isDivisorStudent ? $totalStudents : $totalTeachers;
-                    $divisor = $divisor ?: 1; // 0 ga bo'linishni oldini olish
-
-                    $N = min($subtotal / $divisor, $maxPoint);
-                    $totalN += $N;
-                }
+            } else {
+                // Agar custom_points mavjud bo'lsa, uni ishlatish
+                $totalN = $faculty->custom_points;
             }
-
+    
             $facultyData = [
                 'id' => $faculty->id,
                 'name' => $faculty->name,
@@ -114,40 +121,48 @@ class FrontendController extends Controller
                 'image' => $faculty->image ?? null,
                 'status' => $faculty->status
             ];
-
+    
             $facultiesWithPoints->push($facultyData);
         }
-
-        return $facultiesWithPoints->where('status', 1)->sortByDesc('total_points');
+    
+        // Fakultetlarni ballari bo'yicha tartiblash
+        return $facultiesWithPoints->where('status', 1)->sortByDesc(function ($faculty) {
+            // custom_points null bo'lsa total_points bo'yicha, aks holda custom_points bo'yicha tartiblash
+            return $faculty['custom_points'] ?? $faculty['total_points'];
+        });
     }
-
 
     private function calculateDepartmentPoints(Collection $faculties): SupportCollection
-    {
-        $departmentsWithPoints = new SupportCollection();
+{
+    $departmentsWithPoints = new SupportCollection();
 
-        foreach ($faculties as $faculty) {
-            foreach ($faculty->departments as $department) {
-                $points = $this->pointCalculationService->calculateDepartmentPoints($department);
+    foreach ($faculties as $faculty) {
+        foreach ($faculty->departments as $department) {
+            if ($department->status == 1) {
+                // custom_points null bo'lsa, service orqali hisoblanadi
+                $points = $department->custom_points ?? 
+                    $this->pointCalculationService->calculateDepartmentPoints($department)['total_n'];
 
-                if ($department->status == 1) {
-                    $departmentData = [
-                        'id' => $department->id,
-                        'name' => $department->name,
-                        'faculty_name' => $faculty->name,
-                        'custom_points' => $department->custom_points,
-                        'total_points' => $points['total_n'],
-                        'image' => $department->image ?? null,
-                        'status' => $department->status
-                    ];
+                $departmentData = [
+                    'id' => $department->id,
+                    'name' => $department->name,
+                    'faculty_name' => $faculty->name,
+                    'custom_points' => $department->custom_points,
+                    'total_points' => $points,
+                    'image' => $department->image ?? null,
+                    'status' => $department->status
+                ];
 
-                    $departmentsWithPoints->push($departmentData);
-                }
+                $departmentsWithPoints->push($departmentData);
             }
         }
-
-        return $departmentsWithPoints->sortByDesc('total_points');
     }
+
+    // Departmentlarni custom_points yoki total_points bo'yicha tartiblash
+    return $departmentsWithPoints->sortByDesc(function ($department) {
+        return $department['custom_points'] ?? $department['total_points'];
+    });
+}
 
     private function calculateEmployeePoints(Collection $faculties): SupportCollection
     {

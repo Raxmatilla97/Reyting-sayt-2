@@ -273,17 +273,21 @@ class FacultyController extends Controller
         $departEmployee = "Ma'lumot topilmadi!";
     }
 
-    // Service ma'lumotlarini department ma'lumotlari bilan birlashtirish
+   // Service ma'lumotlarini department ma'lumotlari bilan birlashtirish
     $departments = $faculty->departments
     ->where('status', 1)
-    ->map(function ($department) use ($departmentsData) { // $calculationResult o'rniga $departmentsData
+    ->map(function ($department) use ($departmentsData) {
         // departments_data ni department_name bo'yicha qidirish
         $departmentData = collect($departmentsData)
             ->firstWhere('department_name', $department->name);
 
+        // custom_points null bo'lsa total_n ishlatiladi
+        $points = $department->custom_points ?? ($departmentData['total_n'] ?? 0);
+
         return [
             'department' => $department,
             'points' => [
+                'custom_points' => $department->custom_points,
                 'total_points' => $departmentData['total_n'] ?? 0,
                 'teacher_count' => $departmentData['teacher_count'] ?? 0,
                 'extra_points' => $departmentData['extra_points'] ?? 0,
@@ -301,11 +305,11 @@ class FacultyController extends Controller
 
     // Bar chart uchun ma'lumotlarni tayyorlash
     $barChartData = collect($departments)->map(function ($item) {
-        return [
-            'x' => mb_substr($item['department']->name, 0, 15),
-            'full_name' => $item['department']->name,
-            'y' => round($item['points']['total_points'], 2)
-        ];
+    return [
+        'x' => mb_substr($item['department']->name, 0, 15),
+        'full_name' => $item['department']->name,
+        'y' => round($item['points']['custom_points'] ?? $item['points']['total_points'], 2)
+    ];
     })->values()->toArray();
 
     // Radar chart uchun ma'lumotlarni yig'ish

@@ -267,13 +267,7 @@
                                 </div>
 
 
-
-                                <!-- HTML qismi -->
-                                <div class="glitch-container relative mt-2">
-                                    <!-- Asosiy kontent -->
-                                    <div class="p-4 mt-4 text-sm rounded-lg bg-blue-50 shadow-md glitch-effect main-content" role="alert">
-
-                                            <!-- Chartlar uchun container -->
+                                <!-- Chartlar uchun container -->
                                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
                                     <!-- Bar Chart -->
                                     <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
@@ -293,6 +287,12 @@
                                         </div>
                                     </div>
                                 </div>
+            
+
+                                <!-- HTML qismi -->
+                                <div class="glitch-container relative mt-2">
+                                    <!-- Asosiy kontent -->
+                                    <div class="p-4 mt-4 text-sm rounded-lg bg-blue-50 shadow-md glitch-effect main-content" role="alert">
 
                                         {!! $pointsCalculationExplanation !!}
                                     </div>

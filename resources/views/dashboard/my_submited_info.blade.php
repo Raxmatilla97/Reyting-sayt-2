@@ -119,7 +119,7 @@
                             <!-- Profile image container -->
                             <div class="relative w-32 h-32 rounded-full overflow-hidden border-4 border-white shadow-lg mb-4"
                                 style="margin-top: -64px;">
-                                <img src="{{ $user->image ? asset('storage/users/image/' . $user->image) : 'https://www.svgrepo.com/show/192244/man-user.svg' }}"
+                                <img src="{{ $user->image ? asset('storage/users/image/' . $user->image) : 'https://otm.cspu.uz/storage/users/image/image_1729094435_670fe3233b26d.jpg' }}"
                                     alt="Profile" class="w-full h-full object-cover" />
                             </div>
 
