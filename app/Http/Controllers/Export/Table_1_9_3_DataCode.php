@@ -31,23 +31,28 @@ class Table_1_9_3_DataCode
 
                     $sheet->setCellValue('B' . $row, $pointEntry->department->name ?? 'N/A');
 
-                    $sheet->setCellValue('C' . $row, $table_1_9_3_record->otm_nomi ?? 'N/A');
-                    $sheet->setCellValue('D' . $row, $table_1_9_3_record->asosiy_shtatdagi_prof_oqituv ?? 'N/A');
-                    $sheet->setCellValue('E' . $row, $table_1_9_3_record->olingan_guvohnomalar ?? 'N/A');
-                    $sheet->setCellValue('F' . $row, $table_1_9_3_record->mualliflar_soni ?? 'N/A');
-                    $sheet->setCellValue('G' . $row, $table_1_9_3_record->berilgan_sana ?? 'N/A');
-                    $sheet->setCellValue('H' . $row, $table_1_9_3_record->qayd_raqami ?? 'N/A');
+                    // Capitalize
+                    $fullName = $pointEntry->employee->full_name ?? 'N/A';
+                    $formattedName = ucwords(strtolower($fullName));
+                    $sheet->setCellValue('C' . $row, $formattedName);
+
+                    $sheet->setCellValue('D' . $row, $table_1_9_3_record->otm_nomi ?? 'N/A');
+                    $sheet->setCellValue('E' . $row, $table_1_9_3_record->asosiy_shtatdagi_prof_oqituv ?? 'N/A');
+                    $sheet->setCellValue('F' . $row, $table_1_9_3_record->olingan_guvohnomalar ?? 'N/A');
+                    $sheet->setCellValue('G' . $row, $table_1_9_3_record->mualliflar_soni ?? 'N/A');
+                    $sheet->setCellValue('H' . $row, $table_1_9_3_record->berilgan_sana ?? 'N/A');
+                    $sheet->setCellValue('I' . $row, $table_1_9_3_record->qayd_raqami ?? 'N/A');
 
 
                     if ($table_1_9_3_record->asos_file) {
-                        $sheet->setCellValue('I' . $row, 'Yuklash');
-                        $sheet->getCell('I' . $row)->getHyperlink()->setUrl(asset('storage/' . $table_1_9_3_record->asos_file));
+                        $sheet->setCellValue('J' . $row, 'Yuklash');
+                        $sheet->getCell('J' . $row)->getHyperlink()->setUrl(asset('storage/' . $table_1_9_3_record->asos_file));
                     } else {
-                        $sheet->setCellValue('I' . $row, 'N/A');
+                        $sheet->setCellValue('J' . $row, 'N/A');
                     }
 
                     // Textlarga still berish va border
-                    $cellRange = 'A' . $row . ':I' . $row;
+                    $cellRange = 'A' . $row . ':J' . $row;
                     $sheet->getStyle($cellRange)->applyFromArray([
                         'borders' => [
                             'allBorders' => [
@@ -76,7 +81,7 @@ class Table_1_9_3_DataCode
         }
 
         // Auto-size columns
-        foreach (range('A', 'I') as $column) {
+        foreach (range('A', 'J') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(false);
         }
 
