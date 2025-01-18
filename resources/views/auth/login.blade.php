@@ -1,13 +1,8 @@
 <x-guest-layout class="h-screen overflow-hidden">
     <!-- Background Image Container -->
     <div class="fixed inset-0">
-        <img
-            src="{{ asset('assets/3U9A1507.webp') }}"
-            alt="Background"
-            class="w-full h-full object-cover"
-            id="bgImage"
-            onerror="handleImageError(this)"
-        />
+        <img src="{{ asset('assets/3U9A1507.webp') }}" alt="Background" class="w-full h-full object-cover" id="bgImage"
+            onerror="handleImageError(this)" />
         <div class="absolute inset-0 bg-gradient-to-br from-blue-900/70 to-blue-700/70"></div>
     </div>
 
@@ -15,17 +10,64 @@
         <!-- Session Status -->
         <x-auth-session-status class="mb-4 z-20" :status="session('status')" />
 
-        <!-- Error Messages -->
+        <!-- Error Modal -->
         @if ($errors->any())
-            <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative z-20 mb-4" role="alert">
-                <strong class="font-bold">Whoops!</strong>
-                <span class="block sm:inline">Muommo bor!:</span>
-                <ul class="mt-3 list-disc list-inside text-sm">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
+            <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-30" id="errorModal">
+                <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 relative">
+                    <!-- Close button -->
+                    <button onclick="closeErrorModal()"
+                        class="absolute top-4 right-4 text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+
+                    <!-- Modal content -->
+                    <div class="text-center">
+                        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+                            <p class="font-bold mb-2">Xatolik yuz berdi!</p>
+                            <ul class="text-left list-disc list-inside">
+                                @foreach ($errors->all() as $error)
+                                    <li class="text-sm">{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+
+                        <button onclick="closeErrorModal()"
+                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors">
+                            Yopish
+                        </button>
+                    </div>
+                </div>
             </div>
+
+            <script>
+                function closeErrorModal() {
+                    const modal = document.getElementById('errorModal');
+                    if (modal) {
+                        modal.classList.add('opacity-0');
+                        setTimeout(() => {
+                            modal.style.display = 'none';
+                        }, 300);
+                    }
+                }
+
+                // Escape tugmasini bosganada modalni yopish
+                document.addEventListener('keydown', function(event) {
+                    if (event.key === 'Escape') {
+                        closeErrorModal();
+                    }
+                });
+
+                // Modaldan tashqari joyni bosganada yopish
+                document.getElementById('errorModal')?.addEventListener('click', function(event) {
+                    if (event.target === this) {
+                        closeErrorModal();
+                    }
+                });
+            </script>
         @endif
 
         <!-- Login Modal -->
@@ -33,12 +75,14 @@
             <div class="mb-4 border-b border-gray-200">
                 <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
                     <li class="mr-2 flex-1">
-                        <button class="w-full inline-block p-4 border-b-2 rounded-t-lg tab-button active" id="hemis-tab" data-tab="hemis">
+                        <button class="w-full inline-block p-4 border-b-2 rounded-t-lg tab-button active" id="hemis-tab"
+                            data-tab="hemis">
                             HEMIS orqali kirish
                         </button>
                     </li>
                     <li class="mr-2 flex-1">
-                        <button class="w-full inline-block p-4 border-b-2 rounded-t-lg tab-button" id="login-tab" data-tab="login">
+                        <button class="w-full inline-block p-4 border-b-2 rounded-t-lg tab-button" id="login-tab"
+                            data-tab="login">
                             Login orqali kirish
                         </button>
                     </li>
@@ -46,11 +90,13 @@
             </div>
 
             <!-- HEMIS Tab Content -->
-            <div id="hemis" class="tab-content block opacity-100 transform translate-x-0 transition-all duration-300 ease-in-out">
+            <div id="hemis"
+                class="tab-content block opacity-100 transform translate-x-0 transition-all duration-300 ease-in-out">
                 <div class="flex flex-col items-center gap-4 mt-3">
                     <!-- HEMIS Logo -->
                     <div class="w-32 h-32 flex items-center justify-center">
-                        <img src="https://hemis.cspi.uz/static/crop/5/9/250_250_90_590934569.png" alt="HEMIS Logo" class="w-full h-full object-contain">
+                        <img src="https://hemis.cspi.uz/static/crop/5/9/250_250_90_590934569.png" alt="HEMIS Logo"
+                            class="w-full h-full object-contain">
                     </div>
 
                     <a href="{{ route('redirectToAuthorization') }}"
@@ -61,15 +107,16 @@
             </div>
 
             <!-- Login Tab Content -->
-            <div id="login" class="tab-content hidden opacity-0 transform translate-x-full transition-all duration-300 ease-in-out">
+            <div id="login"
+                class="tab-content hidden opacity-0 transform translate-x-full transition-all duration-300 ease-in-out">
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
 
                     <!-- Email Address -->
                     <div>
                         <x-input-label for="email" :value="__('Email yoki Login')" />
-                        <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')"
-                            required autofocus autocomplete="username" />
+                        <x-text-input id="email" class="block mt-1 w-full" type="email" name="email"
+                            :value="old('email')" required autofocus autocomplete="username" />
                     </div>
 
                     <!-- Password -->
@@ -84,7 +131,8 @@
                     <div class="block mt-4">
                         <label for="remember_me" class="inline-flex items-center">
                             <input id="remember_me" type="checkbox"
-                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500" name="remember">
+                                class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                                name="remember">
                             <span class="ms-2 text-sm text-gray-600">{{ __('Ishonchli qurulma') }}</span>
                         </label>
                     </div>
@@ -111,10 +159,12 @@
             border-bottom-color: transparent;
             transition: all 0.3s ease-in-out;
         }
+
         .tab-button.active {
             border-bottom-color: #3b82f6;
             color: #3b82f6;
         }
+
         .tab-content {
             transition: all 0.3s ease-in-out;
             position: relative;
