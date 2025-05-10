@@ -5,7 +5,7 @@ namespace App\Models\Tables;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Table_1_3_2_b_ extends Model
+class table_7_ extends Model
 {
     use HasFactory;
 }

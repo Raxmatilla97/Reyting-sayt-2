@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('table_1_3_1_a_', function (Blueprint $table) {
+        Schema::create('table_5_', function (Blueprint $table) {
             $table->id();
-            $table->string('fan_doktori_serya')->nullable();
-            $table->string('fan_doktori_raqam')->nullable();
-            $table->string('ishga_raq_sana')->nullable();
+            $table->string('ixtisoslik_shifr_nomi')->nullable();
+            $table->string('oquv_mualliflar_soni')->nullable();
+            $table->string('oquv_qollanma_nomi')->nullable();
+            $table->string('guvohnoma_raqam_sana')->nullable();
+            $table->string('reestr_raqami')->nullable();
             $table->string('asos_file')->nullable();
             $table->timestamps();
         });
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('table_1_3_1_a_');
+        Schema::dropIfExists('table_5_');
     }
 };

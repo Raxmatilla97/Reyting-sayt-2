@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('table_1_3_1_b_', function (Blueprint $table) {
+        Schema::create('table_7_', function (Blueprint $table) {
             $table->id();
-            $table->string('prof_dip_serya')->nullable();
-            $table->string('prof_dip_raqam')->nullable();
-            $table->string('ishga_raq_sana')->nullable();
+            $table->string('kurs_nomi')->nullable();
+            $table->string('xorijiy_davlat_nomi')->nullable();
+            $table->string('sertifikat_raqam_sana')->nullable();
+            $table->string('link_url')->nullable();       
             $table->string('asos_file')->nullable();
             $table->timestamps();
         });
@@ -26,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('table_1_3_1_b_');
+        Schema::dropIfExists('table_7_');
     }
 };

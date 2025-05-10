@@ -3,7 +3,7 @@
 // O'qituvchilar uchun mo'ljallangan forma name, type, label malumotlari yozilgan
 
 return [
-    'table_1_1_' => [
+    'table_2_' => [
         [
             'name' => 'daraja_bergan_otm_nomi',
             'type' => 'text',
@@ -45,7 +45,7 @@ return [
             'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
         ],
     ],
-    'table_1_2_' => [
+    'table_3_' => [
         [
             'name' => 'xorijiy_davlat_nomi',
             'type' => 'text',
@@ -77,7 +77,7 @@ return [
             'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
         ],
     ],
-    'table_1_3_1_a_' => [
+    'table_4_' => [
         [
             'name' => 'fan_doktori_serya',
             'type' => 'text',
@@ -101,7 +101,7 @@ return [
 
 
     ],
-    'table_1_3_1_b_' => [
+    'table_5_' => [
         [
             'name' => 'prof_dip_serya',
             'type' => 'text',
@@ -125,7 +125,7 @@ return [
 
 
     ],
-    'table_1_3_2_a_' => [
+    'table_6_' => [
         [
             'name' => 'fan_doktori_serya',
             'type' => 'text',
@@ -149,7 +149,7 @@ return [
 
 
     ],
-    'table_1_3_2_b_' => [
+    'table_7_' => [
         [
             'name' => 'dotsent_dip_serya',
             'type' => 'text',
@@ -173,7 +173,7 @@ return [
 
 
     ],
-    'table_1_4_' => [
+    'table_8_1_' => [
         [
             'name' => 'ish_joyi',
             'type' => 'text',
@@ -216,7 +216,7 @@ return [
         ],
 
     ],
-    'table_1_5_1_' => [
+    'table_8_2_' => [
         [
             'name' => 'jurnalning_nomi',
             'type' => 'text',
@@ -255,7 +255,7 @@ return [
 
     ],
 
-    'table_1_5_1_a_' => [
+    'table_9_1_' => [
         [
             'name' => 'jurnalning_nomi',
             'type' => 'text',
@@ -293,7 +293,7 @@ return [
         // ],
 
     ],
-    'table_1_6_1_' => [
+    'table_9_2_' => [
         [
             'name' => 'xorijiy_jirnal_davlat_nomi',
             'type' => 'text',
@@ -332,7 +332,7 @@ return [
 
     ],
 
-    'table_1_6_1_a_' => [
+    'table_10_1_' => [
         [
             'name' => 'xorijiy_jirnal_davlat_nomi',
             'type' => 'text',
@@ -370,7 +370,7 @@ return [
         ],
 
     ],
-    'table_1_6_2_' => [
+    'table_10_2_' => [
         [
             'name' => 'ilmiy_jurnal_nomi',
             'type' => 'text',
@@ -403,7 +403,7 @@ return [
         ],
 
     ],
-    'table_1_9_1_' => [
+    'table_10_3_' => [
         [
             'name' => 'ixtisoslik_shifri',
             'type' => 'text',
@@ -445,7 +445,7 @@ return [
             'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
         ],
     ],
-    'table_1_9_2_' => [
+    'table_11_1_' => [
         [
             'name' => 'otmlar_nomi',
             'type' => 'text',
@@ -477,7 +477,7 @@ return [
             'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
         ],
     ],
-    'table_1_9_3_' => [
+    'table_11_2_' => [
         [
             'name' => 'otm_nomi',
             'type' => 'text',
@@ -515,7 +515,7 @@ return [
         ],
 
     ],
-    'table_2_2_1_' => [
+    'table_11_2_a_' => [
         [
             'name' => 'ixtisoslik_shifri',
             'type' => 'text',
@@ -547,7 +547,7 @@ return [
             'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
         ],
     ],
-    'table_2_2_2_' => [
+    'table_12_' => [
         [
             'name' => 'ixtisoslik_shifri',
             'type' => 'text',
@@ -580,7 +580,7 @@ return [
             'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
         ],
     ],
-    'table_2_4_2_' => [
+    'table_13_' => [
         [
             'name' => 'hujjat_nomi_sanasi',
             'type' => 'text',
@@ -613,5 +613,5 @@ return [
         ],
 
     ],
-    // table_1_2_ uchun ham shu tarzda...
+    // table_3_ uchun ham shu tarzda...
 ];

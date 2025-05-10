@@ -3,7 +3,7 @@
 // Kafedralar uchun mo'ljallangan forma name, type, label malumotlari yozilgan
 
 return [
-    'table_1_7_1_' => [
+    'table_22_' => [
         [
             'name' => 'xorijiy_granti_buyurtma_nomi',
             'type' => 'text',
@@ -25,7 +25,7 @@ return [
             'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
         ],
     ],
-    'table_1_7_2_' => [
+    'table_23_' => [
         [
             'name' => 'sohalar_buyurtma_nomi',
             'type' => 'text',
@@ -48,7 +48,7 @@ return [
         ],
 
     ],
-    'table_1_7_3_' => [
+    'table_24_' => [
         [
             'name' => 'davlat_grant_mavzusi',
             'type' => 'text',
@@ -71,7 +71,7 @@ return [
         ],
 
     ],
-    'table_2_3_1_' => [
+    'table_14_1_' => [
         [
             'name' => 'xorijiy_oqituvchi_ismi',
             'type' => 'text',
@@ -99,7 +99,7 @@ return [
         ]
 
     ],
-    'table_2_3_2_' => [
+    'table_14_2_' => [
         [
             'name' => 'xorijiy_talaba_ismi',
             'type' => 'text',
@@ -127,7 +127,7 @@ return [
         ]
 
     ],
-    'table_2_4_1_' => [
+    'table_14_3_' => [
         [
             'name' => 'hujjat_nomi_sanasi',
             'type' => 'text',
@@ -170,7 +170,7 @@ return [
         ],
 
     ],
-    'table_2_4_2_b_' => [
+    'table_15_1_' => [
         [
             'name' => 'hujjat_nomi_sanasi',
             'type' => 'text',
@@ -208,7 +208,7 @@ return [
             'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
         ],
     ],
-    'table_2_5_' => [
+    'table_15_2_' => [
         [
             'name' => 'fish',
             'type' => 'text',
@@ -263,7 +263,7 @@ return [
 
     ],
 
-    'table_3_4_1_' => [
+    'table_16_' => [
         [
             'name' => 'talaba_fish',
             'type' => 'text',
@@ -311,7 +311,7 @@ return [
             'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
         ],
     ],
-    'table_3_4_2_' => [
+    'table_17_1_' => [
         [
             'name' => 'talaba_fish',
             'type' => 'text',
@@ -360,7 +360,7 @@ return [
 
 
     ],
-    'table_4_1_' => [
+    'table_17_2_' => [
         [
             'name' => 'talaba_fish',
             'type' => 'text',

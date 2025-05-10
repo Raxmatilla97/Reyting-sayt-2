@@ -222,9 +222,9 @@ class PointCalculationService
         $calculations = [];
 
         $uniqueColumns = [
-            'table_1_6_1_a_' => ['table' => 'table_1_6_1_a_', 'field' => 'ilmiy_maqola_nomi'],
-            'table_2_2_1_' => ['table' => 'table_2_2_1_', 'field' => 'darslik_nomi'],
-            'table_2_2_2_' => ['table' => 'table_2_2_2_', 'field' => 'qollanma_nomi']
+            'table_10_1_' => ['table' => 'table_10_1_', 'field' => 'ilmiy_maqola_nomi'],
+            'table_11_2_a_' => ['table' => 'table_11_2_a_', 'field' => 'darslik_nomi'],
+            'table_12_' => ['table' => 'table_12_', 'field' => 'qollanma_nomi']
         ];
 
         foreach ($allMaxPoints as $direction => $points) {

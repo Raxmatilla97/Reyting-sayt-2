@@ -406,39 +406,39 @@ class FacultyController extends Controller
 
         // Employee formalar uchun tablitsalar ro'yxati
         $employeeTables = [
-            'table_1_1_',
-            'table_1_2_',
-            'table_1_3_1_a_',
-            'table_1_3_1_b_',
-            'table_1_3_2_a_',
-            'table_1_3_2_b_',
-            'table_1_4_',
-            'table_1_5_1_',
-            'table_1_5_1_a_',
-            'table_1_6_1_',
-            'table_1_6_1_a_',
-            'table_1_6_2_',
-            'table_1_9_1_',
-            'table_1_9_2_',
-            'table_1_9_3_',
-            'table_2_2_1_',
-            'table_2_2_2_',
-            'table_2_4_2_'
+            'table_2_',
+            'table_3_',
+            'table_4_',
+            'table_5_',
+            'table_6_',
+            'table_7_',
+            'table_8_1_',
+            'table_8_2_',
+            'table_9_1_',
+            'table_9_2_',
+            'table_10_1_',
+            'table_10_2_',
+            'table_10_3_',
+            'table_11_1_',
+            'table_11_2_',
+            'table_11_2_a_',
+            'table_12_',
+            'table_13_'
         ];
 
         // Department formalar uchun tablitsalar ro'yxati
         $departmentTables = [
-            'table_1_7_1_',
-            'table_1_7_2_',
-            'table_1_7_3_',
-            'table_2_3_1_',
-            'table_2_3_2_',
-            'table_2_4_1_',
-            'table_2_4_2_b_',
-            'table_2_5_',
-            'table_3_4_1_',
-            'table_3_4_2_',
-            'table_4_1_'
+            'table_22_',
+            'table_23_',
+            'table_24_',
+            'table_14_1_',
+            'table_14_2_',
+            'table_14_3_',
+            'table_15_1_',
+            'table_15_2_',
+            'table_16_',
+            'table_17_1_',
+            'table_17_2_'
         ];
 
         $data = [
