@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('table_10_3_', function (Blueprint $table) {
+        Schema::create('table_9_2_', function (Blueprint $table) {
             $table->id();
-            $table->string('ixtisoslik_shifri')->nullable();
+            $table->string('shifri_nomi')->nullable();
+            $table->string('muallif_fish')->nullable();
             $table->string('mualliflar_soni')->nullable();
-            $table->string('monograf_mualliflar_soni')->nullable();
-            $table->string('monograf_nomi')->nullable();
-            $table->string('monograf_kengash_bayoni')->nullable();
-            $table->string('nashryot_nomi')->nullable();
-            $table->string('natlib_isbn_raqami')->nullable();
+            $table->string('monografiya_nomi')->nullable();
+            $table->string('kengash_bayoni_sana')->nullable();
+            $table->string('nashiriyot_nomi')->nullable();
+            $table->string('isn_raqam')->nullable();
             $table->string('asos_file')->nullable();
             $table->timestamps();
         });
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('table_10_3_');
+        Schema::dropIfExists('table_9_2_');
     }
 };

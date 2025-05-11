@@ -13,12 +13,12 @@ return new class extends Migration
     {
         Schema::create('table_11_2_a_', function (Blueprint $table) {
             $table->id();
-            $table->string('ixtisoslik_shifri')->nullable();
-            $table->string('darslik_mualliflar_soni')->nullable();
-            $table->string('darslik_nomi')->nullable();
-            $table->string('darslik_guvohnomasi')->nullable();
-            $table->string('darslik_reestr_raqami')->nullable();
-            $table->string('asos_file')->nullable();
+            $table->string('jurnal_nomi')->nullable();
+            $table->string('nashr_yili')->nullable();
+            $table->string('maqola_nomi')->nullable();
+            $table->string('tili')->nullable();
+            $table->string('index_url')->nullable();
+            $table->string('iqtiboslar_soni')->nullable();
             $table->timestamps();
         });
     }
