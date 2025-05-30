@@ -1,5 +1,5 @@
 <?php
-
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\Auth\ApiHemisController;
 use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\DashboardController;
@@ -36,6 +36,29 @@ Route::middleware(['guest'])->group(function () {
     Route::get("/oauth/callback", [ApiHemisController::class, 'handleAuthorizationCallback'])
         ->name("handleAuthorizationCallback");
 });
+
+// Storage link yaratish uchun maxsus route
+Route::get('/create-storage-link', function () {
+    try {
+        // storage:link artisan buyrug'ini ishga tushirish
+        Artisan::call('storage:link');
+        
+        // Natijani olish
+        $output = Artisan::output();
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Storage link muvaffaqiyatli yaratildi!',
+            'output' => $output
+        ]);
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Xatolik yuz berdi!',
+            'error' => $e->getMessage()
+        ], 500);
+    }
+})->middleware('auth'); // Auth orqali himoyalash uchun (ixtiyoriy)
 
 // Autentifikatsiyadan o'tgan foydalanuvchilar uchun routelar
 Route::middleware('auth')->group(function () {

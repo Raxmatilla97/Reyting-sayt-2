@@ -80,38 +80,35 @@ class FormsController extends Controller
         return view('dashboard.form_themplates.department_form', compact('fields', 'tableName', 'title', 'oldData'));
     }
 
+    /**
+     * Ma'lumotlarni saqlash yoki tahrirlash
+     */
+    /**
+     * Ma'lumotlarni saqlash yoki tahrirlash
+     */
     public function employeeStoreForm(Request $request, $tableName)
     {
-
-
         // Foydalanuvchini autentifikatsiyadan o'tganligini tekshirish
         $user = auth()->user();
         if (!$user) {
-            return "Foydalanuvchi tizimga kirmagan.";
+            return redirect()->route('login')->with('error', "Foydalanuvchi tizimga kirmagan.");
         }
 
-        // Ruxsat etilgan maydonlarni aniqlash
-        $allowedFields = [
-            'table_2_' => ['daraja_bergan_otm_nomi', 'phd_diplom_seryasi', 'phd_diplom_raqami', 'dsc_diplom_seryasi', 'dsc_diplom_raqami', 'mutaxasislik_nomi', 'ishga_qabul_raqam_seryasi', 'asos_file'],
-            'table_3_' => ['xorijiy_davlat_nomi', 'otm_nomi', 'mutaxasisligi', 'faoliyat_nomi', 'muddati', 'asos_file'],
-            'table_4_' => ['fan_doktori_serya', 'fan_doktori_raqam', 'ishga_raq_sana', 'asos_file'],
-            'table_5_' => ['prof_dip_serya', 'prof_dip_raqam', 'ishga_raq_sana', 'asos_file'],
-            'table_6_' => ['fan_doktori_serya', 'fan_doktori_raqam', 'ishga_raq_sana', 'asos_file'],
-            'table_7_' => ['dotsent_dip_serya', 'dotsent_dip_nomer', 'ishga_raq_sana', 'asos_file'],
-            'table_8_1_' => ['ish_joyi', 'ixtisoslik_shifri', 'ixtisoslik_nomi', 'disertatsiya_mavzusi', 'maxsus_kengash_shifri', 'ilmiy_unvon_olganlar', 'ilmiy_unvon_tasdiqlangan_sana', 'asos_file'],
-            'table_8_2_' => ['jurnalning_nomi', 'jurnal_nashr_yili_oyi', 'maqolaning_nomi', 'maqola_tili', 'google_schoolar_url', 'google_schoolar_iqtiboslar'],
-            'table_9_1_' => ['jurnalning_nomi', 'jurnal_nashr_yili_oyi', 'maqolaning_nomi', 'maqola_tili', 'google_schoolar_url', 'google_schoolar_iqtiboslar'],
-            'table_9_2_' => ['xorijiy_jirnal_davlat_nomi', 'ilmiy_jurnal_nomi', 'ilmiy_maqola_nomi', 'nashr_yili_betlari', 'url_manzili', 'mualliflar_soni', 'asos_file'],
-            'table_10_1_' => ['xorijiy_jirnal_davlat_nomi', 'ilmiy_jurnal_nomi', 'ilmiy_maqola_nomi', 'nashr_yili_betlari', 'url_manzili', 'mualliflar_soni', 'asos_file'],
-            'table_10_2_' => ['ilmiy_jurnal_nomi', 'ilmiy_maqola_nomi', 'nashr_yili_betlari', 'url_manzili', 'mualliflar_soni', 'asos_file'],
-            'table_10_3_' => ['ixtisoslik_shifri', 'mualliflar_soni', 'monograf_mualliflar_soni', 'monograf_nomi', 'monograf_kengash_bayoni', 'nashryot_nomi', 'natlib_isbn_raqami', 'asos_file'],
-            'table_11_1_' => ['otmlar_nomi', 'asosiy_statdagi_professorlar', 'ixtiro_model_uchun_patent', 'berilgan_sanasi', 'qayd_raqami', 'asos_file'],
-            'table_11_2_' => ['otm_nomi', 'asosiy_shtatdagi_prof_oqituv', 'olingan_guvohnomalar', 'mualliflar_soni', 'berilgan_sana', 'qayd_raqami', 'asos_file'],
-            'table_11_2_a_' => ['ixtisoslik_shifri', 'darslik_mualliflar_soni', 'darslik_nomi', 'darslik_guvohnomasi', 'darslik_reestr_raqami', 'asos_file'],
-            'table_12_' => ['ixtisoslik_shifri', 'qollanma_mualliflar_soni', 'qollanma_nomi', 'qollanma_guvohnomasi', 'qollanma_reestr_raqami', 'asos_file'],
-            'table_13_' => ['xorijiy_va_hamkor', 'hujjat_nomi_sanasi', 'xorijiy_davlat_nomi', 'talim_yonalishi', 'seminar_knfrensiya_nomi'],
-            'asos_file',
-        ];
+        // Config faylidan ruxsat etilgan maydonlarni olish
+        $formFields = config('employee_form_fields');
+
+        // Tablitsa mavjudligini tekshirish
+        if (!isset($formFields[$tableName])) {
+            return redirect()->back()->with('error', "Noto'g'ri tablitsa nomi ko'rsatilgan.");
+        }
+
+        // Maydon nomlarini yig'ish
+        $allowedFields = [];
+        foreach ($formFields[$tableName] as $field) {
+            if (isset($field['name'])) {
+                $allowedFields[] = $field['name'];
+            }
+        }
 
         try {
             DB::beginTransaction();
@@ -119,10 +116,10 @@ class FormsController extends Controller
             // So'rov ma'lumotlarini filtrlash
             $filteredData = array_intersect_key(
                 $request->all(),
-                array_flip($allowedFields[$tableName])
+                array_flip($allowedFields)
             );
 
-            // Fayl yuklash logikasi
+            // asos_file uchun fayl yuklash logikasi
             if ($request->hasFile('asos_file')) {
                 $validatedData = $request->validate([
                     'asos_file' => 'required|file|mimes:pdf|max:2048',
@@ -138,10 +135,26 @@ class FormsController extends Controller
                 $filteredData['asos_file'] = $path;
             }
 
+            // asos_file2 uchun fayl yuklash logikasi
+            if ($request->hasFile('asos_file2')) {
+                $validatedData = $request->validate([
+                    'asos_file2' => 'required|file|mimes:pdf|max:2048',
+                ], [
+                    'asos_file2.required' => 'Fayl yuklash majburiy.',
+                    'asos_file2.file' => 'Yuklangan fayl haqiqiy fayl bo\'lishi kerak.',
+                    'asos_file2.mimes' => 'Faqat PDF formatidagi fayllar ruxsat etiladi.',
+                    'asos_file2.max' => 'Fayl hajmi 2MB dan katta bo\'lmasligi kerak.',
+                ]);
+
+                $file2 = $request->file('asos_file2');
+                $path2 = $file2->store('documents', 'public');
+                $filteredData['asos_file2'] = $path2;
+            }
+
             $now = Carbon::now();
 
             // Tahrirlash yoki yangi ma'lumot kiritish
-            if ($request->edit) {  // edit_id o'rniga edit ishlatamiz
+            if ($request->edit) {
                 \Log::info('Edit ID: ' . $request->edit);
 
                 // Pointer jadvalidan ma'lumotni olish
@@ -151,7 +164,11 @@ class FormsController extends Controller
                     throw new \Exception('Pointer ma\'lumoti topilmadi');
                 }
 
-                $relationId = $pointer->{$tableName . "id"};
+                // Ustun nomini olish
+                $columnName = $tableName . "id";
+                \Log::info('Column name: ' . $columnName);
+
+                $relationId = $pointer->$columnName;
                 \Log::info('Relation ID: ' . $relationId);
 
                 // Eski ma'lumotni olish
@@ -161,12 +178,20 @@ class FormsController extends Controller
                     throw new \Exception('Asosiy jadvaldan ma\'lumot topilmadi');
                 }
 
-                // Eski faylni o'chirish (agar yangi fayl yuklangan bo'lsa)
+                // asos_file uchun - Eski faylni o'chirish (agar yangi fayl yuklangan bo'lsa)
                 if ($request->hasFile('asos_file') && isset($oldRecord->asos_file)) {
                     Storage::disk('public')->delete($oldRecord->asos_file);
                 } elseif (!$request->hasFile('asos_file') && isset($oldRecord->asos_file)) {
                     // Agar yangi fayl yuklanmagan bo'lsa, eski fayl yo'lini saqlash
                     $filteredData['asos_file'] = $oldRecord->asos_file;
+                }
+
+                // asos_file2 uchun - Eski faylni o'chirish (agar yangi fayl yuklangan bo'lsa)
+                if ($request->hasFile('asos_file2') && isset($oldRecord->asos_file2)) {
+                    Storage::disk('public')->delete($oldRecord->asos_file2);
+                } elseif (!$request->hasFile('asos_file2') && isset($oldRecord->asos_file2)) {
+                    // Agar yangi fayl yuklanmagan bo'lsa, eski fayl yo'lini saqlash
+                    $filteredData['asos_file2'] = $oldRecord->asos_file2;
                 }
 
                 // Mavjud ma'lumotni yangilash
@@ -197,15 +222,20 @@ class FormsController extends Controller
                     ]);
 
                 // Pointer jadvaliga insert
-                PointUserDeportament::create([
+                $columnData = [
                     'user_id' => $user->id,
                     'status' => 3,
                     'year' => $request->year,
                     'departament_id' => $user->department_id,
-                    "{$tableName}id" => $insertedId,
                     'updated_at' => null,
                     'created_at' => $now
-                ]);
+                ];
+
+                // Tablitsa nomi asosida relation ustunini qo'shish
+                $columnName = $tableName . "id";
+                $columnData[$columnName] = $insertedId;
+
+                PointUserDeportament::create($columnData);
 
                 DB::commit();
                 return redirect()->back()->with('success', "Ma'lumotlar muvaffaqiyatli saqlandi");
@@ -214,8 +244,13 @@ class FormsController extends Controller
             DB::rollback();
             \Log::error('Xatolik: ' . $e->getMessage());
 
+            // Xatolik yuz berganda agar yangi fayllar yuklangan bo'lsa, ularni o'chirish
             if (isset($path)) {
                 Storage::disk('public')->delete($path);
+            }
+
+            if (isset($path2)) {
+                Storage::disk('public')->delete($path2);
             }
 
             return redirect()
@@ -225,33 +260,29 @@ class FormsController extends Controller
         }
     }
 
-
     public function departmentStoreForm(Request $request, $tableName)
     {
-
         // Foydalanuvchini autentifikatsiyadan o'tganligini tekshirish
         $user = auth()->user();
         if (!$user) {
             return "Foydalanuvchi tizimga kirmagan.";
         }
 
-        // Ruxsat etilgan maydonlarni aniqlash
-        $allowedFields = [
-            'table_22_' => ['xorijiy_granti_buyurtma_nomi', 'xorijiy_granti_buyurtma_summasi', 'jami_summa', 'asos_file'],
-            'table_23_' => ['sohalar_buyurtma_nomi', 'sohalar_buyurtma_summasi', 'jami_summa', 'asos_file'],
-            'table_24_' => ['davlat_grant_mavzusi', 'davlat_grant_summasi', 'jami_summa', 'asos_file'],
-            'table_14_1_' => ['xorijiy_oqituvchi_ismi', 'davlati_ish_joyi', 'mutaxasisligi', 'dars_beradigan_fani', 'asos_file'],
-            'table_14_2_' => ['xorijiy_talaba_ismi', 'davlati', 'talim_yonalishi', 'magister_shifri_nomi', 'asos_file'],
-            'table_14_3_' => ['hujjat_nomi_sanasi', 'otm_talaba_fish', 'davlat_otm_nomi', 'mutaxasislik_nomi', 'xorijiy_talaba_fish', 'davlat_otm_nomi2', 'mutaxasislik_nomi2', 'asos_file'],
-            'table_15_1_' => ['hujjat_nomi_sanasi', 'ism_sharifi', 'xorijiy_davlat_otm_nomi', 'mutaxasislik_nomi', 'loyha_nomi', 'seminar_nomi', 'asos_file'],
-            'table_15_2_' => ['fish', 'talim_kodi', 'talim_nomi', 'hujjat_nomi_imzosi', 'fanlar_nomi', 'chet_tili_nomi', 'talim_bosqichi', 'talabalar_soni', 'elekron_manzil', 'asos_file'],
-            'table_16_' => ['talaba_fish', 'tanlov_musoboqa_nomi', 'otkazilgan_joy_sana', 'fanlari_tanlov_musoqoqa', 'egallagan_orni', 'diplom_serya', 'diplom_raqam', 'izoh', 'asos_file'],
-            'table_17_1_' => ['talaba_fish', 'respublika_tanlov_nomi', 'otkazilgan_joy_sana', 'musobaqalar_nomi', 'egallagan_orni', 'diplom_seryasi', 'diplom_raqami', 'izoh', 'asos_file'],
-            'table_17_2_' => ['talaba_fish', 'talim_yonalishi', 'oqish_bosqichi', 'sport_klubi_nomi', 'sport_turi', 'sport_klubiga_azolik_sanasi', 'nechanchi_razryad', 'asos_file'],
+        // Config faylidan ruxsat etilgan maydonlarni olish
+        $formFields = config('department_forms_fields');
 
-        ];
+        // Tablitsa mavjudligini tekshirish
+        if (!isset($formFields[$tableName])) {
+            return redirect()->back()->with('error', "Noto'g'ri tablitsa nomi ko'rsatilgan.");
+        }
 
-
+        // Maydon nomlarini yig'ish
+        $allowedFields = [];
+        foreach ($formFields[$tableName] as $field) {
+            if (isset($field['name'])) {
+                $allowedFields[] = $field['name'];
+            }
+        }
 
         try {
             DB::beginTransaction();
@@ -259,7 +290,7 @@ class FormsController extends Controller
             // So'rov ma'lumotlarini filtrlash
             $filteredData = array_intersect_key(
                 $request->all(),
-                array_flip($allowedFields[$tableName])
+                array_flip($allowedFields)
             );
 
             // Fayl yuklash logikasi
@@ -281,7 +312,7 @@ class FormsController extends Controller
             $now = Carbon::now();
 
             // Tahrirlash yoki yangi ma'lumot kiritish
-            if ($request->edit) {  // edit_id o'rniga edit ishlatamiz
+            if ($request->edit) {
                 \Log::info('Edit ID: ' . $request->edit);
 
                 // Pointer jadvalidan ma'lumotni olish
@@ -291,7 +322,11 @@ class FormsController extends Controller
                     throw new \Exception('Pointer ma\'lumoti topilmadi');
                 }
 
-                $relationId = $pointer->{$tableName . "id"};
+                // Ustun nomini olish
+                $columnName = $tableName . "id";
+                \Log::info('Column name: ' . $columnName);
+
+                $relationId = $pointer->$columnName;
                 \Log::info('Relation ID: ' . $relationId);
 
                 // Eski ma'lumotni olish
@@ -336,16 +371,23 @@ class FormsController extends Controller
                         'updated_at' => null
                     ]);
 
-                // Pointer jadvaliga insert
-                PointUserDeportament::create([
+                // Pointer jadvaliga insert uchun ma'lumot tayyorlash
+                $columnData = [
                     'user_id' => $user->id,
                     'status' => 3,
                     'year' => $request->year,
                     'departament_id' => $user->department_id,
-                    "{$tableName}id" => $insertedId,
+                    'departament_info' => true, // Departament ma'lumotlarini aniqlash
                     'updated_at' => null,
                     'created_at' => $now
-                ]);
+                ];
+
+                // Tablitsa nomi asosida relation ustunini qo'shish
+                $columnName = $tableName . "id";
+                $columnData[$columnName] = $insertedId;
+
+                // Pointer jadvaliga insert
+                PointUserDeportament::create($columnData);
 
                 DB::commit();
                 return redirect()->back()->with('success', "Ma'lumotlar muvaffaqiyatli saqlandi");

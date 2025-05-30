@@ -5,406 +5,119 @@
 return [
     'table_22_' => [
         [
-            'name' => 'xorijiy_granti_buyurtma_nomi',
+            'name' => 'xujjat_nomi_sana',
             'type' => 'text',
-            'label' => "Xorijiy ilmiy tadqiqot markazlari grantlari va xorijiy ilmiy fondlari buyurtmalari nomi",
+            'label' => "Almashuv dasturiga asos bo'luvchi hujjat nomi va imzolangan sanasi*",
         ],
         [
-            'name' => 'xorijiy_granti_buyurtma_summasi',
+            'name' => 'talaba_fish',
             'type' => 'text',
-            'label' => "Xorijiy ilmiy tadqiqot markazlari grantlari va xorijiy ilmiy fondlari buyurtmalari summasi",
+            'label' => "Almashuv dasturlari asosida xorijiy OTMda ta'lim olayotgan talabaning F.I.Sh (alfavit tartibida to'liq yoziladi)",
         ],
         [
-            'name' => 'jami_summa',
+            'name' => 'otm_nomi',
             'type' => 'text',
-            'label' => "Jami summasi",
+            'label' => "Davlat va OTM nomi",
+        ],
+        [
+            'name' => 'musaxasislik',
+            'type' => 'text',
+            'label' => "Ta'lim yo'nalishi (mutaxassislik) nomi",
+        ],
+        [
+            'name' => 'cspu_talaba_fish',
+            'type' => 'text',
+            'label' => "Almashuv dasturlari asosida ChDPUda ta'lim olayotgan xorijlik talabaning F.I.Sh",
+        ],
+        [
+            'name' => 'cspu_musaxasislik',
+            'type' => 'text',
+            'label' => "Ta'lim yo'nalishi (mutaxassislik) nomi",
         ],
         [
             'name' => 'asos_file',
             'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+            'label' => "Asos (almashuv dasturiga asos bo'luvchi hujjat, almashuv dasturlari asosida xorijiy OTMlarida ta'lim olayotgan talabalar ro'yxati, almashuv dasturlari asosida ChDPUda ta'lim olayotgan xorijlik talabalar ro'yxati, OTM rektori buyrug'i)*",
         ],
     ],
     'table_23_' => [
         [
-            'name' => 'sohalar_buyurtma_nomi',
+            'name' => 'xorijiy_oqituvchi_fish',
             'type' => 'text',
-            'label' => "Sohalar buyurtmalari asosida o‘tkazilgan ilmiy (ilmiy-ijodiy) tadqiqotlar buyurtma nomi",
+            'label' => "Xorijiy o'qituvchining F.I.Sh. (to'liq yoziladi)",
         ],
         [
-            'name' => 'sohalar_buyurtma_summasi',
+            'name' => 'davlat_asosy_ish',
             'type' => 'text',
-            'label' => "Sohalar buyurtmalari asosida o‘tkazilgan ilmiy (ilmiy-ijodiy) tadqiqotlar buyurtma summasi",
+            'label' => "Davlati va (asosiy) ish joyi",
         ],
         [
-            'name' => 'jami_summa',
-            'type' => 'text',
-            'label' => "Jami summasi",
-        ],
-        [
-            'name' => 'asos_file',
-            'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
-        ],
-
-    ],
-    'table_24_' => [
-        [
-            'name' => 'davlat_grant_mavzusi',
-            'type' => 'text',
-            'label' => "Davlat grantlari asosida o‘tkazilgan tadqiqotlar mavzusi nomi",
-        ],
-        [
-            'name' => 'davlat_grant_summasi',
-            'type' => 'text',
-            'label' => "Davlat grantlari asosida o‘tkazilgan tadqiqotlar summasi (so'm)",
-        ],
-        [
-            'name' => 'jami_summa',
-            'type' => 'text',
-            'label' => "Jami summasi",
-        ],
-        [
-            'name' => 'asos_file',
-            'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
-        ],
-
-    ],
-    'table_14_1_' => [
-        [
-            'name' => 'xorijiy_oqituvchi_ismi',
-            'type' => 'text',
-            'label' => "Xorijiy o‘qituvchining F.I.Sh",
-        ],
-        [
-            'name' => 'davlati_ish_joyi',
-            'type' => 'text',
-            'label' => "Davlati va ish joyi",
-        ],
-        [
-            'name' => 'mutaxasisligi',
+            'name' => 'mutaxasislik',
             'type' => 'text',
             'label' => "Mutaxassisligi",
         ],
         [
-            'name' => 'dars_beradigan_fani',
+            'name' => 'dars_bebradigan_fan',
             'type' => 'text',
-            'label' => "O‘zbekiston OTMida dars beradigan fani",
+            'label' => "Dars beradigan fani",
+        ],
+        [
+            'name' => 'scopus_id',
+            'type' => 'text',
+            'label' => "Scopus ID raqami",
         ],
         [
             'name' => 'asos_file',
             'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
-        ]
-
-    ],
-    'table_14_2_' => [
-        [
-            'name' => 'xorijiy_talaba_ismi',
-            'type' => 'text',
-            'label' => "Xorijiy talabaning F.I.Sh",
-        ],
-        [
-            'name' => 'davlati',
-            'type' => 'text',
-            'label' => "Davlati ",
-        ],
-        [
-            'name' => 'talim_yonalishi',
-            'type' => 'text',
-            'label' => "Ta’lim yo‘nalishi shifri va nomi",
-        ],
-        [
-            'name' => 'magister_shifri_nomi',
-            'type' => 'text',
-            'label' => "Magistratura mutaxassisligi shifri va nomi",
-        ],
-        [
-            'name' => 'asos_file',
-            'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
-        ]
-
-    ],
-    'table_14_3_' => [
-        [
-            'name' => 'hujjat_nomi_sanasi',
-            'type' => 'text',
-            'label' => "Almashuv dasturiga asos bo‘luvchi hujjat nomi va imzolangan sanasi*",
-        ],
-        [
-            'name' => 'otm_talaba_fish',
-            'type' => 'text',
-            'label' => "Almashuv dasturlari asosida xorijiy OTMlarida ta’lim olayotgan talabaning F.I.Sh (alfavit tartibida to‘liq yoziladi)",
-        ],
-        [
-            'name' => 'davlat_otm_nomi',
-            'type' => 'text',
-            'label' => "Davlat va OTM nomi",
-        ],
-        [
-            'name' => 'mutaxasislik_nomi',
-            'type' => 'text',
-            'label' => "Ta’lim yo‘nalishi (mutaxassislik) nomi",
-        ],
-        [
-            'name' => 'xorijiy_talaba_fish',
-            'type' => 'text',
-            'label' => "Almashuv dasturlari asosida OTMda ta’lim olayotgan xorijlik talabaning F.I.Sh",
-        ],
-        [
-            'name' => 'davlat_otm_nomi2',
-            'type' => 'text',
-            'label' => "Davlat va OTM nomi",
-        ],
-        [
-            'name' => 'mutaxasislik_nomi2',
-            'type' => 'text',
-            'label' => "Ta’lim yo‘nalishi (mutaxassislik) nomi",
-        ],
-        [
-            'name' => 'asos_file',
-            'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
-        ],
-
-    ],
-    'table_15_1_' => [
-        [
-            'name' => 'hujjat_nomi_sanasi',
-            'type' => 'text',
-            'label' => "Xamkorlik dasturiga asos bo‘luvchi hujjat nomi va imzolangan sanasi*",
-        ],
-        [
-            'name' => 'ism_sharifi',
-            'type' => 'text',
-            'label' => "F.I.Sh. (alfavit tartibida to‘liq yoziladi).",
-        ],
-        [
-            'name' => 'xorijiy_davlat_otm_nomi',
-            'type' => 'text',
-            'label' => "Xorijiy davlat va OTM nomi",
-        ],
-        [
-            'name' => 'mutaxasislik_nomi',
-            'type' => 'text',
-            'label' => "Ta’lim yo‘nalishi (mutaxassislik) nomi",
-        ],
-        [
-            'name' => 'loyha_nomi',
-            'type' => 'text',
-            'label' => "Xorijiy va xamkorlikda bajarilayotgan loyixalar nomi",
-        ],
-        [
-            'name' => 'seminar_nomi',
-            'type' => 'text',
-            'label' => "Xalqaro xorijiy konferensiya va seminarlar nomi",
-        ],
-
-        [
-            'name' => 'asos_file',
-            'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+            'label' => "Asos (Xorijiy o'qituvchining diplomi, pasport nusxasi, ChDPU rektorining buyrug'i, mehnat shartnomasi)*",
         ],
     ],
-    'table_15_2_' => [
-        [
-            'name' => 'fish',
-            'type' => 'text',
-            'label' => "F.I.Sh. (alfavit tartibida to‘liq yoziladi).",
-        ],
-        [
-            'name' => 'talim_kodi',
-            'type' => 'text',
-            'label' => "Chet tilda ta’lim beriladigan ta’lim yo‘nalishlari (mutaxassisliklar) kodi",
-        ],
-        [
-            'name' => 'talim_nomi',
-            'type' => 'text',
-            'label' => "Chet tilda ta’lim beriladigan ta’lim yo‘nalishlari (mutaxassisliklar) nomi",
-        ],
-        [
-            'name' => 'hujjat_nomi_imzosi',
-            'type' => 'text',
-            'label' => "Chet tilda ta’lim berishga asos bo‘luvchi hujjat nomi va imzolangan sanasi*",
-        ],
-        [
-            'name' => 'fanlar_nomi',
-            'type' => 'text',
-            'label' => "Chet tilda dars berilayotgan fanlar nomi*",
-        ],
-        [
-            'name' => 'chet_tili_nomi',
-            'type' => 'text',
-            'label' => "Chet til nomi",
-        ],
-        [
-            'name' => 'talim_bosqichi',
-            'type' => 'text',
-            'label' => "Ta’lim bosqichi",
-        ],
-        [
-            'name' => 'talabalar_soni',
-            'type' => 'text',
-            'label' => "Ta’lim olayotgan talabalar soni",
-        ],
-        [
-            'name' => 'elekron_manzil',
-            'type' => 'text',
-            'label' => "Fan resurslari(O'UM)ning elektron manzili (giper xavola**)",
-        ],
-        [
-            'name' => 'asos_file',
-            'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
-        ],
-
-
-    ],
-
-    'table_16_' => [
+    'table_24_' => [
         [
             'name' => 'talaba_fish',
             'type' => 'text',
-            'label' => "Talabaning F.I.Sh",
+            'label' => "Talabaning F.I.Sh. (to'liq yoziladi)",
         ],
         [
-            'name' => 'tanlov_musoboqa_nomi',
+            'name' => 'davlat_grant_summasi',
             'type' => 'text',
-            'label' => "Xalqaro olimpiadalar, nufuzli tanlov va sport musobaqalar nomi",
+            'label' => "Davlat grant summasi",
         ],
         [
-            'name' => 'otkazilgan_joy_sana',
+            'name' => 'nashr_etilgan_davlat',
             'type' => 'text',
-            'label' => "O‘tkazilgan joy va sanasi",
+            'label' => "Xorijiy ilmiy jurnal nashr etilgan davlat nomi",
         ],
         [
-            'name' => 'fanlari_tanlov_musoqoqa',
+            'name' => 'ilmiy_turnal_nomi',
             'type' => 'text',
-            'label' => "Olimpiada fanlari, tanlov va musobaqalar nomi  ",
+            'label' => "Ilmiy jurnal nomi",
         ],
         [
-            'name' => 'egallagan_orni',
+            'name' => 'ilmiy_maqola_nomi',
             'type' => 'text',
-            'label' => "Egallagan o‘rni",
+            'label' => "Ilmiy maqola nomi",
         ],
         [
-            'name' => 'diplom_serya',
+            'name' => 'nashr_yili_betlari',
             'type' => 'text',
-            'label' => "Diplom seriyasi",
+            'label' => "Nashr yili, betlari",
         ],
         [
-            'name' => 'diplom_raqam',
+            'name' => 'index_url',
             'type' => 'text',
-            'label' => "Diplom raqami",
+            'label' => "Scopus, Web of Science bazalarida indekslangan linki (havolasi)",
         ],
         [
-            'name' => 'izoh',
+            'name' => 'mualliflar_soni',
             'type' => 'text',
-            'label' => "Izoh",
-        ],
-
-        [
-            'name' => 'asos_file',
-            'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
-        ],
-    ],
-    'table_17_1_' => [
-        [
-            'name' => 'talaba_fish',
-            'type' => 'text',
-            'label' => "Talabaning F.I.Sh",
-        ],
-        [
-            'name' => 'respublika_tanlov_nomi',
-            'type' => 'text',
-            'label' => "Respublika olimpiadalar, nufuzli tanlov va sport musobaqalar nomi",
-        ],
-        [
-            'name' => 'otkazilgan_joy_sana',
-            'type' => 'text',
-            'label' => "O‘tkazilgan joy va sanasi",
-        ],
-        [
-            'name' => 'musobaqalar_nomi',
-            'type' => 'text',
-            'label' => "Olimpiada fanlari, tanlov va musobaqalar nomi  ",
-        ],
-        [
-            'name' => 'egallagan_orni',
-            'type' => 'text',
-            'label' => "Egallagan o‘rni",
-        ],
-        [
-            'name' => 'diplom_seryasi',
-            'type' => 'text',
-            'label' => "Diplom seriyasi",
-        ],
-        [
-            'name' => 'diplom_raqami',
-            'type' => 'text',
-            'label' => "Diplom raqami",
-        ],
-        [
-            'name' => 'izoh',
-            'type' => 'text',
-            'label' => "Izoh",
+            'label' => "Mualliflar soni (ilmiy rahbardan tashqari)",
         ],
         [
             'name' => 'asos_file',
             'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
+            'label' => "Asos (maqolaning PDF nusxasi)",
         ],
-
-
-    ],
-    'table_17_2_' => [
-        [
-            'name' => 'talaba_fish',
-            'type' => 'text',
-            'label' => "Talabaning F.I.O.",
-        ],
-        [
-            'name' => 'talim_yonalishi',
-            'type' => 'text',
-            'label' => "Ta’lim yo‘nalishi",
-        ],
-        [
-            'name' => 'oqish_bosqichi',
-            'type' => 'text',
-            'label' => "O‘qish bosqichi (kurs)",
-        ],
-        [
-            'name' => 'sport_klubi_nomi',
-            'type' => 'text',
-            'label' => "OTM qoshida ochilgan sport klubining nomi",
-        ],
-        [
-            'name' => 'sport_turi',
-            'type' => 'text',
-            'label' => "Sport turi",
-        ],
-        [
-            'name' => 'sport_klubiga_azolik_sanasi',
-            'type' => 'text',
-            'label' => "Shu klubga qachondan a’zo (sanasi)",
-        ],
-        [
-            'name' => 'nechanchi_razryad',
-            'type' => 'text',
-            'label' => "Nechanchi razryad",
-        ],
-        [
-            'name' => 'asos_file',
-            'type' => 'file',
-            'label' => "Asos (buyruq, qaror, shartnoma va boshqalar)*",
-        ],
-
-
-
-    ],
-
-    // table_4_3_ uchun ham shu tarzda...
+    ]
+ 
 ];

@@ -13,12 +13,9 @@ return new class extends Migration
     {
         Schema::create('table_15_1_', function (Blueprint $table) {
             $table->id();
-            $table->string('hujjat_nomi_sanasi')->nullable();
-            $table->string('ism_sharifi')->nullable();
-            $table->string('xorijiy_davlat_otm_nomi')->nullable();
-            $table->string('mutaxasislik_nomi')->nullable();
-            $table->string('loyha_nomi')->nullable();
-            $table->string('seminar_nomi')->nullable();
+            $table->string('fond_buyurtma_nomi')->nullable();
+            $table->string('fond_buyurtma_summa')->nullable();
+            $table->string('jami_summa')->nullable();         
             $table->string('asos_file')->nullable();
             $table->timestamps();
         });

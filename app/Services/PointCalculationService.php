@@ -11,12 +11,12 @@ use Illuminate\Support\Facades\Config;
 class PointCalculationService
 {
     protected $studentDivisorTables = [
-        'table_2_3_2',
-        'table_2_4_1',
-        'table_2_4_2_b',
-        'table_3_4_1',
-        'table_3_4_2',
-        'table_4_1'
+        // 'table_2_3_2',
+        // 'table_2_4_1',
+        // 'table_2_4_2_b',
+        // 'table_3_4_1',
+        // 'table_3_4_2',
+        // 'table_4_1'
     ];
 
     /**
@@ -223,8 +223,8 @@ class PointCalculationService
 
         $uniqueColumns = [
             'table_10_1_' => ['table' => 'table_10_1_', 'field' => 'ilmiy_maqola_nomi'],
-            'table_11_2_a_' => ['table' => 'table_11_2_a_', 'field' => 'darslik_nomi'],
-            'table_12_' => ['table' => 'table_12_', 'field' => 'qollanma_nomi']
+            'table_10_2_' => ['table' => 'table_10_2_', 'field' => 'ilmiy_maqola_nomi'],
+            'table_12_' => ['table' => 'table_12_', 'field' => 'ilmiy_maqola_nomi']
         ];
 
         foreach ($allMaxPoints as $direction => $points) {
@@ -473,6 +473,6 @@ class PointCalculationService
         </div>
     </div>";
 
-        return $html;
+        // return $html;
     }
 }

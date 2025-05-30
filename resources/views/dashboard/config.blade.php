@@ -33,7 +33,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
 
             <!-- Card for Student Counts Update -->
-            <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300">
+            {{-- <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300">
                 <div class="p-6">
                     <div class="flex flex-col items-center">
                         <!-- Icon and Title -->
@@ -69,7 +69,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Excel Export Card -->
             <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
@@ -118,10 +118,10 @@
                             Fakultet va kafedralar bo'yicha yangilanishlar.
                         </p>
                         <p class="mt-2 text-sm font-semibold text-green-600">Ishlamoqda!</p>
-                        <button onclick="window.toggleDepartmentsUpdate()" id="departmentUpdateButton"
+                        {{-- <button onclick="window.toggleDepartmentsUpdate()" id="departmentUpdateButton"
                             class="mt-4 w-full bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition-all duration-300">
                             Yangilash
-                        </button>
+                        </button> --}}
                         <div id="departmentUpdateProgressContainer" class="hidden w-full mt-4">
                             <div class="w-full bg-gray-200 rounded-full h-2">
                                 <div id="departmentUpdateProgressBar"
@@ -214,7 +214,7 @@
 
 
 
-            <!-- Excel Export Card -->
+            {{-- <!-- Excel Export Card -->
             <div class="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                 <div class="p-6">
                     <div class="flex flex-col items-center">
@@ -237,7 +237,7 @@
                         </button>
                     </div>
                 </div>
-            </div>
+            </div> --}}
 
             <!-- Excel Progress Modal -->
             <div id="excelProgressModal"

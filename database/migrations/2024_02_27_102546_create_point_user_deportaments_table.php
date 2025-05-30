@@ -13,33 +13,47 @@ return new class extends Migration
     {
         Schema::create('point_user_deportaments', function (Blueprint $table) {
             $table->id();
-            // Jurnallarni relation orqali bog'lash
-            $table->foreignId('table_1_1_id')->nullable()->constrained('table_2_')->onDelete('cascade');
-            $table->foreignId('table_1_2_id')->nullable()->constrained('table_3_')->onDelete('cascade');
-            $table->foreignId('table_1_4_id')->nullable()->constrained('table_8_1_')->onDelete('cascade');
-            $table->foreignId('table_1_5_1_id')->nullable()->constrained('table_8_2_')->onDelete('cascade');
-            $table->foreignId('table_1_5_1_a_id')->nullable()->constrained('table_9_1_')->onDelete('cascade');
-            $table->foreignId('table_1_6_1_id')->nullable()->constrained('table_9_2_')->onDelete('cascade');
-            $table->foreignId('table_1_6_1_a_id')->nullable()->constrained('table_10_1_')->onDelete('cascade');
-            $table->foreignId('table_1_6_2_id')->nullable()->constrained('table_10_2_')->onDelete('cascade');
-            $table->foreignId('table_1_9_1_id')->nullable()->constrained('table_10_3_')->onDelete('cascade');
-            $table->foreignId('table_1_9_2_id')->nullable()->constrained('table_11_1_')->onDelete('cascade');
-            $table->foreignId('table_1_9_3_id')->nullable()->constrained('table_11_2_')->onDelete('cascade');
-            $table->foreignId('table_2_2_1_id')->nullable()->constrained('table_11_2_a_')->onDelete('cascade');
-            $table->foreignId('table_2_2_2_id')->nullable()->constrained('table_12_')->onDelete('cascade');
-            $table->foreignId('table_2_4_2_id')->nullable()->constrained('table_13_')->onDelete('cascade');
-            // Departament true
-            $table->foreignId('table_1_7_1_id')->nullable()->constrained('table_22_')->onDelete('cascade');
-            $table->foreignId('table_1_7_2_id')->nullable()->constrained('table_23_')->onDelete('cascade');
-            $table->foreignId('table_1_7_3_id')->nullable()->constrained('table_24_')->onDelete('cascade');
-            $table->foreignId('table_2_3_1_id')->nullable()->constrained('table_14_1_')->onDelete('cascade');
-            $table->foreignId('table_2_3_2_id')->nullable()->constrained('table_14_2_')->onDelete('cascade');
-            $table->foreignId('table_2_4_1_id')->nullable()->constrained('table_14_3_')->onDelete('cascade');
-            $table->foreignId('table_2_4_2_b_id')->nullable()->constrained('table_15_1_')->onDelete('cascade');
-            $table->foreignId('table_2_5_id')->nullable()->constrained('table_15_2_')->onDelete('cascade');
-            $table->foreignId('table_3_4_1_id')->nullable()->constrained('table_16_')->onDelete('cascade');
-            $table->foreignId('table_3_4_2_id')->nullable()->constrained('table_17_1_')->onDelete('cascade');
-            $table->foreignId('table_4_1_id')->nullable()->constrained('table_17_2_')->onDelete('cascade');
+            // Bu yerda senga yuborgan migratsiyalardagi tablelar relation qilib yoziladi!
+            $table->foreignId('table_2_id')->nullable()->constrained('table_2_')->onDelete('cascade');
+            $table->foreignId('table_3_id')->nullable()->constrained('table_3_')->onDelete('cascade');
+            $table->foreignId('table_4_id')->nullable()->constrained('table_4_')->onDelete('cascade');
+            $table->foreignId('table_5_id')->nullable()->constrained('table_5_')->onDelete('cascade');
+            $table->foreignId('table_6_id')->nullable()->constrained('table_6_')->onDelete('cascade');
+            $table->foreignId('table_7_id')->nullable()->constrained('table_7_')->onDelete('cascade');
+            $table->foreignId('table_8_1_id')->nullable()->constrained('table_8_1_')->onDelete('cascade');
+            $table->foreignId('table_8_2_id')->nullable()->constrained('table_8_2_')->onDelete('cascade');
+            $table->foreignId('table_9_1_id')->nullable()->constrained('table_9_1_')->onDelete('cascade');
+            $table->foreignId('table_9_2_id')->nullable()->constrained('table_9_2_')->onDelete('cascade');
+            $table->foreignId('table_10_1_id')->nullable()->constrained('table_10_1_')->onDelete('cascade');
+            $table->foreignId('table_10_2_id')->nullable()->constrained('table_10_2_')->onDelete('cascade');
+            $table->foreignId('table_10_3_id')->nullable()->constrained('table_10_3_')->onDelete('cascade');
+            $table->foreignId('table_11_1_id')->nullable()->constrained('table_11_1_')->onDelete('cascade');
+            $table->foreignId('table_11_2_id')->nullable()->constrained('table_11_2_')->onDelete('cascade');
+            $table->foreignId('table_11_3_id')->nullable()->constrained('table_11_3_')->onDelete('cascade');
+            $table->foreignId('table_12_id')->nullable()->constrained('table_12_')->onDelete('cascade');
+            $table->foreignId('table_13_id')->nullable()->constrained('table_13_')->onDelete('cascade');
+            $table->foreignId('table_14_1_id')->nullable()->constrained('table_14_1_')->onDelete('cascade');
+            $table->foreignId('table_14_2_id')->nullable()->constrained('table_14_2_')->onDelete('cascade');
+            $table->foreignId('table_14_3_id')->nullable()->constrained('table_14_3_')->onDelete('cascade');
+            $table->foreignId('table_15_1_id')->nullable()->constrained('table_15_1_')->onDelete('cascade');
+            $table->foreignId('table_15_2_id')->nullable()->constrained('table_15_2_')->onDelete('cascade');
+            $table->foreignId('table_16_id')->nullable()->constrained('table_16_')->onDelete('cascade');
+            $table->foreignId('table_17_1_id')->nullable()->constrained('table_17_1_')->onDelete('cascade');
+            $table->foreignId('table_17_2_id')->nullable()->constrained('table_17_2_')->onDelete('cascade');
+            $table->foreignId('table_18_1_id')->nullable()->constrained('table_18_1_')->onDelete('cascade');
+            $table->foreignId('table_18_2_id')->nullable()->constrained('table_18_2_')->onDelete('cascade');
+            $table->foreignId('table_18_3_id')->nullable()->constrained('table_18_3_')->onDelete('cascade');
+            $table->foreignId('table_18_3_a_id')->nullable()->constrained('table_18_3_a_')->onDelete('cascade');
+            $table->foreignId('table_19_id')->nullable()->constrained('table_19_')->onDelete('cascade');
+            $table->foreignId('table_20_1_id')->nullable()->constrained('table_20_1_')->onDelete('cascade');
+            $table->foreignId('table_20_2_id')->nullable()->constrained('table_20_2_')->onDelete('cascade');
+            $table->foreignId('table_20_3_id')->nullable()->constrained('table_20_3_')->onDelete('cascade');
+            $table->foreignId('table_21_1_id')->nullable()->constrained('table_21_1_')->onDelete('cascade');
+            $table->foreignId('table_21_2_id')->nullable()->constrained('table_21_2_')->onDelete('cascade');
+            $table->foreignId('table_22_id')->nullable()->constrained('table_22_')->onDelete('cascade');
+            $table->foreignId('table_23_id')->nullable()->constrained('table_23_')->onDelete('cascade');
+            $table->foreignId('table_24_id')->nullable()->constrained('table_24_')->onDelete('cascade');
+   
             $table->year('year')->nullable(); // Yil ustuni
             $table->text('arizaga_javob')->nullable();
 

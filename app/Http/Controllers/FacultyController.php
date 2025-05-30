@@ -421,7 +421,7 @@ class FacultyController extends Controller
             'table_10_3_',
             'table_11_1_',
             'table_11_2_',
-            'table_11_2_a_',
+            'table_11_3_',
             'table_12_',
             'table_13_'
         ];

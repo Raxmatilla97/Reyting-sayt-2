@@ -234,7 +234,7 @@
                                             </div>
                                             <!-- Hisob-kitob ma'lumotlari -->
                                             <!-- HTML qismi -->
-                                            <div class="glitch-container relative mt-2">
+                                            {{-- <div class="glitch-container relative mt-2">
                                                 <!-- Asosiy kontent -->
                                                 <div class="p-4 mt-4 text-sm rounded-lg bg-blue-50 shadow-md glitch-effect main-content" role="alert">
                                                     {!! $pointsCalculationExplanation !!}
@@ -257,7 +257,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </div> --}}
 
                                             <!-- CSS qismi -->
                                             <style>

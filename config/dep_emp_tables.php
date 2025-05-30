@@ -22,7 +22,7 @@ return [
         'table_10_3_' => "Q4 holatida Scopus, Web of Science bazalarida indekslangan maqola yoki Scopus, Web of Science bazalarida indekslangan konferensiyada tezis",
         'table_11_1_' => "Scopus, Web of Sicence bazalaridagi iqtibosga egalik",
         'table_11_2_' => "ResearchGate platformasidagi iqtibosga egalik",
-        'table_11_2_a_' => "Google Scholar plarformasidagi iqtibosga egalik",
+        'table_11_3_' => "Google Scholar plarformasidagi iqtibosga egalik",
         'table_12_' => "OAK ro'yxatidagi xorijiy ilmiy jurnallarda maqola",
         'table_13_' => "OAK ro'yxatidagi mahalliy ilmiy jurnallarda maqola",      
         'table_14_1_' => "Professor-o'qituvchining xalqaro konferensiya va seminarlarda, ilmiy yoki ta’lim loyihalarida (xorijiy, qo‘shma) ma'ruzachi sifatida ishtirok etganligi",
