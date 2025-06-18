@@ -10,7 +10,7 @@ class Table_11_3_DataCode
 {
     public function exportTableData($sheet, $pointUserDeportaments)
     {
-        $row = 7; // Ma'lumotlar yozilishi kerak bo'lgan boshlang'ich qator
+        $row = 5; // Ma'lumotlar yozilishi kerak bo'lgan boshlang'ich qator
         $writtenRows = 0;
         $orderNumber = 1; // Tartib raqami uchun o'zgaruvchi
 
@@ -25,8 +25,10 @@ class Table_11_3_DataCode
 
             if ($table_11_3_record) {
                 try {
-                    // Raqam qo'yish
+                    // Raqam qo'yish - № ustuni uchun format
                     $sheet->setCellValue('A' . $row, $orderNumber);
+                    $sheet->getStyle('A' . $row)->getNumberFormat()->setFormatCode('0');
+                    $sheet->getStyle('A' . $row)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
 
                     $sheet->setCellValue('B' . $row, $pointEntry->department->name ?? 'N/A');
 
@@ -75,6 +77,9 @@ class Table_11_3_DataCode
         foreach(range('A','I') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(false);
         }
+        
+        // № ustuni kengligini o'rnatish
+        $sheet->getColumnDimension('A')->setWidth(10);
 
         // Log::info("Total rows written to table_11_2_a: $writtenRows");
     }

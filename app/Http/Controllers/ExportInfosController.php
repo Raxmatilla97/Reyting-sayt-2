@@ -17,6 +17,8 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 use App\Http\Controllers\Export\Table_2_DataCode;
 use App\Http\Controllers\Export\Table_3_DataCode;
 use App\Http\Controllers\Export\Table_4_DataCode;
+use App\Http\Controllers\Export\Table_5_DataCode;
+use App\Http\Controllers\Export\Table_6_DataCode;
 use App\Http\Controllers\Export\Table_7_DataCode;
 use App\Http\Controllers\Export\Table_8_1_DataCode;
 use App\Http\Controllers\Export\Table_8_2_DataCode;
@@ -61,6 +63,8 @@ class ExportInfosController extends Controller
         'table_2',
         'table_3',
         'table_4',
+        'table_5',
+        'table_6',
         'table_7',
         'table_8_1',
         'table_8_2',
@@ -85,6 +89,7 @@ class ExportInfosController extends Controller
         'table_18_1',
         'table_18_2',
         'table_18_3',
+        'table_18_3_a',
         'table_19',
         'table_20_1',
         'table_20_2',
@@ -129,6 +134,29 @@ class ExportInfosController extends Controller
             'G' => 'Darslik OTFIV qoshidagi muvofiqlashtiruvchi Kengashdan o\'tganligi to\'g\'risidagi guvohnoma raqami va sanasi',
             'H' => 'Darslik reestr raqami',
             'I' => 'Asos (Vazirlik buyrug\'i yoki guvohnoma nusxasi)',
+        ],
+        'table_5' => [
+            'A' => '№',
+            'B' => 'Kafedra nomi',
+            'C' => 'F.I.SH.',
+            'D' => 'Ixtisoslik shifri va nomi',
+            'E' => 'Qo\'llanma mualliflar soni',
+            'F' => 'Qo\'llanma nomi',
+            'G' => 'Qo\'llanma OTFIV qoshidagi muvofiqlashtiruvchi Kengashdan o\'tganligi to\'g\'risidagi guvohnoma raqami va sanasi',
+            'H' => 'Qo\'llanma reestr raqami',
+            'I' => 'Asos (Vazirlik buyrug\'i yoki guvohnoma nusxasi)',
+        ],
+        'table_6' => [
+            'A' => '№',
+            'B' => 'Kafedra nomi',
+            'C' => 'F.I.SH.',
+            'D' => 'Xorijiy davlat nomi',
+            'E' => 'Xorijiy OTM nomi',
+            'F' => 'Mutaxassisligi',
+            'G' => 'Faoliyat nomi (ma\'ruza, seminar, trening va boshq..)',
+            'H' => 'Muddati (aniq sanasi)',
+            'I' => 'Asos (Vazirlik buyrug\'i yoki guvohnoma nusxasi)',
+            'J' => 'Asos 2(O\'tkazilgan o\'quv mashg\'ulotlarining video va foto fayllari)',
         ],
         'table_7' => [
             'A' => '№',
@@ -514,8 +542,19 @@ class ExportInfosController extends Controller
     {
         return new StreamedResponse(function () {
             try {
-                ini_set('memory_limit', '40G');
-                set_time_limit(600);
+                // Xotira va vaqt limitlarini oshirish
+                ini_set('memory_limit', '16G');
+                ini_set('max_execution_time', 0);
+                set_time_limit(0);
+                
+                // PHP konfiguratsiyalarini optimizatsiya qilish
+                ini_set('pcre.backtrack_limit', '5000000');
+                ini_set('pcre.recursion_limit', '5000000');
+                
+                // Garbage Collection optimizatsiyasi
+                if (function_exists('gc_enable')) {
+                    gc_enable();
+                }
 
                 $this->sendUpdate('Boshlash', 0);
 
@@ -530,6 +569,31 @@ class ExportInfosController extends Controller
                 $progressPerTable = 80 / count($this->tables);
                 $currentProgress = 15;
 
+                // Barcha ma'lumotlarni bir marta olish va har bir jadval uchun ishlov berish
+                $this->sendUpdate('Barcha ma\'lumotlar yuklanmoqda...', $currentProgress);
+                
+                // Barcha status=1 bo'lgan ma'lumotlarni olish
+                $allData = PointUserDeportament::with([
+                    'employee', 'department',
+                    'table_2', 'table_3', 'table_4', 'table_5', 'table_6', 'table_7', 'table_8_1', 'table_8_2',
+                    'table_9_1', 'table_9_2', 'table_10_1', 'table_10_2', 'table_10_3',
+                    'table_11_1', 'table_11_2', 'table_11_3', 'table_12', 'table_13',
+                    'table_14_1', 'table_14_2', 'table_14_3', 'table_15_1', 'table_15_2',
+                    'table_16', 'table_17_1', 'table_17_2', 'table_18_1', 'table_18_2',
+                    'table_18_3', 'table_18_3_a', 'table_19', 'table_20_1', 'table_20_2', 'table_20_3',
+                    'table_21_1', 'table_21_2', 'table_22', 'table_23', 'table_24'
+                ])
+                ->where('status', 1)
+                ->whereHas('employee', function($query) {
+                    $query->whereNotNull('id');
+                })
+                ->whereHas('department', function($query) {
+                    $query->whereNotNull('id');
+                })
+                ->get();
+
+                $this->sendUpdate('Jami ' . $allData->count() . ' ta ma\'lumot topildi', 25);
+
                 foreach ($this->tables as $table) {
                     $this->sendUpdate($table . ' ma\'lumotlari to\'ldirilmoqda...', $currentProgress);
 
@@ -543,19 +607,34 @@ class ExportInfosController extends Controller
                         $this->setupSheetTemplate($sheet, $table);
                     }
 
+                    // Ushbu jadval uchun ma'lumot mavjud bo'lgan yozuvlarni filtrlash
+                    $tableData = $allData->filter(function($item) use ($table) {
+                        return $item->$table !== null;
+                    });
+
+                    $this->sendUpdate($table . ' uchun ' . $tableData->count() . ' ta yozuv topildi', $currentProgress);
+
                     $methodName = 'fill' . str_replace('_', '', ucfirst($table)) . 'Data';
                     if (method_exists($this, $methodName)) {
-                        PointUserDeportament::with([$table])
-                            ->where('status', 1)
-                            ->chunk(80000, function ($chunk) use ($sheet, $methodName) {
-                                $this->$methodName($sheet, $chunk);
-                            });
+                        // Chunk qilib ishlov berish
+                        $tableData->chunk(1000)->each(function ($chunk) use ($sheet, $methodName) {
+                            $this->$methodName($sheet, $chunk);
+                            
+                            // Xotirani tozalash har bir chunk dan keyin
+                            if (function_exists('gc_collect_cycles')) {
+                                gc_collect_cycles();
+                            }
+                        });
                     } else {
-                        PointUserDeportament::with([$table])
-                            ->where('status', 1)
-                            ->chunk(80000, function ($chunk) use ($sheet, $table) {
-                                $this->fillDefaultData($sheet, $chunk, $table);
-                            });
+                        // Chunk qilib ishlov berish
+                        $tableData->chunk(1000)->each(function ($chunk) use ($sheet, $table) {
+                            $this->fillDefaultData($sheet, $chunk, $table);
+                            
+                            // Xotirani tozalash har bir chunk dan keyin
+                            if (function_exists('gc_collect_cycles')) {
+                                gc_collect_cycles();
+                            }
+                        });
                     }
 
                     $currentProgress += $progressPerTable;
@@ -564,15 +643,20 @@ class ExportInfosController extends Controller
 
                 // Yangi shablonni saqlash
                 $templatePath = storage_path('app/templates/base_template_new.xlsx');
+                if (!file_exists(dirname($templatePath))) {
+                    mkdir(dirname($templatePath), 0755, true);
+                }
                 $templateWriter = new Xlsx($spreadsheet);
                 $templateWriter->save($templatePath);
                 $this->sendUpdate('Yangi shablon saqlandi', 90);
 
                 $this->sendUpdate('Excel fayl tayyorlanmoqda...', 95);
-                $filename = 'all_data_' . time() . '.xlsx';
+                $filename = 'all_data_' . date('Y-m-d_H-i-s') . '.xlsx';
                 $path = storage_path('app/public/' . $filename);
 
+                // Excel yozuvchi optimizatsiyasi
                 $writer = new Xlsx($spreadsheet);
+                $writer->setPreCalculateFormulas(false);
                 $writer->save($path);
 
                 $this->sendUpdate('Excel fayl saqlandi va u endi yuklab olinadi, 1-3 minut kuting...', 98);
@@ -586,9 +670,18 @@ class ExportInfosController extends Controller
                 // Faylni o'chirish
                 unlink($path);
 
+                // Xotirani tozalash
+                unset($spreadsheet);
+                unset($fileContent);
+                if (function_exists('gc_collect_cycles')) {
+                    gc_collect_cycles();
+                }
+
                 $this->sendUpdate('Yuklash tugadi', 100);
             } catch (\Exception $e) {
                 $this->sendUpdate('Xatolik yuz berdi: ' . $e->getMessage(), 100);
+                Log::error('Excel Export Error: ' . $e->getMessage());
+                Log::error('Excel Export Trace: ' . $e->getTraceAsString());
             }
         }, 200, [
             'Content-Type' => 'text/event-stream',
@@ -639,6 +732,9 @@ class ExportInfosController extends Controller
         $headerCount = isset($this->tableHeaders[$tableName]) ? count($this->tableHeaders[$tableName]) : 10;
         $lastColumn = chr(64 + $headerCount); // ASCII code: A = 65, B = 66, etc.
         $sheet->mergeCells('A1:' . $lastColumn . '1');
+        
+        // Pust qator qo'shish (A2)
+        $sheet->setCellValue('A2', '');
 
         // Sarlavha stili
         $sheet->getStyle('A1:' . $lastColumn . '1')->applyFromArray([
@@ -662,11 +758,17 @@ class ExportInfosController extends Controller
         // Ustun sarlavhalari
         if (isset($this->tableHeaders[$tableName])) {
             $headers = $this->tableHeaders[$tableName];
-            $row = 1; // Ustun sarlavhalari qatori
+            $row = 3; // Ustun sarlavhalari qatori (jadval nomidan keyin)
             $maxRowHeight = 40; // Minimum qator balandligi
 
             foreach ($headers as $column => $header) {
                 $sheet->setCellValue($column . $row, $header);
+                
+                // № ustuni uchun maxsus formatlash
+                if ($column === 'A') {
+                    $sheet->getColumnDimension($column)->setWidth(10);
+                    $sheet->getStyle($column . $row)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                }
 
                 // Ustun kengligini satr uzunligiga qarab kattalashtirib berish
                 // Har bir belgi uchun o'rtacha 8 piksel, qo'shimcha 40 piksel (20px*2 padding)
@@ -690,7 +792,8 @@ class ExportInfosController extends Controller
                     'font' => [
                         'bold' => true,
                         'name' => 'Times New Roman',
-                        'size' => 10,
+                        'size' => 11,
+                        'color' => ['argb' => 'FF000000'],
                     ],
                     'alignment' => [
                         'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
@@ -700,22 +803,43 @@ class ExportInfosController extends Controller
                     ],
                     'borders' => [
                         'allBorders' => [
-                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                            'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK,
                             'color' => ['argb' => 'FF000000'],
                         ],
                     ],
                     'fill' => [
                         'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
-                        'startColor' => ['argb' => 'FFEEEEEE'],
+                        'startColor' => ['argb' => 'FFD9D9D9'], // Yanada aniq kulrang
                     ],
                 ]);
             }
 
             // Header qatorining balandligini o'rnatish
             $sheet->getRowDimension($row)->setRowHeight($maxRowHeight);
+            
+            // Butun header qatoriga stil berish
+            $headerRange = 'A' . $row . ':' . $lastColumn . $row;
+            $sheet->getStyle($headerRange)->applyFromArray([
+                'font' => [
+                    'bold' => true,
+                    'name' => 'Times New Roman',
+                    'size' => 11,
+                    'color' => ['argb' => 'FF000000'],
+                ],
+                'fill' => [
+                    'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                    'startColor' => ['argb' => 'FFD9D9D9'],
+                ],
+                'borders' => [
+                    'allBorders' => [
+                        'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THICK,
+                        'color' => ['argb' => 'FF000000'],
+                    ],
+                ],
+            ]);
 
-            // Ma'lumotlar tushadigan joyni belgilash (7-qatordan boshlab)
-            $sheet->getStyle('A7')->getFont()->setBold(true);
+            // Ma'lumotlar tushadigan joyni belgilash (5-qatordan boshlab)
+            $sheet->getStyle('A5')->getFont()->setBold(true);
         }
 
         // Umumiy still o'rnatish
@@ -723,12 +847,19 @@ class ExportInfosController extends Controller
         $sheet->getStyle($range)->getFont()->setName('Times New Roman');
 
         // Qo'shimcha formatlash - hamma ustunlarda matn o'raladi va padding qo'shiladi
-        for ($i = 7; $i <= 100; $i++) {
+        for ($i = 5; $i <= 100; $i++) {
             for ($col = 'A'; $col <= $lastColumn; $col++) {
                 $sheet->getStyle($col . $i)->getAlignment()->setWrapText(true);
                 $sheet->getStyle($col . $i)->getAlignment()->setVertical(\PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER);
-                $sheet->getStyle($col . $i)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
-                $sheet->getStyle($col . $i)->getAlignment()->setIndent(2); // Matnga padding qo'shish (~20px)
+                
+                // Birinchi ustun (№) uchun maxsus formatlash
+                if ($col === 'A') {
+                    $sheet->getStyle($col . $i)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
+                    $sheet->getStyle($col . $i)->getAlignment()->setIndent(0); // № ustuni uchun padding yo'q
+                } else {
+                    $sheet->getStyle($col . $i)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_LEFT);
+                    $sheet->getStyle($col . $i)->getAlignment()->setIndent(2); // Matnga padding qo'shish (~20px)
+                }
 
                 // Har bir qatorga chegaralar qo'shish
                 $sheet->getStyle($col . $i)->applyFromArray([
@@ -744,8 +875,13 @@ class ExportInfosController extends Controller
             $sheet->getRowDimension($i)->setRowHeight(30);
         }
 
-        // Birinchi ustun (№) kengligini o'rnatish
-        $sheet->getColumnDimension('A')->setWidth(5);
+        // Birinchi ustun (№) kengligini o'rnatish - raqamlar uchun kengaytirildi
+        $sheet->getColumnDimension('A')->setWidth(10);
+        
+        // № ustuni uchun raqam formatini o'rnatish
+        $numberRange = 'A5:A1000';
+        $sheet->getStyle($numberRange)->getNumberFormat()->setFormatCode('0');
+        $sheet->getStyle($numberRange)->getAlignment()->setHorizontal(\PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER);
 
         // Kafedra nomi ustuni kengligini o'rnatish
         $sheet->getColumnDimension('B')->setWidth(30);
@@ -757,7 +893,7 @@ class ExportInfosController extends Controller
         $sheet->getSheetView()->setZoomScale(85); // 85% zoom
 
         // Birinchi qator va ustun muzlatish
-        $sheet->freezePane('A7');
+        $sheet->freezePane('A4');
     }
 
     private function sendUpdate($message, $progress)
@@ -842,10 +978,8 @@ class ExportInfosController extends Controller
 
     private function fillTable2Data($sheet, $pointUserDeportaments)
     {
-        $this->manageMemory(function ($sheet, $chunk) {
-            $tableData = new Table_2_DataCode();
-            $tableData->exportTableData($sheet, $chunk);
-        }, $sheet, $pointUserDeportaments);
+        $tableData = new Table_2_DataCode();
+        $tableData->exportTableData($sheet, $pointUserDeportaments);
     }
 
     private function fillTable3Data($sheet, $pointUserDeportaments)
@@ -864,28 +998,34 @@ class ExportInfosController extends Controller
         }, $sheet, $pointUserDeportaments);
     }
 
+    private function fillTable5Data($sheet, $pointUserDeportaments)
+    {
+        $tableData = new Table_5_DataCode();
+        $tableData->exportTableData($sheet, $pointUserDeportaments);
+    }
+
+    private function fillTable6Data($sheet, $pointUserDeportaments)
+    {
+        $tableData = new Table_6_DataCode();
+        $tableData->exportTableData($sheet, $pointUserDeportaments);
+    }
+
     private function fillTable7Data($sheet, $pointUserDeportaments)
     {
-        $this->manageMemory(function ($sheet, $chunk) {
-            $tableData = new Table_7_DataCode();
-            $tableData->exportTableData($sheet, $chunk);
-        }, $sheet, $pointUserDeportaments);
+        $tableData = new Table_7_DataCode();
+        $tableData->exportTableData($sheet, $pointUserDeportaments);
     }
 
     private function fillTable81Data($sheet, $pointUserDeportaments)
     {
-        $this->manageMemory(function ($sheet, $chunk) {
-            $tableData = new Table_8_1_DataCode();
-            $tableData->exportTableData($sheet, $chunk);
-        }, $sheet, $pointUserDeportaments);
+        $tableData = new Table_8_1_DataCode();
+        $tableData->exportTableData($sheet, $pointUserDeportaments);
     }
 
     private function fillTable82Data($sheet, $pointUserDeportaments)
     {
-        $this->manageMemory(function ($sheet, $chunk) {
-            $tableData = new Table_8_2_DataCode();
-            $tableData->exportTableData($sheet, $chunk);
-        }, $sheet, $pointUserDeportaments);
+        $tableData = new Table_8_2_DataCode();
+        $tableData->exportTableData($sheet, $pointUserDeportaments);
     }
 
     private function fillTable91Data($sheet, $pointUserDeportaments)
@@ -950,6 +1090,12 @@ class ExportInfosController extends Controller
             $tableData = new Table_11_3_DataCode();
             $tableData->exportTableData($sheet, $chunk);
         }, $sheet, $pointUserDeportaments);
+    }
+
+    private function fillTable113Data($sheet, $pointUserDeportaments)
+    {
+        $tableData = new Table_11_3_DataCode();
+        $tableData->exportTableData($sheet, $pointUserDeportaments);
     }
 
     private function fillTable12Data($sheet, $pointUserDeportaments)
@@ -1145,9 +1291,9 @@ class ExportInfosController extends Controller
         if ($worksheet) {
             $highestRow = $worksheet->getHighestRow();
             $highestColumn = $worksheet->getHighestColumn();
-            \Log::info("Sheet '$sheetName': Highest row: $highestRow, Highest column: $highestColumn");
+            Log::info("Sheet '$sheetName': Highest row: $highestRow, Highest column: $highestColumn");
         } else {
-            \Log::warning("Sheet '$sheetName' not found in the Excel file.");
+            Log::warning("Sheet '$sheetName' not found in the Excel file.");
         }
     }
 }

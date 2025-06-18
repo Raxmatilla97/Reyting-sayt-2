@@ -10,7 +10,7 @@ class Table_21_2_DataCode
 {
     public function exportTableData($sheet, $pointUserDeportaments)
     {
-        $row = 7; // Ma'lumotlar yozilishi kerak bo'lgan boshlang'ich qator
+        $row = 5; // Ma'lumotlar yozilishi kerak bo'lgan boshlang'ich qator
         $writtenRows = 0;
         $orderNumber = 1; // Tartib raqami uchun o'zgaruvchi
 
