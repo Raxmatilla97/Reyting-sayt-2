@@ -6,24 +6,24 @@ use Illuminate\Support\Facades\Log;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 
-class Table_9_1_DataCode
+class Table_6_DataCode
 {
     public function exportTableData($sheet, $pointUserDeportaments)
     {
-        $row = 7; // Ma'lumotlar yozilishi kerak bo'lgan boshlang'ich qator
+        $row = 5; // Ma'lumotlar yozilishi kerak bo'lgan boshlang'ich qator
         $writtenRows = 0;
         $orderNumber = 1; // Tartib raqami uchun o'zgaruvchi
 
         // Shriftlarini o'zgartirish
-        $sheet->getStyle('A1:K1000')->getFont()->setName('Times New Roman');
+        $sheet->getStyle('A1:I1000')->getFont()->setName('Times New Roman');
 
         // Tartib raqam qo'shish
         $sheet->getStyle('A2')->getFont()->setBold(true);
 
         foreach ($pointUserDeportaments as $pointEntry) {
-            $table_9_1_record = $pointEntry->table_9_1; // Tablitsiya relation to'g'ri formatda
+            $table_6_record = $pointEntry->table_6; // Tablitsiya relation
 
-            if ($table_9_1_record) {
+            if ($table_6_record) {
                 try {
                     // Raqam qo'yish
                     $sheet->setCellValue('A' . $row, $orderNumber);
@@ -35,24 +35,29 @@ class Table_9_1_DataCode
                     $formattedName = ucwords(strtolower($fullName));
                     $sheet->setCellValue('C' . $row, $formattedName);
 
-                    $sheet->setCellValue('D' . $row, $table_9_1_record->shifr_nomi ?? 'N/A');
-                    $sheet->setCellValue('E' . $row, $table_9_1_record->mualliflar ?? 'N/A');
-                    $sheet->setCellValue('F' . $row, $table_9_1_record->mualliflar_soni ?? 'N/A');
-                    $sheet->setCellValue('G' . $row, $table_9_1_record->monografiya_nomi ?? 'N/A');
-                    $sheet->setCellValue('H' . $row, $table_9_1_record->kengash_bayoni_sana ?? 'N/A');
-                    $sheet->setCellValue('I' . $row, $table_9_1_record->Nashiryot_nomi ?? 'N/A');
-                    $sheet->setCellValue('J' . $row, $table_9_1_record->doi_raqami ?? 'N/A');
-                    $sheet->setCellValue('K' . $row, $table_9_1_record->scopus_link_url ?? 'N/A');
+                    $sheet->setCellValue('D' . $row, $table_6_record->xorijiy_davlat_nomi ?? 'N/A');
+                    $sheet->setCellValue('E' . $row, $table_6_record->xorijiy_otm_nomi ?? 'N/A');
+                    $sheet->setCellValue('F' . $row, $table_6_record->mutaxasisligi ?? 'N/A');
+                    $sheet->setCellValue('G' . $row, $table_6_record->faoliyat_nomi ?? 'N/A');
+                    $sheet->setCellValue('H' . $row, $table_6_record->muddati_sana ?? 'N/A');
 
-                    if ($table_9_1_record->asos_file) {
-                        $sheet->setCellValue('L' . $row, 'Yuklash');
-                        $sheet->getCell('L' . $row)->getHyperlink()->setUrl(asset('storage/' . $table_9_1_record->asos_file));
+                    if ($table_6_record->asos_file) {
+                        $sheet->setCellValue('I' . $row, 'Yuklash');
+                        $sheet->getCell('I' . $row)->getHyperlink()->setUrl(asset('storage/' . $table_6_record->asos_file));
                     } else {
-                        $sheet->setCellValue('L' . $row, 'N/A');
+                        $sheet->setCellValue('I' . $row, 'N/A');
                     }
 
+                    if ($table_6_record->asos_file2) {
+                        $sheet->setCellValue('J' . $row, 'Yuklash');
+                        $sheet->getCell('J' . $row)->getHyperlink()->setUrl(asset('storage/' . $table_6_record->asos_file));
+                    } else {
+                        $sheet->setCellValue('J' . $row, 'N/A');
+                    }
+
+
                     // Column stillari
-                    $cellRange = 'A'.$row.':L'.$row;
+                    $cellRange = 'A'.$row.':J'.$row;
                     $sheet->getStyle($cellRange)->applyFromArray([
                         'borders' => [
                             'allBorders' => [
@@ -80,11 +85,11 @@ class Table_9_1_DataCode
             }
         }
 
-        // Auto-size FALSE - eng oxirgi ustun L
-        foreach(range('A','L') as $column) {
+        // Auto-size FALSE
+        foreach(range('A','J') as $column) {
             $sheet->getColumnDimension($column)->setAutoSize(false);
         }
 
-        // Log::info("Total rows written to table_9_1: $writtenRows");
+        // Log::info("Total rows written to table_6: $writtenRows");
     }
 }
