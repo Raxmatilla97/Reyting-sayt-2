@@ -35,11 +35,11 @@ class Table_5_DataCode
                     $formattedName = ucwords(strtolower($fullName));
                     $sheet->setCellValue('C' . $row, $formattedName);
 
-                    $sheet->setCellValue('D' . $row, $table_5_record->ixtisoslik_shifri_va_nomi ?? 'N/A');
-                    $sheet->setCellValue('E' . $row, $table_5_record->qollanma_mualliflar_soni ?? 'N/A');
-                    $sheet->setCellValue('F' . $row, $table_5_record->qollanma_nomi ?? 'N/A');
-                    $sheet->setCellValue('G' . $row, $table_5_record->guvohnoma_raqami_va_sanasi ?? 'N/A');
-                    $sheet->setCellValue('H' . $row, $table_5_record->qollanma_reestr_raqami ?? 'N/A');
+                    $sheet->setCellValue('D' . $row, $table_5_record->ixtisoslik_shifr_nomi ?? 'N/A');
+                    $sheet->setCellValue('E' . $row, $table_5_record->oquv_mualliflar_soni ?? 'N/A');
+                    $sheet->setCellValue('F' . $row, $table_5_record->oquv_qollanma_nomi ?? 'N/A');
+                    $sheet->setCellValue('G' . $row, $table_5_record->guvohnoma_raqam_sana ?? 'N/A');
+                    $sheet->setCellValue('H' . $row, $table_5_record->reestr_raqami ?? 'N/A');
 
                     if ($table_5_record->asos_file) {
                         $sheet->setCellValue('I' . $row, 'Yuklash');
