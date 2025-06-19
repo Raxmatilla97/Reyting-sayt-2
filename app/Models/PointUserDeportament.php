@@ -178,8 +178,9 @@ class PointUserDeportament extends Model
                             $currentPriority = $priorityOrder[$currentTableType] ?? 999;
                             $otherPriority = $priorityOrder[$otherTableType] ?? 999;
 
-                            // Faqat past prioritetli tablelarni ta'sir qilish (yuqori prioritetli tablela ta'sir qilmaydi)
-                            if ($currentPriority >= $otherPriority) continue;
+                            // Faqat yuqori prioritetli tablelar past prioritetli tablelarga ta'sir qiladi
+                            // (kichik raqam = yuqori prioritet, katta raqam = past prioritet)
+                            if ($currentPriority > $otherPriority) continue;
 
                             $otherRelatedData = self::getRelatedDataForModel($otherRecord, $otherTableType);
 
@@ -265,8 +266,9 @@ class PointUserDeportament extends Model
                             $currentPriority = $priorityOrder[$currentTableType] ?? 999;
                             $otherPriority = $priorityOrder[$otherTableType] ?? 999;
 
-                            // Faqat past prioritetli tablelarni ta'sir qilish (yuqori prioritetli tablela ta'sir qilmaydi)
-                            if ($currentPriority >= $otherPriority) continue;
+                            // Faqat yuqori prioritetli tablelar past prioritetli tablelarga ta'sir qiladi
+                            // (kichik raqam = yuqori prioritet, katta raqam = past prioritet)
+                            if ($currentPriority > $otherPriority) continue;
 
                             $otherRelatedData = self::getRelatedDataForModel($otherRecord, $otherTableType);
 

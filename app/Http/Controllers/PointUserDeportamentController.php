@@ -524,8 +524,9 @@ class PointUserDeportamentController extends Controller
                             $currentPriority = $priorityOrder[$currentTable11Type] ?? 999;
                             $otherPriority = $priorityOrder[$otherTableType] ?? 999;
 
-                            // Faqat past prioritetli tablelarni ta'sir qilish (yuqori prioritetli tablela ta'sir qilmaydi)
-                            if ($currentPriority >= $otherPriority) continue;
+                            // Faqat yuqori prioritetli tablelar past prioritetli tablelarga ta'sir qiladi
+                            // (kichik raqam = yuqori prioritet, katta raqam = past prioritet)
+                            if ($currentPriority > $otherPriority) continue;
 
                             $otherRelatedData = $this->getRelatedDataForController($record, $otherTableType);
 
@@ -595,8 +596,9 @@ class PointUserDeportamentController extends Controller
                             $currentPriority = $priorityOrder[$currentTable20Type] ?? 999;
                             $otherPriority = $priorityOrder[$otherTableType] ?? 999;
 
-                            // Faqat past prioritetli tablelarni ta'sir qilish (yuqori prioritetli tablela ta'sir qilmaydi)
-                            if ($currentPriority >= $otherPriority) continue;
+                            // Faqat yuqori prioritetli tablelar past prioritetli tablelarga ta'sir qiladi
+                            // (kichik raqam = yuqori prioritet, katta raqam = past prioritet)
+                            if ($currentPriority > $otherPriority) continue;
 
                             $otherRelatedData = $this->getRelatedDataForController($record, $otherTableType);
 
