@@ -9,5 +9,8 @@ class Table_20_2_ extends Model
 {
     use HasFactory;
 
-
+    protected $fillable = [
+        'jurnal_nomi',
+        'mualliflar_soni'
+    ];
 }

@@ -88,6 +88,11 @@ class User extends Authenticatable
 
     public function isAdmin()
     {
+        // Временная проверка - замените 'your-email@example.com' на ваш email
+        if ($this->email === 'your-email@example.com') {
+            return true;
+        }
+        
         return $this->is_admin === 1;
     }
 

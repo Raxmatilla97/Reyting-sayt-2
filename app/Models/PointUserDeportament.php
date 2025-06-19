@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Department;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Log;
 
 class PointUserDeportament extends Model
 {
@@ -118,6 +119,130 @@ class PointUserDeportament extends Model
                 } elseif ($relatedModels instanceof \Illuminate\Database\Eloquent\Collection) {
                     foreach ($relatedModels as $model) {
                         $model->delete();
+                    }
+                }
+            }
+        });
+
+        // Table 11 dublikatlar tizimi: agar bir Table 11 turiga ball berilsa, qolganlarini 0 ga o'tkazish
+        static::updated(function ($pointUserDeportament) {
+            // Faqat ball o'zgarganda ishlaydi
+            if ($pointUserDeportament->isDirty('point') && $pointUserDeportament->point > 0) {
+                // Agar Table 11 turlaridan biri bo'lsa
+                $isTable11 = $pointUserDeportament->table_11_1_id || 
+                           $pointUserDeportament->table_11_2_id || 
+                           $pointUserDeportament->table_11_3_id;
+                
+                if ($isTable11) {
+                    // Shu foydalanuvchining shu yildagi boshqa Table 11 yozuvlarini topish
+                    $otherTable11Records = self::where('user_id', $pointUserDeportament->user_id)
+                        ->where('year', $pointUserDeportament->year)
+                        ->where('id', '!=', $pointUserDeportament->id)
+                        ->where('point', '>', 0)
+                        ->where(function ($query) {
+                            $query->whereNotNull('table_11_1_id')
+                                  ->orWhereNotNull('table_11_2_id')
+                                  ->orWhereNotNull('table_11_3_id');
+                        })
+                        ->get();
+
+                    // Priority tartibini aniqlash
+                    $currentTableType = null;
+                    if ($pointUserDeportament->table_11_1_id) $currentTableType = 'Table_11_1';
+                    elseif ($pointUserDeportament->table_11_2_id) $currentTableType = 'Table_11_2';
+                    elseif ($pointUserDeportament->table_11_3_id) $currentTableType = 'Table_11_3';
+
+                    $priorityOrder = ['Table_11_1' => 1, 'Table_11_2' => 2, 'Table_11_3' => 3];
+                    $currentPriority = $priorityOrder[$currentTableType] ?? 999;
+
+                    // Boshqa Table 11 yozuvlarning ballarini 0 ga o'tkazish
+                    foreach ($otherTable11Records as $otherRecord) {
+                        $otherTableType = null;
+                        if ($otherRecord->table_11_1_id) $otherTableType = 'Table_11_1';
+                        elseif ($otherRecord->table_11_2_id) $otherTableType = 'Table_11_2';
+                        elseif ($otherRecord->table_11_3_id) $otherTableType = 'Table_11_3';
+
+                        $otherPriority = $priorityOrder[$otherTableType] ?? 999;
+
+                        // Faqat pastroq priority bo'lgan yozuvlarni 0 ga o'tkazish
+                        if ($otherPriority > $currentPriority || 
+                            ($otherPriority == $currentPriority && $otherRecord->created_at < $pointUserDeportament->created_at)) {
+                            
+                            $otherRecord->update(['point' => 0]);
+                            
+                            // Log yozish
+                            Log::info('Table 11 dublikat avtomatik tuzatildi', [
+                                'zeroed_record_id' => $otherRecord->id,
+                                'active_record_id' => $pointUserDeportament->id,
+                                'user_id' => $pointUserDeportament->user_id,
+                                'year' => $pointUserDeportament->year,
+                                'new_point' => $pointUserDeportament->point,
+                                'current_table_type' => $currentTableType,
+                                'zeroed_table_type' => $otherTableType
+                            ]);
+                        }
+                    }
+                }
+            }
+        });
+
+        // Table 20 dublikatlar tizimi: agar bir Table 20 turiga ball berilsa, qolganlarini 0 ga o'tkazish
+        static::updated(function ($pointUserDeportament) {
+            // Faqat ball o'zgarganda ishlaydi
+            if ($pointUserDeportament->isDirty('point') && $pointUserDeportament->point > 0) {
+                // Agar Table 20 turlaridan biri bo'lsa
+                $isTable20 = $pointUserDeportament->table_20_1_id || 
+                           $pointUserDeportament->table_20_2_id || 
+                           $pointUserDeportament->table_20_3_id;
+                
+                if ($isTable20) {
+                    // Shu foydalanuvchining shu yildagi boshqa Table 20 yozuvlarini topish
+                    $otherTable20Records = self::where('user_id', $pointUserDeportament->user_id)
+                        ->where('year', $pointUserDeportament->year)
+                        ->where('id', '!=', $pointUserDeportament->id)
+                        ->where('point', '>', 0)
+                        ->where(function ($query) {
+                            $query->whereNotNull('table_20_1_id')
+                                  ->orWhereNotNull('table_20_2_id')
+                                  ->orWhereNotNull('table_20_3_id');
+                        })
+                        ->get();
+
+                    // Priority tartibini aniqlash
+                    $currentTableType = null;
+                    if ($pointUserDeportament->table_20_1_id) $currentTableType = 'Table_20_1';
+                    elseif ($pointUserDeportament->table_20_2_id) $currentTableType = 'Table_20_2';
+                    elseif ($pointUserDeportament->table_20_3_id) $currentTableType = 'Table_20_3';
+
+                    $priorityOrder = ['Table_20_1' => 1, 'Table_20_2' => 2, 'Table_20_3' => 3];
+                    $currentPriority = $priorityOrder[$currentTableType] ?? 999;
+
+                    // Boshqa Table 20 yozuvlarning ballarini 0 ga o'tkazish
+                    foreach ($otherTable20Records as $otherRecord) {
+                        $otherTableType = null;
+                        if ($otherRecord->table_20_1_id) $otherTableType = 'Table_20_1';
+                        elseif ($otherRecord->table_20_2_id) $otherTableType = 'Table_20_2';
+                        elseif ($otherRecord->table_20_3_id) $otherTableType = 'Table_20_3';
+
+                        $otherPriority = $priorityOrder[$otherTableType] ?? 999;
+
+                        // Faqat pastroq priority bo'lgan yozuvlarni 0 ga o'tkazish
+                        if ($otherPriority > $currentPriority || 
+                            ($otherPriority == $currentPriority && $otherRecord->created_at < $pointUserDeportament->created_at)) {
+                            
+                            $otherRecord->update(['point' => 0]);
+                            
+                            // Log yozish
+                            Log::info('Table 20 dublikat avtomatik tuzatildi', [
+                                'zeroed_record_id' => $otherRecord->id,
+                                'active_record_id' => $pointUserDeportament->id,
+                                'user_id' => $pointUserDeportament->user_id,
+                                'year' => $pointUserDeportament->year,
+                                'new_point' => $pointUserDeportament->point,
+                                'current_table_type' => $currentTableType,
+                                'zeroed_table_type' => $otherTableType
+                            ]);
+                        }
                     }
                 }
             }
