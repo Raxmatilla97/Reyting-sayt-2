@@ -37,7 +37,7 @@
                                 Aktiv: {{ \App\Models\Employee::where('status', 1)->count() }}
                             </span>
                         </div>
-
+                        @if(auth()->user()->isAdmin())
                         <div class="flex items-center">
                             <span
                                 class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
@@ -45,6 +45,7 @@
                                 Aktiv emas: {{ \App\Models\Employee::where('status', 0)->count() }}
                             </span>
                         </div>
+                        @endif
                     </div>
                 </div>
                 <!-- Search Bar -->
