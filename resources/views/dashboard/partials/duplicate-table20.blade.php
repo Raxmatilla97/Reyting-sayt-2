@@ -82,10 +82,17 @@
                         <p><strong class="text-green-800">Ball:</strong> 
                             <span class="font-bold text-green-700 bg-green-100 px-2 py-1 rounded">{{ $record['point'] }}</span>
                         </p>
-                        <p class="text-xs text-gray-600 bg-gray-100 p-1 rounded">
-                            <i class="fas fa-clock mr-1"></i>
-                            Qo'shilgan: {{ \Carbon\Carbon::parse($record['created_at'])->format('d.m.Y H:i') }}
-                        </p>
+                        <div class="flex items-center justify-between text-xs text-gray-600 bg-gray-100 p-1 rounded">
+                            <span>
+                                <i class="fas fa-clock mr-1"></i>
+                                Qo'shilgan: {{ \Carbon\Carbon::parse($record['created_at'])->format('d.m.Y H:i') }}
+                            </span>
+                            <a href="{{ route('murojatlar.show', ['id' => $record['id']]) }}" 
+                               target="_blank" 
+                               class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs transition-all duration-200">
+                                <i class="fas fa-external-link-alt mr-1"></i>Ko'rish
+                            </a>
+                        </div>
                     </div>
                 </div>
                 @endforeach

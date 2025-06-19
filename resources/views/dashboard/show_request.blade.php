@@ -768,6 +768,325 @@
                                                         </div>
                                                     </li>
                                                     @endif
+                                                    @if(isset($hasTable14SimilarData) && $hasTable14SimilarData)
+                                                    <li class="text-purple-600 font-semibold mt-2 w-full">
+                                                        <div class="bg-purple-50 border-l-4 border-purple-400 p-4 rounded w-full">
+                                                            <div class="flex w-full">
+                                                                <div class="flex-shrink-0">
+                                                                    <svg class="h-5 w-5 text-purple-400" viewBox="0 0 20 20" fill="currentColor">
+                                                                        <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                                                    </svg>
+                                                                </div>
+                                                                <div class="ml-3 w-full">
+                                                                    <h3 class="text-sm font-medium text-purple-800">
+                                                                        Table 14 o'xshash ma'lumotlar topildi!
+                                                                    </h3>
+                                                                    <div class="mt-2 text-sm text-purple-700 w-full">
+                                                                        <p class="mb-3 w-full"><strong>Joriy tekshirilayotgan ma'lumot:</strong> {{ $currentTable14Type }} tipida</p>
+                                                                        
+                                                                        <div class="mb-4 w-full">
+                                                                            <h4 class="font-semibold text-purple-800 mb-2">🔍 Tasdiqlangan o'xshash ma'lumotlar topildi:</h4>
+                                                                            @foreach($table14SimilarData as $index => $similarItem)
+                                                                            <div class="border rounded-lg p-3 mb-3 shadow-sm w-full
+                                                                                @if($similarItem['is_fixed']) 
+                                                                                    bg-gray-50 border-gray-300 opacity-70
+                                                                                @elseif($similarItem['has_points']) 
+                                                                                    bg-red-50 border-red-300
+                                                                                @else 
+                                                                                    bg-green-50 border-green-300
+                                                                                @endif">
+                                                                                
+                                                                                <div class="flex justify-between items-start mb-2 w-full">
+                                                                                    <div class="flex items-center space-x-2">
+                                                                                        <span class="bg-{{ $similarItem['table_type'] == 'table_14_1' ? 'red' : 'blue' }}-100 text-{{ $similarItem['table_type'] == 'table_14_1' ? 'red' : 'blue' }}-800 px-2 py-1 rounded text-xs font-medium">
+                                                                                            {{ $similarItem['table_type'] }}
+                                                                                        </span>
+                                                                                        
+                                                                                        @if($similarItem['cannot_fix'])
+                                                                                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold flex items-center">
+                                                                                                ⚡ TUZATA OLMAYDI (Yuqori prioritet)
+                                                                                            </span>
+                                                                                        @elseif($similarItem['is_fixed'])
+                                                                                            <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold flex items-center">
+                                                                                                ✅ TUZATILDI (0.10 kafedra)
+                                                                                            </span>
+                                                                                        @elseif($similarItem['has_points'])
+                                                                                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-bold flex items-center">
+                                                                                                ⚠️ {{ $similarItem['point'] }} ball berilgan!
+                                                                                            </span>
+                                                                                        @else
+                                                                                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold flex items-center">
+                                                                                                ✅ 0 ball (Xavfsiz)
+                                                                                            </span>
+                                                                                        @endif
+                                                                                    </div>
+                                                                                    
+                                                                                    <div class="text-right text-xs text-gray-500">
+                                                                                        {{ $similarItem['created_at'] }}
+                                                                                    </div>
+                                                                                </div>
+                                                                                
+                                                                                <div class="space-y-1 text-sm mb-3 w-full">
+                                                                                    <div class="bg-white p-2 rounded border w-full">
+                                                                                        <strong class="text-gray-700">Tezis nomi:</strong> 
+                                                                                        <span class="text-gray-900">{{ $similarItem['tezis_nomi'] }}</span>
+                                                                                    </div>
+                                                                                    <div class="bg-white p-2 rounded border w-full">
+                                                                                        <strong class="text-gray-700">Konferensiya/Seminar:</strong> 
+                                                                                        <span class="text-gray-900">{{ $similarItem['konf_seminar_nomi'] }}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                                
+                                                                                <div class="border-t pt-2 w-full">
+                                                                                    <div class="flex justify-between items-center flex-wrap gap-2">
+                                                                                        <div class="flex flex-wrap gap-1 text-xs">
+                                                                                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                                                                                Tezis: {{ $similarItem['similarity']['tezis_similarity'] }}%
+                                                                                            </span>
+                                                                                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                                                                                                Konferensiya: {{ $similarItem['similarity']['conference_similarity'] }}%
+                                                                                            </span>
+                                                                                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded font-bold">
+                                                                                                UMUMIY: {{ round($similarItem['similarity_score'] * 100, 1) }}%
+                                                                                            </span>
+                                                                                        </div>
+                                                                                        
+                                                                                        <a href="{{ route('murojatlar.show', $similarItem['id']) }}" 
+                                                                                           class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded font-medium">
+                                                                                            Batafsil ko'rish
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                        
+                                                                        <div class="mt-3 p-4 bg-red-50 border-l-4 border-red-400 rounded-r w-full">
+                                                                            <div class="flex w-full">
+                                                                                <div class="ml-2 w-full">
+                                                                                    <p class="text-red-800 font-semibold text-sm mb-2">
+                                                                                        ⚠️ MUHIM OGOHLANTIRISH
+                                                                                    </p>
+                                                                                    <div class="text-red-700 text-sm space-y-2 w-full">
+                                                                                        @php
+                                                                                            $hasPointsItems14 = collect($table14SimilarData)->where('has_points', true)->where('cannot_fix', false);
+                                                                                            $noPointsItems14 = collect($table14SimilarData)->where('has_points', false)->where('is_fixed', false)->where('cannot_fix', false);
+                                                                                            $fixedItems14 = collect($table14SimilarData)->where('is_fixed', true);
+                                                                                            $cannotFixItems14 = collect($table14SimilarData)->where('cannot_fix', true);
+                                                                                        @endphp
+                                                                                        
+                                                                                        @if($hasPointsItems14->count() > 0)
+                                                                                            <div class="bg-red-100 p-3 rounded border border-red-300 w-full">
+                                                                                                <p class="font-bold text-red-800">🚨 XAVFLI HOLAT:</p>
+                                                                                                <p>• Yuqorida <strong>{{ $hasPointsItems14->count() }}</strong> ta o'xshash ma'lumot topildi va ularga <strong>ball berilgan</strong></p>
+                                                                                                <p>• Agar bu ma'lumotni tasdiqlasangiz, o'sha ballari mavjud ma'lumotlar <strong>0 ball</strong> ga o'zgaradi</p>
+                                                                                                <p>• Jami yo'qotiladigan ball: <strong>{{ $hasPointsItems14->sum('point') }}</strong></p>
+                                                                                            </div>
+                                                                                        @endif
+                                                                                        
+                                                                                        @if($noPointsItems14->count() > 0)
+                                                                                            <div class="bg-green-100 p-3 rounded border border-green-300 w-full">
+                                                                                                <p class="font-bold text-green-800">✅ XAVFSIZ HOLAT:</p>
+                                                                                                <p class="text-green-800">• <strong>{{ $noPointsItems14->count() }}</strong> ta o'xshash ma'lumot topildi lekin ularga ball berilmagan (0 ball)</p>
+                                                                                                <p class="text-green-800">• Bu ma'lumotlarni tasdiqlash xavfsiz chunki o'xshash ma'lumotlarga oldin ball berilmagan</p>
+                                                                                            </div>
+                                                                                        @endif
+                                                                                        
+                                                                                        @if($fixedItems14->count() > 0)
+                                                                                            <div class="bg-blue-100 p-3 rounded border border-blue-300 w-full">
+                                                                                                <p class="font-bold text-blue-800">ℹ️ TUZATILGAN DUBLIKATLAR:</p>
+                                                                                                <p class="text-blue-800">• <strong>{{ $fixedItems14->count() }}</strong> ta dublikat allaqachon tuzatilgan (0.10 kafedra bali berilgan)</p>
+                                                                                                <p class="text-blue-800">• Bu ma'lumotlar avtomatik tuzatish jarayonida o'zgartirilgan</p>
+                                                                                            </div>
+                                                                                        @endif
+                                                                                        
+                                                                                        @if($cannotFixItems14->count() > 0)
+                                                                                            <div class="bg-yellow-100 p-3 rounded border border-yellow-300 w-full">
+                                                                                                <p class="font-bold text-yellow-800">⚡ TUZATA OLMAYDIGAN DUBLIKATLAR:</p>
+                                                                                                <p class="text-yellow-800">• <strong>{{ $cannotFixItems14->count() }}</strong> ta yuqori prioritetli ma'lumot topildi</p>
+                                                                                                <p class="text-yellow-800">• Bu ma'lumotlar yuqori prioritetga ega bo'lgani uchun ularni tuzata olmaysiz</p>
+                                                                                                <p class="text-yellow-800">• Faqat {{ $currentTable14Type }} dan yuqori prioritetli tablelar (table_14_1) tuzata olmaydi</p>
+                                                                                            </div>
+                                                                                        @endif
+                                                                                        
+                                                                                        <div class="bg-yellow-100 p-3 rounded border border-yellow-300 w-full">
+                                                                                            <p class="font-bold text-yellow-800">📝 ESLATMA:</p>
+                                                                                            <p>• Bu amal qaytarib bo'lmaydi!</p>
+                                                                                            <p>• Faqat joriy tekshirilayotgan ma'lumotga ball beriladi</p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    @endif
+                                                    @if(isset($hasTable10SimilarData) && $hasTable10SimilarData)
+                                                    <li class="text-blue-600 font-semibold mt-2 w-full">
+                                                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded w-full">
+                                                            <div class="flex w-full">
+                                                                <div class="flex-shrink-0">
+                                                                    <svg class="h-5 w-5 text-blue-400" viewBox="0 0 20 20" fill="currentColor">
+                                                                        <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                                                    </svg>
+                                                                </div>
+                                                                <div class="ml-3 w-full">
+                                                                    <h3 class="text-sm font-medium text-blue-800">
+                                                                        Table 10 o'xshash ma'lumotlar topildi!
+                                                                    </h3>
+                                                                    <div class="mt-2 text-sm text-blue-700 w-full">
+                                                                        <p class="mb-3 w-full"><strong>Joriy tekshirilayotgan ma'lumot:</strong> {{ $currentTable10Type }} tipida</p>
+                                                                        
+                                                                        <div class="mb-4 w-full">
+                                                                            <h4 class="font-semibold text-blue-800 mb-2">🔍 Tasdiqlangan o'xshash ma'lumotlar topildi:</h4>
+                                                                            @foreach($table10SimilarData as $index => $similarItem)
+                                                                            <div class="border rounded-lg p-3 mb-3 shadow-sm w-full
+                                                                                @if($similarItem['is_fixed']) 
+                                                                                    bg-gray-50 border-gray-300 opacity-70
+                                                                                @elseif($similarItem['has_points']) 
+                                                                                    bg-red-50 border-red-300
+                                                                                @else 
+                                                                                    bg-green-50 border-green-300
+                                                                                @endif">
+                                                                                
+                                                                                <div class="flex justify-between items-start mb-2 w-full">
+                                                                                    <div class="flex items-center space-x-2">
+                                                                                        <span class="bg-{{ $similarItem['table_type'] == 'table_10_1' ? 'red' : ($similarItem['table_type'] == 'table_10_2' ? 'blue' : 'purple') }}-100 text-{{ $similarItem['table_type'] == 'table_10_1' ? 'red' : ($similarItem['table_type'] == 'table_10_2' ? 'blue' : 'purple') }}-800 px-2 py-1 rounded text-xs font-medium">
+                                                                                            {{ $similarItem['table_type'] }}
+                                                                                        </span>
+                                                                                        
+                                                                                        @if($similarItem['cannot_fix'])
+                                                                                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded text-xs font-bold flex items-center">
+                                                                                                ⚡ TUZATA OLMAYDI (Yuqori prioritet)
+                                                                                            </span>
+                                                                                        @elseif($similarItem['is_fixed'])
+                                                                                            <span class="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs font-bold flex items-center">
+                                                                                                ✅ TUZATILDI (0.10 kafedra)
+                                                                                            </span>
+                                                                                        @elseif($similarItem['has_points'])
+                                                                                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded text-xs font-bold flex items-center">
+                                                                                                ⚠️ {{ $similarItem['point'] }} ball berilgan!
+                                                                                            </span>
+                                                                                        @else
+                                                                                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs font-bold flex items-center">
+                                                                                                ✅ 0 ball (Xavfsiz)
+                                                                                            </span>
+                                                                                        @endif
+                                                                                    </div>
+                                                                                    
+                                                                                    <div class="text-right text-xs text-gray-500">
+                                                                                        {{ $similarItem['created_at'] }}
+                                                                                    </div>
+                                                                                </div>
+                                                                                
+                                                                                <div class="space-y-1 text-sm mb-3 w-full">
+                                                                                    <div class="bg-white p-2 rounded border w-full">
+                                                                                        <strong class="text-gray-700">Jurnal/Konferensiya:</strong> 
+                                                                                        <span class="text-gray-900">{{ $similarItem['journal_name'] }}</span>
+                                                                                    </div>
+                                                                                    <div class="bg-white p-2 rounded border w-full">
+                                                                                        <strong class="text-gray-700">Maqola nomi:</strong> 
+                                                                                        <span class="text-gray-900">{{ $similarItem['article_name'] }}</span>
+                                                                                    </div>
+                                                                                    <div class="bg-white p-2 rounded border w-full">
+                                                                                        <strong class="text-gray-700">Nashr yili:</strong> 
+                                                                                        <span class="text-gray-900">{{ $similarItem['publish_year'] }}</span>
+                                                                                    </div>
+                                                                                </div>
+                                                                                
+                                                                                <div class="border-t pt-2 w-full">
+                                                                                    <div class="flex justify-between items-center flex-wrap gap-2">
+                                                                                        <div class="flex flex-wrap gap-1 text-xs">
+                                                                                            <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                                                                                Jurnal: {{ $similarItem['similarity']['journal_similarity'] }}%
+                                                                                            </span>
+                                                                                            <span class="bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                                                                                                Maqola: {{ $similarItem['similarity']['article_similarity'] }}%
+                                                                                            </span>
+                                                                                            <span class="bg-green-100 text-green-800 px-2 py-1 rounded">
+                                                                                                Yil: {{ $similarItem['similarity']['year_similarity'] }}%
+                                                                                            </span>
+                                                                                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded font-bold">
+                                                                                                UMUMIY: {{ round($similarItem['similarity_score'] * 100, 1) }}%
+                                                                                            </span>
+                                                                                        </div>
+                                                                                        
+                                                                                        <a href="{{ route('murojatlar.show', $similarItem['id']) }}" 
+                                                                                           class="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded font-medium">
+                                                                                            Batafsil ko'rish
+                                                                                        </a>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            @endforeach
+                                                                        </div>
+                                                                        
+                                                                        <div class="mt-3 p-4 bg-red-50 border-l-4 border-red-400 rounded-r w-full">
+                                                                            <div class="flex w-full">
+                                                                                <div class="ml-2 w-full">
+                                                                                    <p class="text-red-800 font-semibold text-sm mb-2">
+                                                                                        ⚠️ MUHIM OGOHLANTIRISH
+                                                                                    </p>
+                                                                                    <div class="text-red-700 text-sm space-y-2 w-full">
+                                                                                        @php
+                                                                                            $hasPointsItems10 = collect($table10SimilarData)->where('has_points', true)->where('cannot_fix', false);
+                                                                                            $noPointsItems10 = collect($table10SimilarData)->where('has_points', false)->where('is_fixed', false)->where('cannot_fix', false);
+                                                                                            $fixedItems10 = collect($table10SimilarData)->where('is_fixed', true);
+                                                                                            $cannotFixItems10 = collect($table10SimilarData)->where('cannot_fix', true);
+                                                                                        @endphp
+                                                                                        
+                                                                                        @if($hasPointsItems10->count() > 0)
+                                                                                            <div class="bg-red-100 p-3 rounded border border-red-300 w-full">
+                                                                                                <p class="font-bold text-red-800">🚨 XAVFLI HOLAT:</p>
+                                                                                                <p>• Yuqorida <strong>{{ $hasPointsItems10->count() }}</strong> ta o'xshash ma'lumot topildi va ularga <strong>ball berilgan</strong></p>
+                                                                                                <p>• Agar bu ma'lumotni tasdiqlasangiz, o'sha ballari mavjud ma'lumotlar <strong>0 ball</strong> ga o'zgaradi</p>
+                                                                                                <p>• Jami yo'qotiladigan ball: <strong>{{ $hasPointsItems10->sum('point') }}</strong></p>
+                                                                                            </div>
+                                                                                        @endif
+                                                                                        
+                                                                                        @if($noPointsItems10->count() > 0)
+                                                                                            <div class="bg-green-100 p-3 rounded border border-green-300 w-full">
+                                                                                                <p class="font-bold text-green-800">✅ XAVFSIZ HOLAT:</p>
+                                                                                                <p class="text-green-800">• <strong>{{ $noPointsItems10->count() }}</strong> ta o'xshash ma'lumot topildi lekin ularga ball berilmagan (0 ball)</p>
+                                                                                                <p class="text-green-800">• Bu ma'lumotlarni tasdiqlash xavfsiz chunki o'xshash ma'lumotlarga oldin ball berilmagan</p>
+                                                                                            </div>
+                                                                                        @endif
+                                                                                        
+                                                                                        @if($fixedItems10->count() > 0)
+                                                                                            <div class="bg-blue-100 p-3 rounded border border-blue-300 w-full">
+                                                                                                <p class="font-bold text-blue-800">ℹ️ TUZATILGAN DUBLIKATLAR:</p>
+                                                                                                <p class="text-blue-800">• <strong>{{ $fixedItems10->count() }}</strong> ta dublikat allaqachon tuzatilgan (0.10 kafedra bali berilgan)</p>
+                                                                                                <p class="text-blue-800">• Bu ma'lumotlar avtomatik tuzatish jarayonida o'zgartirilgan</p>
+                                                                                            </div>
+                                                                                        @endif
+                                                                                        
+                                                                                        @if($cannotFixItems10->count() > 0)
+                                                                                            <div class="bg-yellow-100 p-3 rounded border border-yellow-300 w-full">
+                                                                                                <p class="font-bold text-yellow-800">⚡ TUZATA OLMAYDIGAN DUBLIKATLAR:</p>
+                                                                                                <p class="text-yellow-800">• <strong>{{ $cannotFixItems10->count() }}</strong> ta yuqori prioritetli ma'lumot topildi</p>
+                                                                                                <p class="text-yellow-800">• Bu ma'lumotlar yuqori prioritetga ega bo'lgani uchun ularni tuzata olmaysiz</p>
+                                                                                                <p class="text-yellow-800">• Faqat {{ $currentTable10Type }} dan yuqori prioritetli tablelar (table_10_1, table_10_2) tuzata olmaydi</p>
+                                                                                            </div>
+                                                                                        @endif
+                                                                                        
+                                                                                        <div class="bg-yellow-100 p-3 rounded border border-yellow-300 w-full">
+                                                                                            <p class="font-bold text-yellow-800">📝 ESLATMA:</p>
+                                                                                            <p>• Bu amal qaytarib bo'lmaydi!</p>
+                                                                                            <p>• Faqat joriy tekshirilayotgan ma'lumotga ball beriladi</p>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </li>
+                                                    @endif
                                                 </ul>
                                             </div>
                                         </div>

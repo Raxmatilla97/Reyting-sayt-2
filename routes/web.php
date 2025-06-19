@@ -173,9 +173,11 @@ Route::middleware('auth')->group(function () {
 
              // Dublikat boshqaruv
              Route::get('/duplicate-management', [DuplicateManagementController::class, 'index'])->name('duplicate-management.index');
-             Route::post('/duplicate-management/fix-table11', [DuplicateManagementController::class, 'fixTable11Duplicates'])->name('duplicate-management.fix-table11');
-             Route::post('/duplicate-management/fix-table20', [DuplicateManagementController::class, 'fixTable20Duplicates'])->name('duplicate-management.fix-table20');
-             Route::post('/duplicate-management/fix-single', [DuplicateManagementController::class, 'fixSingleRecord'])->name('duplicate-management.fix-single');
+Route::post('/duplicate-management/fix-table11', [DuplicateManagementController::class, 'fixTable11Duplicates'])->name('duplicate-management.fix-table11');
+Route::post('/duplicate-management/fix-table20', [DuplicateManagementController::class, 'fixTable20Duplicates'])->name('duplicate-management.fix-table20');
+Route::post('/duplicate-management/fix-table10', [DuplicateManagementController::class, 'fixTable10Duplicates'])->name('duplicate-management.fix-table10');
+Route::post('/duplicate-management/fix-table14', [DuplicateManagementController::class, 'fixTable14Duplicates'])->name('duplicate-management.fix-table14');
+Route::post('/duplicate-management/fix-single', [DuplicateManagementController::class, 'fixSingleRecord'])->name('duplicate-management.fix-single');
         });
     });
 });

@@ -622,46 +622,13 @@ class ConfigurationController extends Controller
 
             // Agar ma'lumot topilsa
             if ($response['data']['pagination']['totalCount'] > 0) {
-                // totalCount > 1 bo'lsa, barcha ma'lumotlarni olamiz
-                if ($response['data']['pagination']['totalCount'] > 1) {
-                    Log::info("Xodim bir nechta joyda ishlaydi", [
-                        'employee_id' => $employeeIdNumber,
-                        'total_count' => $response['data']['pagination']['totalCount']
-                    ]);
-
-                    // items massividan departments ni yig'amiz
-                    $departments = [];
-                    foreach ($response['data']['items'] as $item) {
-                        if (isset($item['department']) && isset($item['employmentForm'])) {
-                            $departments[] = [
-                                'department' => $item['department'],
-                                'employmentForm' => $item['employmentForm']
-                            ];
-                        }
-                    }
-
-                    // Birinchi ma'lumotni olamiz (asosiy ma'lumotlar uchun)
-                    $employeeData = $response['data']['items'][0];
-                    $employeeData['departments'] = $departments;
-                } else {
-                    // Bitta ma'lumot bo'lsa
-                    $employeeData = $response['data']['items'][0];
-                    $departments = [];
-                    if (isset($employeeData['department']) && isset($employeeData['employmentForm'])) {
-                        $departments[] = [
-                            'department' => $employeeData['department'],
-                            'employmentForm' => $employeeData['employmentForm']
-                        ];
-                    }
-                    $employeeData['departments'] = $departments;
-                }
-
                 Log::info("Xodim ma'lumotlari olindi", [
                     'employee_id' => $employeeIdNumber,
-                    'departments' => $departments
+                    'total_count' => $response['data']['pagination']['totalCount']
                 ]);
 
-                return $employeeData;
+                // Yangi funksiya uchun to'liq response qaytaramiz
+                return $response;
             }
 
             throw new \Exception("HEMIS_EMPLOYEE_NOT_FOUND");
@@ -691,39 +658,37 @@ class ConfigurationController extends Controller
 
                     foreach ($inactiveUsers as $user) {
             try {
-                $employeeData = $this->getEmployeeDataFromHemis($user->employee_id_number);
+                $hemisResponse = $this->getEmployeeDataFromHemis($user->employee_id_number);
+                $employeeAnalysis = $this->analyzeEmployeeStatus($hemisResponse);
 
-                if (!empty($employeeData)) {
-                    // EmployeeStatus tekshirish - agar "14" (Bo'shagan) bo'lsa, faollashtirmaslik
-                    if (isset($employeeData['employeeStatus']) && $employeeData['employeeStatus']['code'] === '14') {
-                        Log::info("Status 0 bo'lgan foydalanuvchi bo'shagan, faollashtirmaylik", [
+                Log::info("Status 0 bo'lgan foydalanuvchi tahlili", [
+                    'user_id' => $user->id,
+                    'name' => $user->name,
+                    'analysis' => $employeeAnalysis
+                ]);
+
+                // Agar xodim haqiqatan ham faol bo'lsa, faollashtirish
+                if ($employeeAnalysis['is_active'] && $employeeAnalysis['department_id']) {
+                    DB::transaction(function () use ($user, $employeeAnalysis) {
+                        $user->status = 1;
+                        $user->department_id = $employeeAnalysis['department_id'];
+                        $user->save();
+
+                        Log::info("Status 0 bo'lgan foydalanuvchi faollashtirildi", [
                             'user_id' => $user->id,
                             'name' => $user->name,
-                            'employeeStatus' => $employeeData['employeeStatus']
+                            'new_department' => $employeeAnalysis['department_id']
                         ]);
-                        $keptInactiveCount++;
-                        continue; // Bo'shagan bo'lsa, o'tkazib yuborish
-                    }
-
-                    // Agar employeeStatus normal bo'lsa va departments mavjud bo'lsa, faollashtirish
-                    if (!empty($employeeData['departments'])) {
-                        $newDepartmentId = $this->getDepartmentId($employeeData['departments']);
-
-                        if ($newDepartmentId) {
-                            DB::transaction(function () use ($user, $newDepartmentId) {
-                                $user->status = 1;
-                                $user->department_id = $newDepartmentId;
-                                $user->save();
-
-                                Log::info("Status 0 bo'lgan foydalanuvchi faollashtirildi", [
-                                    'user_id' => $user->id,
-                                    'name' => $user->name,
-                                    'new_department' => $newDepartmentId
-                                ]);
-                            });
-                            $updatedCount++;
-                        }
-                    }
+                    });
+                    $updatedCount++;
+                } else {
+                    // Agar haqiqatan ham nofaol bo'lsa, logga yozish
+                    Log::info("Status 0 bo'lgan foydalanuvchi nofaol, faollashtirmaylik", [
+                        'user_id' => $user->id,
+                        'name' => $user->name,
+                        'reason' => $employeeAnalysis['details']['reason']
+                    ]);
+                    $keptInactiveCount++;
                 }
             } catch (\Exception $e) {
                 if ($e->getMessage() !== "HEMIS_EMPLOYEE_NOT_FOUND") {
@@ -748,6 +713,109 @@ class ConfigurationController extends Controller
                 'error' => $e->getMessage()
             ]);
             throw $e;
+        }
+    }
+
+    /**
+     * O'qituvchining haqiqiy holatini aniqlash
+     * 
+     * Bu funksiya quyidagi tartibda ishlaydi:
+     * 1. Maksimal stavka (employmentStaff.code = "11") ni topish
+     * 2. Agar maksimal stavka topilsa, uning employeeStatus ini tekshirish
+     * 3. Agar maksimal stavka yo'q bo'lsa, prioritet bo'yicha [11, 15, 12] tekshirish
+     * 4. [13, 14] kabi stavkalar ahamiyatsiz hisoblanadi
+     * 
+     * @param array $hemisResponse HEMIS dan olingan barcha ma'lumotlar
+     * @return array ['is_active' => bool, 'department_id' => int|null, 'details' => array]
+     */
+    public function analyzeEmployeeStatus($hemisResponse)
+    {
+        try {
+            $items = $hemisResponse['data']['items'] ?? [];
+            
+            if (empty($items)) {
+                return [
+                    'is_active' => false,
+                    'department_id' => null,
+                    'details' => ['reason' => 'No employment data found']
+                ];
+            }
+
+            // Birinchi: Maksimal stavka (employmentStaff.code = "11") ni qidirish
+            $maxStaffItem = null;
+            foreach ($items as $item) {
+                if (isset($item['employmentStaff']['code']) && $item['employmentStaff']['code'] === '11') {
+                    $maxStaffItem = $item;
+                    break;
+                }
+            }
+
+            // Agar maksimal stavka topilsa
+            if ($maxStaffItem) {
+                $isWorking = isset($maxStaffItem['employeeStatus']['code']) && 
+                           $maxStaffItem['employeeStatus']['code'] === '11';
+                
+                return [
+                    'is_active' => $isWorking,
+                    'department_id' => $isWorking ? $maxStaffItem['department']['id'] : null,
+                    'details' => [
+                        'reason' => 'Max staff position found',
+                        'employment_staff' => $maxStaffItem['employmentStaff'],
+                        'employee_status' => $maxStaffItem['employeeStatus'],
+                        'department' => $maxStaffItem['department']['name']
+                    ]
+                ];
+            }
+
+            // Agar maksimal stavka yo'q bo'lsa, prioritet bo'yicha tekshirish
+            $priorityOrder = ['11', '15', '12']; // employmentForm codes
+            
+            foreach ($priorityOrder as $priorityCode) {
+                foreach ($items as $item) {
+                    if (isset($item['employmentForm']['code']) && 
+                        $item['employmentForm']['code'] === $priorityCode) {
+                        
+                        $isWorking = isset($item['employeeStatus']['code']) && 
+                                   $item['employeeStatus']['code'] === '11';
+                        
+                        if ($isWorking) {
+                            return [
+                                'is_active' => true,
+                                'department_id' => $item['department']['id'],
+                                'details' => [
+                                    'reason' => 'Found active employment by priority',
+                                    'priority_code' => $priorityCode,
+                                    'employment_form' => $item['employmentForm'],
+                                    'employee_status' => $item['employeeStatus'],
+                                    'department' => $item['department']['name']
+                                ]
+                            ];
+                        }
+                    }
+                }
+            }
+
+            // Hech qanday aktiv ish joyi topilmadi
+            return [
+                'is_active' => false,
+                'department_id' => null,
+                'details' => [
+                    'reason' => 'No active employment found in priority codes [11, 15, 12]',
+                    'total_positions' => count($items)
+                ]
+            ];
+
+        } catch (\Exception $e) {
+            Log::error("Employee status analysis error", [
+                'error' => $e->getMessage(),
+                'hemisResponse' => $hemisResponse
+            ]);
+            
+            return [
+                'is_active' => false,
+                'department_id' => null,
+                'details' => ['reason' => 'Analysis error: ' . $e->getMessage()]
+            ];
         }
     }
 
@@ -856,7 +924,7 @@ class ConfigurationController extends Controller
 
                     try {
                         // HEMIS dan ma'lumot olish
-                        $employeeData = $this->getEmployeeDataFromHemis($user->employee_id_number);
+                        $hemisResponse = $this->getEmployeeDataFromHemis($user->employee_id_number);
                     } catch (\Exception $e) {
                         // HEMIS_EMPLOYEE_NOT_FOUND xatosi tekshiriladi
                         if ($e->getMessage() === "HEMIS_EMPLOYEE_NOT_FOUND") {
@@ -884,165 +952,55 @@ class ConfigurationController extends Controller
                         continue;
                     }
 
-                    // API javobini tekshirish
-                    if (empty($employeeData)) {
-                        Log::warning("Foydalanuvchi {$user->name} uchun HEMIS dan ma'lumot olinmadi", [
-                            'employee_id' => $user->employee_id_number
-                        ]);
-
-                        // Ma'lumot bo'sh bo'lsa ham status 0 ga o'zgartiriladi
-                        DB::transaction(function () use ($user) {
-                            $user->status = 0;
-                            $user->save();
-                        });
-
-                        $this->sendUpdate("Foydalanuvchi {$user->name} uchun HEMIS dan ma'lumot olinmadi, status 0 ga o'zgartirildi", round($progress));
-                        $skippedCount++;
-                        continue;
-                    }
-
-                    // EmployeeStatus tekshirish va logga yozish
-                    Log::info("HEMIS dan olingan ma'lumotlar", [
+                    // Yangi analiz funksiyasidan foydalanish
+                    $employeeAnalysis = $this->analyzeEmployeeStatus($hemisResponse);
+                    
+                    Log::info("Xodim holatini tahlil qilish natijasi", [
                         'employee_id' => $user->employee_id_number,
-                        'employeeStatus' => $employeeData['employeeStatus'] ?? 'mavjud emas',
-                        'current_user_status' => $user->status
+                        'user_name' => $user->name,
+                        'analysis' => $employeeAnalysis
                     ]);
 
-                    // EmployeeStatus tekshirish - agar kod "14" (Bo'shagan) bo'lsa, status 0 ga o'zgartirish
-                    if (isset($employeeData['employeeStatus']) && $employeeData['employeeStatus']['code'] === '14') {
-                        Log::info("Bo'shagan xodim topildi, status o'zgartirilmoqda", [
-                            'user_id' => $user->id,
-                            'employee_id' => $user->employee_id_number,
-                            'current_status' => $user->status,
-                            'employeeStatus' => $employeeData['employeeStatus']
-                        ]);
-
+                    // Agar xodim nofaol bo'lsa
+                    if (!$employeeAnalysis['is_active']) {
                         try {
-                            $oldStatus = $user->status;
-                            
-                            // Birinchi usul: Transaction bilan
                             DB::transaction(function () use ($user) {
                                 $user->status = 0;
                                 $user->save();
                             });
 
-                            // Tekshirish - o'zgarganmi
-                            $user->refresh();
-                            
-                            // Agar transaction ishlamagan bo'lsa, to'g'ridan-to'g'ri o'zgartirish
-                            if ($user->status != 0) {
-                                Log::warning("Transaction orqali o'zgarmadi, to'g'ridan-to'g'ri saqlash");
-                                $user->status = 0;
-                                $saved = $user->save();
-                                $user->refresh();
-                                
-                                Log::info("To'g'ridan-to'g'ri saqlash natijasi", [
-                                    'user_id' => $user->id,
-                                    'save_result' => $saved,
-                                    'final_status' => $user->status
-                                ]);
-                            }
-
-                            // Oxirgi tekshirish
-                            if ($user->status == 0) {
-                                Log::info("Status muvaffaqiyatli o'zgartirildi", [
-                                    'user_id' => $user->id,
-                                    'old_status' => $oldStatus,
-                                    'new_status' => $user->status
-                                ]);
-
-                                Log::warning("Foydalanuvchi {$user->name} bo'shagan deb belgilandi (employeeStatus: 14)", [
-                                    'employee_id' => $user->employee_id_number,
-                                    'employeeStatus' => $employeeData['employeeStatus'],
-                                    'final_status' => $user->status
-                                ]);
-
-                                $this->sendUpdate("Foydalanuvchi {$user->name} bo'shagan deb belgilandi, status 0 ga o'zgartirildi", round($progress));
-                                $firedCount++;
-                                continue;
-                            } else {
-                                // Oxirgi imkoniyat: raw SQL bilan
-                                Log::warning("Oxirgi imkoniyat: raw SQL bilan saqlash");
-                                try {
-                                    DB::statement('UPDATE users SET status = 0 WHERE id = ?', [$user->id]);
-                                    $user->refresh();
-                                    
-                                    if ($user->status == 0) {
-                                        Log::info("Raw SQL orqali muvaffaqiyatli o'zgartirildi", [
-                                            'user_id' => $user->id,
-                                            'status' => $user->status
-                                        ]);
-
-                                        Log::warning("Foydalanuvchi {$user->name} bo'shagan deb belgilandi (employeeStatus: 14)", [
-                                            'employee_id' => $user->employee_id_number,
-                                            'employeeStatus' => $employeeData['employeeStatus'],
-                                            'final_status' => $user->status
-                                        ]);
-
-                                        $this->sendUpdate("Foydalanuvchi {$user->name} bo'shagan deb belgilandi, status 0 ga o'zgartirildi", round($progress));
-                                        $firedCount++;
-                                        continue;
-                                    } else {
-                                        Log::error("Raw SQL ham ishlamadi", [
-                                            'user_id' => $user->id,
-                                            'current_status' => $user->status
-                                        ]);
-                                    }
-                                } catch (\Exception $sqlError) {
-                                    Log::error("Raw SQL xatoligi", [
-                                        'user_id' => $user->id,
-                                        'error' => $sqlError->getMessage()
-                                    ]);
-                                }
-                            }
-                        } catch (\Exception $e) {
-                            Log::error("Status o'zgartirishda xatolik", [
-                                'user_id' => $user->id,
-                                'error' => $e->getMessage(),
-                                'trace' => $e->getTraceAsString()
+                            Log::warning("Foydalanuvchi {$user->name} nofaol deb belgilandi", [
+                                'employee_id' => $user->employee_id_number,
+                                'reason' => $employeeAnalysis['details']['reason']
                             ]);
+
+                            $this->sendUpdate("Foydalanuvchi {$user->name} nofaol deb belgilandi", round($progress));
+                            $firedCount++;
+                            continue;
+                        } catch (\Exception $e) {
+                            Log::error("Status 0 ga o'zgartirishda xatolik", [
+                                'user_id' => $user->id,
+                                'error' => $e->getMessage()
+                            ]);
+                            $errorCount++;
+                            continue;
                         }
                     }
 
-                    // Departments massivini tekshirish
-                    if (empty($employeeData['departments'])) {
-                        Log::warning("Foydalanuvchi {$user->name} uchun departments ma'lumoti yo'q", [
-                            'employee_id' => $user->employee_id_number,
-                            'hemis_data' => $employeeData
-                        ]);
-
-                        // Departments bo'sh bo'lsa ham status 0 ga o'zgartiriladi
-                        DB::transaction(function () use ($user) {
-                            $user->status = 0;
-                            $user->save();
-                        });
-
-                        $this->sendUpdate("Foydalanuvchi {$user->name} uchun departments ma'lumoti yo'q, status 0 ga o'zgartirildi", round($progress));
-                        $skippedCount++;
-                        continue;
-                    }
-
-                    // Yangi department_id ni aniqlash
-                    $newDepartmentId = $this->getDepartmentId($employeeData['departments']);
+                    // Agar xodim faol bo'lsa, kafedrasini tekshirish
+                    $newDepartmentId = $employeeAnalysis['department_id'];
 
                     if (!$newDepartmentId) {
-                        // Department topilmaganda status 0 ga o'zgartirish
-                        DB::transaction(function () use ($user) {
-                            $user->status = 0;
-                            $user->save();
-                        });
-
-                        Log::warning("Foydalanuvchi {$user->name} statusi 0 ga o'zgartirildi chunki mos department topilmadi", [
+                        Log::error("Faol xodim uchun kafedra ID topilmadi", [
+                            'user_name' => $user->name,
                             'employee_id' => $user->employee_id_number,
-                            'departments' => $employeeData['departments']
+                            'analysis' => $employeeAnalysis
                         ]);
-
-                        $this->sendUpdate("Foydalanuvchi {$user->name} uchun mos department topilmadi, status 0 ga o'zgartirildi", round($progress));
-                        $skippedCount++;
+                        $errorCount++;
                         continue;
                     }
 
-                    // Department o'zgarganligini tekshirish
+                    // Kafedra o'zgarganligini tekshirish
                     if ($newDepartmentId === $user->department_id) {
                         Log::info("Foydalanuvchi {$user->name} ning kafedrasi o'zgarmagan", [
                             'department_id' => $newDepartmentId
@@ -1051,7 +1009,7 @@ class ConfigurationController extends Controller
                         continue;
                     }
 
-                    // O'zgartirish kiritish
+                    // Kafedrani yangilash
                     Log::info("Foydalanuvchi {$user->name} uchun yangi kafedra topildi", [
                         'old_department' => $user->department_id,
                         'new_department' => $newDepartmentId

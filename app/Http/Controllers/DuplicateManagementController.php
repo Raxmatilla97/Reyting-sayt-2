@@ -18,18 +18,26 @@ class DuplicateManagementController extends Controller
     {
         $table11Duplicates = $this->findTable11Duplicates();
         $table20Duplicates = $this->findTable20Duplicates();
+        $table10Duplicates = $this->findTable10Duplicates();
+        $table14Duplicates = $this->findTable14Duplicates();
         
         // Тузатилган дубликатлар
         $table11FixedDuplicates = $this->findTable11FixedDuplicates();
         $table20FixedDuplicates = $this->findTable20FixedDuplicates();
+        $table10FixedDuplicates = $this->findTable10FixedDuplicates();
+        $table14FixedDuplicates = $this->findTable14FixedDuplicates();
         
         $recentLogs = $this->getRecentLogs();
 
         return view('dashboard.duplicate-management', compact(
             'table11Duplicates',
             'table20Duplicates',
+            'table10Duplicates',
+            'table14Duplicates',
             'table11FixedDuplicates',
             'table20FixedDuplicates',
+            'table10FixedDuplicates',
+            'table14FixedDuplicates',
             'recentLogs'
         ));
     }
@@ -80,6 +88,7 @@ class DuplicateManagementController extends Controller
                     if (!isset($duplicates[$duplicateKey])) {
                         $duplicates[$duplicateKey] = [
                             'user_id' => $record->user_id,
+                            'employee_id_number' => $record->employee->employee_id_number ?? $record->user_id,
                             'employee_name' => $record->employee->FullName ?? 'Номаълум',
                             'year' => $record->year,
                             'records' => [],
@@ -188,6 +197,7 @@ class DuplicateManagementController extends Controller
                     if (!isset($duplicates[$duplicateKey])) {
                         $duplicates[$duplicateKey] = [
                             'user_id' => $record->user_id,
+                            'employee_id_number' => $record->employee->employee_id_number ?? $record->user_id,
                             'employee_name' => $record->employee->FullName ?? 'Номаълум',
                             'year' => $record->year,
                             'records' => [],
@@ -249,6 +259,223 @@ class DuplicateManagementController extends Controller
     }
 
     /**
+     * Table 10 дубликатларини топиш (фақт актив) - 70% ўхшашлик
+     */
+    private function findTable10Duplicates()
+    {
+        $duplicates = [];
+        
+        // Барча Table 10 турларидаги маълумотларни олиш (фақат point > 0)
+        $table10Records = PointUserDeportament::where(function ($query) {
+            $query->whereNotNull('table_10_1_id')
+                  ->orWhereNotNull('table_10_2_id')
+                  ->orWhereNotNull('table_10_3_id');
+        })
+        ->where('status', 1) // Фақат тасдиқланган маълумотлар
+        ->where('point', '>', 0) // Фақат актив баллар
+        ->with(['employee'])
+        ->get();
+
+        foreach ($table10Records as $record) {
+            $currentTableType = $this->getRecordTableType($record);
+            $currentRelatedData = $this->getRelatedData($record, $currentTableType);
+
+            if (!$currentRelatedData) continue;
+
+            // Шу фойдаланувчининг бошқа Table 10 маълумотлари (фақат point > 0)
+            $otherRecords = $table10Records->where('user_id', $record->user_id)
+                                         ->where('id', '!=', $record->id)
+                                         ->where('year', $record->year)
+                                         ->where('point', '>', 0);
+
+            foreach ($otherRecords as $otherRecord) {
+                $otherTableType = $this->getRecordTableType($otherRecord);
+                $otherRelatedData = $this->getRelatedData($otherRecord, $otherTableType);
+
+                if (!$otherRelatedData || $currentTableType === $otherTableType) continue;
+
+                // Ўхшашлик баллини ҳисоблаш
+                $similarityScore = $this->calculateTable10Similarity($currentRelatedData, $otherRelatedData, $currentTableType, $otherTableType);
+                
+                // Агар ўхшашлик 70% дан кўп бўлса
+                if ($similarityScore >= 0.7) {
+                    $duplicateKey = $record->user_id . '_' . $record->year;
+                    
+                    if (!isset($duplicates[$duplicateKey])) {
+                        $duplicates[$duplicateKey] = [
+                            'user_id' => $record->user_id,
+                            'employee_id_number' => $record->employee->employee_id_number ?? $record->user_id,
+                            'employee_name' => $record->employee->FullName ?? 'Номаълум',
+                            'year' => $record->year,
+                            'records' => [],
+                            'total_points' => 0,
+                            'similarity_pairs' => []
+                        ];
+                    }
+
+                    // Агар бу ёзув аллақачон қўшилмаган бўлса
+                    $recordExists = collect($duplicates[$duplicateKey]['records'])->contains('id', $record->id);
+                    if (!$recordExists) {
+                        $duplicates[$duplicateKey]['records'][] = [
+                            'id' => $record->id,
+                            'table_type' => $currentTableType,
+                            'point' => $record->point,
+                            'jurnal_nomi' => $this->getTable10JournalName($currentRelatedData, $currentTableType),
+                            'maqola_nomi' => $this->getTable10ArticleName($currentRelatedData, $currentTableType),
+                            'nashr_yili' => $this->getTable10PublishYear($currentRelatedData, $currentTableType),
+                            'created_at' => $record->created_at
+                        ];
+                        $duplicates[$duplicateKey]['total_points'] += $record->point;
+                    }
+
+                    // Бошқа ёзувни ҳам қўшиш
+                    $otherRecordExists = collect($duplicates[$duplicateKey]['records'])->contains('id', $otherRecord->id);
+                    if (!$otherRecordExists) {
+                        $duplicates[$duplicateKey]['records'][] = [
+                            'id' => $otherRecord->id,
+                            'table_type' => $otherTableType,
+                            'point' => $otherRecord->point,
+                            'jurnal_nomi' => $this->getTable10JournalName($otherRelatedData, $otherTableType),
+                            'maqola_nomi' => $this->getTable10ArticleName($otherRelatedData, $otherTableType),
+                            'nashr_yili' => $this->getTable10PublishYear($otherRelatedData, $otherTableType),
+                            'created_at' => $otherRecord->created_at
+                        ];
+                        $duplicates[$duplicateKey]['total_points'] += $otherRecord->point;
+                    }
+                    
+                    // Ўхшашлик жуфтини сақлаш
+                    $pairKey = min($record->id, $otherRecord->id) . '_' . max($record->id, $otherRecord->id);
+                    if (!isset($duplicates[$duplicateKey]['similarity_pairs'][$pairKey])) {
+                        $duplicates[$duplicateKey]['similarity_pairs'][$pairKey] = [
+                            'record1_id' => $record->id,
+                            'record2_id' => $otherRecord->id,
+                            'similarity_score' => $similarityScore,
+                            'details' => $this->getTable10SimilarityDetails($currentRelatedData, $otherRelatedData, $currentTableType, $otherTableType)
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Ёзувларни санаси бўйича тартиблаш (янгиси биринчи)
+        foreach ($duplicates as &$duplicate) {
+            usort($duplicate['records'], function($a, $b) {
+                return strtotime($b['created_at']) - strtotime($a['created_at']);
+            });
+        }
+
+        return array_values($duplicates);
+    }
+
+    /**
+     * Table 14 дубликатларини топиш (фақт актив) - 70% ўхшашлик
+     */
+    private function findTable14Duplicates()
+    {
+        $duplicates = [];
+        
+        // Барча Table 14 турларидаги маълумотларни олиш (фақат point > 0)
+        $table14Records = PointUserDeportament::where(function ($query) {
+            $query->whereNotNull('table_14_1_id')
+                  ->orWhereNotNull('table_14_2_id');
+        })
+        ->where('status', 1) // Фақат тасдиқланган маълумотлар
+        ->where('point', '>', 0) // Фақат актив баллар
+        ->with(['employee'])
+        ->get();
+
+        foreach ($table14Records as $record) {
+            $currentTableType = $this->getRecordTableType($record);
+            $currentRelatedData = $this->getRelatedData($record, $currentTableType);
+
+            if (!$currentRelatedData) continue;
+
+            // Шу фойдаланувчининг бошқа Table 14 маълумотлари (фақат point > 0)
+            $otherRecords = $table14Records->where('user_id', $record->user_id)
+                                         ->where('id', '!=', $record->id)
+                                         ->where('year', $record->year)
+                                         ->where('point', '>', 0);
+
+            foreach ($otherRecords as $otherRecord) {
+                $otherTableType = $this->getRecordTableType($otherRecord);
+                $otherRelatedData = $this->getRelatedData($otherRecord, $otherTableType);
+
+                if (!$otherRelatedData || $currentTableType === $otherTableType) continue;
+
+                // Ўхшашлик баллини ҳисоблаш
+                $similarityScore = $this->calculateTable14Similarity($currentRelatedData, $otherRelatedData);
+                
+                // Агар ўхшашлик 70% дан кўп бўлса
+                if ($similarityScore >= 0.7) {
+                    $duplicateKey = $record->user_id . '_' . $record->year;
+                    
+                    if (!isset($duplicates[$duplicateKey])) {
+                        $duplicates[$duplicateKey] = [
+                            'user_id' => $record->user_id,
+                            'employee_id_number' => $record->employee->employee_id_number ?? $record->user_id,
+                            'employee_name' => $record->employee->FullName ?? 'Номаълум',
+                            'year' => $record->year,
+                            'records' => [],
+                            'total_points' => 0,
+                            'similarity_pairs' => []
+                        ];
+                    }
+
+                    // Агар бу ёзув аллақачон қўшилмаган бўлса
+                    $recordExists = collect($duplicates[$duplicateKey]['records'])->contains('id', $record->id);
+                    if (!$recordExists) {
+                        $duplicates[$duplicateKey]['records'][] = [
+                            'id' => $record->id,
+                            'table_type' => $currentTableType,
+                            'point' => $record->point,
+                            'davlat_otm_nomi' => $currentRelatedData->davlat_otm_nomi ?? '',
+                            'tezis_nomi' => $currentRelatedData->tezis_nomi ?? '',
+                            'konf_seminar_nomi' => $currentRelatedData->konf_seminar_nomi ?? '',
+                            'created_at' => $record->created_at
+                        ];
+                        $duplicates[$duplicateKey]['total_points'] += $record->point;
+                    }
+
+                    // Бошқа ёзувни ҳам қўшиш
+                    $otherRecordExists = collect($duplicates[$duplicateKey]['records'])->contains('id', $otherRecord->id);
+                    if (!$otherRecordExists) {
+                        $duplicates[$duplicateKey]['records'][] = [
+                            'id' => $otherRecord->id,
+                            'table_type' => $otherTableType,
+                            'point' => $otherRecord->point,
+                            'davlat_otm_nomi' => $otherRelatedData->davlat_otm_nomi ?? '',
+                            'tezis_nomi' => $otherRelatedData->tezis_nomi ?? '',
+                            'konf_seminar_nomi' => $otherRelatedData->konf_seminar_nomi ?? '',
+                            'created_at' => $otherRecord->created_at
+                        ];
+                        $duplicates[$duplicateKey]['total_points'] += $otherRecord->point;
+                    }
+                    
+                    // Ўхшашлик жуфтини сақлаш
+                    $pairKey = min($record->id, $otherRecord->id) . '_' . max($record->id, $otherRecord->id);
+                    if (!isset($duplicates[$duplicateKey]['similarity_pairs'][$pairKey])) {
+                        $duplicates[$duplicateKey]['similarity_pairs'][$pairKey] = [
+                            'record1_id' => $record->id,
+                            'record2_id' => $otherRecord->id,
+                            'similarity_score' => $similarityScore,
+                            'details' => $this->getTable14SimilarityDetails($currentRelatedData, $otherRelatedData)
+                        ];
+                    }
+                }
+            }
+        }
+
+        // Ёзувларни санаси бўйича тартиблаш (янгиси биринчи)
+        foreach ($duplicates as &$duplicate) {
+            usort($duplicate['records'], function($a, $b) {
+                return strtotime($b['created_at']) - strtotime($a['created_at']);
+            });
+        }
+
+        return array_values($duplicates);
+    }
+
+    /**
      * Table 11 dublikatlarini avtomatik tuzatish - eng katta ballni saqlab qolish
      */
     public function fixTable11Duplicates(Request $request)
@@ -275,20 +502,20 @@ class DuplicateManagementController extends Controller
                         $priorityOrder = ['Table_11_1' => 1, 'Table_11_2' => 2, 'Table_11_3' => 3];
                         
                         $recordsToKeepSorted = $recordsToKeep->sort(function($a, $b) use ($priorityOrder) {
-                            $priorityA = $priorityOrder[$a['table_type']] ?? 999;
-                            $priorityB = $priorityOrder[$b['table_type']] ?? 999;
-                            
-                            if ($priorityA != $priorityB) {
-                                return $priorityA - $priorityB;
-                            }
-                            
-                            return strtotime($b['created_at']) - strtotime($a['created_at']);
-                        });
+                        $priorityA = $priorityOrder[$a['table_type']] ?? 999;
+                        $priorityB = $priorityOrder[$b['table_type']] ?? 999;
                         
+                        if ($priorityA != $priorityB) {
+                                return $priorityA - $priorityB;
+                        }
+                        
+                        return strtotime($b['created_at']) - strtotime($a['created_at']);
+                        });
+
                         // Birinchisidan boshqa barcha yozuvlarni tuzatish ro'yxatiga qo'shish
                         $recordsToFix = $recordsToFix->merge($recordsToKeepSorted->skip(1));
                     }
-
+                    
                     // Tuzatish jarayoni
                     foreach ($recordsToFix as $record) {
                         $pointRecord = PointUserDeportament::find($record['id']);
@@ -368,20 +595,20 @@ class DuplicateManagementController extends Controller
                         $priorityOrder = ['Table_20_1' => 1, 'Table_20_2' => 2, 'Table_20_3' => 3];
                         
                         $recordsToKeepSorted = $recordsToKeep->sort(function($a, $b) use ($priorityOrder) {
-                            $priorityA = $priorityOrder[$a['table_type']] ?? 999;
-                            $priorityB = $priorityOrder[$b['table_type']] ?? 999;
-                            
-                            if ($priorityA != $priorityB) {
-                                return $priorityA - $priorityB;
-                            }
-                            
-                            return strtotime($b['created_at']) - strtotime($a['created_at']);
-                        });
+                        $priorityA = $priorityOrder[$a['table_type']] ?? 999;
+                        $priorityB = $priorityOrder[$b['table_type']] ?? 999;
                         
+                        if ($priorityA != $priorityB) {
+                                return $priorityA - $priorityB;
+                        }
+                        
+                        return strtotime($b['created_at']) - strtotime($a['created_at']);
+                        });
+
                         // Birinchisidan boshqa barcha yozuvlarni tuzatish ro'yxatiga qo'shish
                         $recordsToFix = $recordsToFix->merge($recordsToKeepSorted->skip(1));
                     }
-
+                    
                     // Tuzatish jarayoni
                     foreach ($recordsToFix as $record) {
                         $pointRecord = PointUserDeportament::find($record['id']);
@@ -479,8 +706,8 @@ class DuplicateManagementController extends Controller
             // Eng katta ballli yozuvdan boshqa barchasini 0 ga o'tkazish
             foreach ($records as $record) {
                 if ($record->id !== $maxPointRecord->id) {
-                    $record->point = 0.00;
-                    $record->save();
+                $record->point = 0.00;
+                $record->save();
                     
                     // Kafedra bali yaratish
                     DepartPoints::updateOrCreate(
@@ -526,6 +753,11 @@ class DuplicateManagementController extends Controller
         if (!is_null($record->table_20_1_id)) return 'table_20_1';
         if (!is_null($record->table_20_2_id)) return 'table_20_2';
         if (!is_null($record->table_20_3_id)) return 'table_20_3';
+        if (!is_null($record->table_10_1_id)) return 'table_10_1';
+        if (!is_null($record->table_10_2_id)) return 'table_10_2';
+        if (!is_null($record->table_10_3_id)) return 'table_10_3';
+        if (!is_null($record->table_14_1_id)) return 'table_14_1';
+        if (!is_null($record->table_14_2_id)) return 'table_14_2';
         
         return null;
     }
@@ -849,6 +1081,7 @@ class DuplicateManagementController extends Controller
                     foreach ($similarityMatches as $title => $matches) {
                         $fixedDuplicates[] = [
                             'user_id' => $userId,
+                            'employee_id_number' => $firstRecord->employee->employee_id_number ?? $firstRecord->user_id,
                             'employee_name' => $firstRecord->employee->FullName ?? 'Номаълум',
                             'year' => $year,
                             'article_title' => $title,
@@ -967,6 +1200,7 @@ class DuplicateManagementController extends Controller
                     foreach ($similarityMatches as $journal => $matches) {
                         $fixedDuplicates[] = [
                             'user_id' => $userId,
+                            'employee_id_number' => $firstRecord->employee->employee_id_number ?? $firstRecord->user_id,
                             'employee_name' => $firstRecord->employee->FullName ?? 'Номаълум',
                             'year' => $year,
                             'journal_name' => $journal,
@@ -991,6 +1225,541 @@ class DuplicateManagementController extends Controller
                                     'point' => $record->point,
                                     'jurnal_nomi' => $relatedData->jurnal_nomi ?? '',
                                     'mualliflar_soni' => $relatedData->mualliflar_soni ?? '',
+                                    'created_at' => $record->created_at
+                                ];
+                            })->values()->toArray(),
+                            'total_active_points' => collect($matches['active'])->unique('id')->sum('point'),
+                            'fixed_at' => collect($matches['fixed'])->max('updated_at')
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $fixedDuplicates;
+    }
+
+    /**
+     * Table 10 дубликатларини avtomatik tuzatish
+     */
+    public function fixTable10Duplicates(Request $request)
+    {
+        try {
+            $duplicates = $this->findTable10Duplicates();
+            $fixedCount = 0;
+            $fixedRecords = [];
+
+            DB::beginTransaction();
+
+            foreach ($duplicates as $duplicate) {
+                if (count($duplicate['records']) >= 2) {
+                    // Eng katta ballga ega yozuvni topish
+                    $sortedRecords = collect($duplicate['records'])->sortByDesc('point');
+                    $maxPoint = $sortedRecords->first()['point'];
+                    
+                    // Eng katta ball bilan barcha yozuvlarni saqlab qolish
+                    $recordsToKeep = $sortedRecords->where('point', $maxPoint);
+                    $recordsToFix = $sortedRecords->where('point', '<', $maxPoint);
+
+                    // Agar bir nechta eng katta ball bo'lsa, eng yuqori prioritetli turni saqlab qolish
+                    if ($recordsToKeep->count() > 1) {
+                        $priorityOrder = ['table_10_1' => 1, 'table_10_2' => 2, 'table_10_3' => 3];
+                        
+                        $recordsToKeepSorted = $recordsToKeep->sort(function($a, $b) use ($priorityOrder) {
+                            $priorityA = $priorityOrder[$a['table_type']] ?? 999;
+                            $priorityB = $priorityOrder[$b['table_type']] ?? 999;
+                            
+                            if ($priorityA != $priorityB) {
+                                return $priorityA - $priorityB;
+                            }
+                            
+                            return strtotime($b['created_at']) - strtotime($a['created_at']);
+                        });
+                        
+                        // Birinchisidan boshqa barcha yozuvlarni tuzatish ro'yxatiga qo'shish
+                        $recordsToFix = $recordsToFix->merge($recordsToKeepSorted->skip(1));
+                    }
+
+                    // Tuzatish jarayoni
+                    foreach ($recordsToFix as $record) {
+                        $pointRecord = PointUserDeportament::find($record['id']);
+                        if ($pointRecord && $pointRecord->point > 0) {
+                            $pointRecord->update(['point' => 0]);
+                            
+                            // Kafedra balini yaratish (0.10)
+                            DepartPoints::updateOrCreate(
+                                ['point_user_deport_id' => $record['id']],
+                                [
+                                    'point' => 0.10,
+                                    'status' => 1
+                                ]
+                            );
+                            
+                            $fixedCount++;
+                            
+                            $fixedRecords[] = [
+                                'id' => $record['id'],
+                                'table_type' => $record['table_type'],
+                                'old_point' => $record['point'],
+                                'new_point' => 0,
+                                'department_point_added' => 0.10,
+                                'user_id' => $duplicate['user_id'],
+                                'year' => $duplicate['year']
+                            ];
+                        }
+                    }
+                }
+            }
+
+            // Log yozish
+            $this->writeLog('Table 10 avtomatik tuzatish (eng katta ball saqlanadi)', [
+                'fixed_count' => $fixedCount,
+                'fixed_records' => $fixedRecords,
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 
+                "Table 10 dublikatlari muvaffaqiyatli tuzatildi! {$fixedCount} ta yozuv 0 ballga o'tkazildi va har biriga 0.10 kafedra bali berildi."
+            );
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 
+                'Xatolik yuz berdi: ' . $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     * Table 14 dublikatlarini avtomatik tuzatish
+     */
+    public function fixTable14Duplicates(Request $request)
+    {
+        try {
+            $duplicates = $this->findTable14Duplicates();
+            $fixedCount = 0;
+            $fixedRecords = [];
+
+            DB::beginTransaction();
+
+            foreach ($duplicates as $duplicate) {
+                if (count($duplicate['records']) >= 2) {
+                    // Eng katta ballga ega yozuvni topish
+                    $sortedRecords = collect($duplicate['records'])->sortByDesc('point');
+                    $maxPoint = $sortedRecords->first()['point'];
+                    
+                    // Eng katta ball bilan barcha yozuvlarni saqlab qolish
+                    $recordsToKeep = $sortedRecords->where('point', $maxPoint);
+                    $recordsToFix = $sortedRecords->where('point', '<', $maxPoint);
+
+                    // Agar bir nechta eng katta ball bo'lsa, eng yuqori prioritetli turni saqlab qolish
+                    if ($recordsToKeep->count() > 1) {
+                        $priorityOrder = ['table_14_1' => 1, 'table_14_2' => 2];
+                        
+                        $recordsToKeepSorted = $recordsToKeep->sort(function($a, $b) use ($priorityOrder) {
+                            $priorityA = $priorityOrder[$a['table_type']] ?? 999;
+                            $priorityB = $priorityOrder[$b['table_type']] ?? 999;
+                            
+                            if ($priorityA != $priorityB) {
+                                return $priorityA - $priorityB;
+                            }
+                            
+                            return strtotime($b['created_at']) - strtotime($a['created_at']);
+                        });
+                        
+                        // Birinchisidan boshqa barcha yozuvlarni tuzatish ro'yxatiga qo'shish
+                        $recordsToFix = $recordsToFix->merge($recordsToKeepSorted->skip(1));
+                    }
+
+                    // Tuzatish jarayoni
+                    foreach ($recordsToFix as $record) {
+                        $pointRecord = PointUserDeportament::find($record['id']);
+                        if ($pointRecord && $pointRecord->point > 0) {
+                            $pointRecord->update(['point' => 0]);
+                            
+                            // Kafedra balini yaratish (0.10)
+                            DepartPoints::updateOrCreate(
+                                ['point_user_deport_id' => $record['id']],
+                                [
+                                    'point' => 0.10,
+                                    'status' => 1
+                                ]
+                            );
+                            
+                            $fixedCount++;
+                            
+                            $fixedRecords[] = [
+                                'id' => $record['id'],
+                                'table_type' => $record['table_type'],
+                                'old_point' => $record['point'],
+                                'new_point' => 0,
+                                'department_point_added' => 0.10,
+                                'user_id' => $duplicate['user_id'],
+                                'year' => $duplicate['year']
+                            ];
+                        }
+                    }
+                }
+            }
+
+            // Log yozish
+            $this->writeLog('Table 14 avtomatik tuzatish (eng katta ball saqlanadi)', [
+                'fixed_count' => $fixedCount,
+                'fixed_records' => $fixedRecords,
+                'timestamp' => now()->toDateTimeString()
+            ]);
+
+            DB::commit();
+
+            return redirect()->back()->with('success', 
+                "Table 14 dublikatlari muvaffaqiyatli tuzatildi! {$fixedCount} ta yozuv 0 ballga o'tkazildi va har biriga 0.10 kafedra bali berildi."
+            );
+
+        } catch (\Exception $e) {
+            DB::rollback();
+            return redirect()->back()->with('error', 
+                'Xatolik yuz berdi: ' . $e->getMessage()
+            );
+        }
+    }
+
+    /**
+     * Table 10 учун журнал номини олиш
+     */
+    private function getTable10JournalName($data, $tableType)
+    {
+        if ($tableType === 'table_10_3') {
+            return $data->konfrrensiya_nomi ?? '';
+        }
+        return $data->ilmiy_jurnal_nomi ?? '';
+    }
+
+    /**
+     * Table 10 учун мақола номини олиш
+     */
+    private function getTable10ArticleName($data, $tableType)
+    {
+        if ($tableType === 'table_10_3') {
+            return $data->maqola_nomi ?? '';
+        }
+        return $data->ilmiy_maqola_nomi ?? '';
+    }
+
+    /**
+     * Table 10 учун нашр йилини олиш
+     */
+    private function getTable10PublishYear($data, $tableType)
+    {
+        if ($tableType === 'table_10_3') {
+            return $data->Nashr_yili_betlari ?? '';
+        }
+        return $data->nashr_yili_betlari ?? '';
+    }
+
+    /**
+     * Table 10 ўхшашлик баллини ҳисоблаш
+     */
+    private function calculateTable10Similarity($data1, $data2, $tableType1, $tableType2)
+    {
+        // Журнал/конференция номларини солиштириш
+        $journal1 = $this->getTable10JournalName($data1, $tableType1);
+        $journal2 = $this->getTable10JournalName($data2, $tableType2);
+        $journalSimilarity = $this->calculateSimilarity($journal1, $journal2);
+
+        // Мақола номларини солиштириш
+        $article1 = $this->getTable10ArticleName($data1, $tableType1);
+        $article2 = $this->getTable10ArticleName($data2, $tableType2);
+        $articleSimilarity = $this->calculateSimilarity($article1, $article2);
+
+        // Нашр йилларини солиштириш
+        $year1 = $this->normalizeYear($this->getTable10PublishYear($data1, $tableType1));
+        $year2 = $this->normalizeYear($this->getTable10PublishYear($data2, $tableType2));
+        $yearSimilarity = $this->calculateSimilarity($year1, $year2);
+
+        // Ўхшашлик фоизини ҳисоблаш
+        $similarityScore = ($journalSimilarity + $articleSimilarity + $yearSimilarity) / 3.0;
+        
+        return $similarityScore;
+    }
+
+    /**
+     * Table 14 ўхшашлик баллини ҳисоблаш
+     */
+    private function calculateTable14Similarity($data1, $data2)
+    {
+        // Тезис номларини солиштириш
+        $tezis1 = $data1->tezis_nomi ?? '';
+        $tezis2 = $data2->tezis_nomi ?? '';
+        $tezisSimilarity = $this->calculateSimilarity($tezis1, $tezis2);
+
+        // Конференция/семинар номларини солиштириш
+        $konf1 = $data1->konf_seminar_nomi ?? '';
+        $konf2 = $data2->konf_seminar_nomi ?? '';
+        $konfSimilarity = $this->calculateSimilarity($konf1, $konf2);
+
+        // Ўхшашлик фоизини ҳисоблаш (фақат 2 та майдон)
+        $similarityScore = ($tezisSimilarity + $konfSimilarity) / 2.0;
+        
+        return $similarityScore;
+    }
+
+    /**
+     * Table 10 ўхшашлик тафсилотларини олиш
+     */
+    private function getTable10SimilarityDetails($data1, $data2, $tableType1, $tableType2)
+    {
+        return [
+            'journal_similarity' => $this->calculateSimilarity(
+                $this->getTable10JournalName($data1, $tableType1),
+                $this->getTable10JournalName($data2, $tableType2)
+            ),
+            'article_similarity' => $this->calculateSimilarity(
+                $this->getTable10ArticleName($data1, $tableType1),
+                $this->getTable10ArticleName($data2, $tableType2)
+            ),
+            'year_similarity' => $this->calculateSimilarity(
+                $this->normalizeYear($this->getTable10PublishYear($data1, $tableType1)),
+                $this->normalizeYear($this->getTable10PublishYear($data2, $tableType2))
+            ),
+        ];
+    }
+
+    /**
+     * Table 14 ўхшашлик тафсилотларини олиш
+     */
+    private function getTable14SimilarityDetails($data1, $data2)
+    {
+        return [
+            'tezis_similarity' => $this->calculateSimilarity($data1->tezis_nomi ?? '', $data2->tezis_nomi ?? ''),
+            'conference_similarity' => $this->calculateSimilarity($data1->konf_seminar_nomi ?? '', $data2->konf_seminar_nomi ?? ''),
+        ];
+    }
+
+    /**
+     * Table 10 тузатилган дубликатларини топиш
+     */
+    private function findTable10FixedDuplicates()
+    {
+        $fixedDuplicates = [];
+        
+        // Барча Table 10 турларидаги маълумотларни олиш (ҳам point > 0, ҳам point = 0)
+        $allTable10Records = PointUserDeportament::where(function ($query) {
+            $query->whereNotNull('table_10_1_id')
+                  ->orWhereNotNull('table_10_2_id')
+                  ->orWhereNotNull('table_10_3_id');
+        })
+        ->where('status', 1)
+        ->with(['employee'])
+        ->get();
+
+        // Фойдаланувчи ва йил бўйича гуруҳлаш
+        $groupedByUserYear = $allTable10Records->groupBy(function($record) {
+            return $record->user_id . '_' . $record->year;
+        });
+
+        foreach ($groupedByUserYear as $key => $records) {
+            $activeRecords = $records->where('point', '>', 0);
+            $fixedRecords = $records->where('point', '=', 0);
+
+            // Агар гуруҳда point = 0 бўлган ёзувлар бор ва улар ўхшаш бўлса
+            if ($fixedRecords->count() > 0 && $activeRecords->count() >= 1) {
+                
+                // 70% ўхшашлик алгоритми билан мос келишни текшириш
+                $similarityMatches = [];
+                
+                foreach ($activeRecords as $activeRecord) {
+                    $activeTableType = $this->getRecordTableType($activeRecord);
+                    $activeData = $this->getRelatedData($activeRecord, $activeTableType);
+                    
+                    if (!$activeData) continue;
+                    
+                    foreach ($fixedRecords as $fixedRecord) {
+                        $fixedTableType = $this->getRecordTableType($fixedRecord);
+                        $fixedData = $this->getRelatedData($fixedRecord, $fixedTableType);
+                        
+                        if (!$fixedData) continue;
+                        if ($activeTableType === $fixedTableType) continue;
+                        
+                        // 70% ўхшашлик баллини ҳисоблаш
+                        $similarityScore = $this->calculateTable10Similarity($activeData, $fixedData, $activeTableType, $fixedTableType);
+                        
+                        // Агар 70% дан кўп ўхшаш бўлса
+                        if ($similarityScore >= 0.7) {
+                            $matchKey = $this->getTable10ArticleName($activeData, $activeTableType) ?: 'Unknown';
+                            
+                            if (!isset($similarityMatches[$matchKey])) {
+                                $similarityMatches[$matchKey] = [
+                                    'active' => [],
+                                    'fixed' => [],
+                                    'similarity_score' => $similarityScore
+                                ];
+                            }
+                            
+                            $similarityMatches[$matchKey]['active'][] = $activeRecord;
+                            $similarityMatches[$matchKey]['fixed'][] = $fixedRecord;
+                            $similarityMatches[$matchKey]['similarity_score'] = max($similarityMatches[$matchKey]['similarity_score'], $similarityScore);
+                        }
+                    }
+                }
+
+                // Агар ўхшашлик топилган бўлса
+                if (!empty($similarityMatches)) {
+                    $userYearParts = explode('_', $key);
+                    $userId = $userYearParts[0];
+                    $year = $userYearParts[1];
+                    
+                    $firstRecord = $records->first();
+                    
+                    foreach ($similarityMatches as $title => $matches) {
+                        $fixedDuplicates[] = [
+                            'user_id' => $userId,
+                            'employee_id_number' => $firstRecord->employee->employee_id_number ?? $firstRecord->user_id,
+                            'employee_name' => $firstRecord->employee->FullName ?? 'Номаълум',
+                            'year' => $year,
+                            'article_title' => $title,
+                            'active_records' => collect($matches['active'])->unique('id')->map(function($record) {
+                                $tableType = $this->getRecordTableType($record);
+                                $relatedData = $this->getRelatedData($record, $tableType);
+                                return [
+                                    'id' => $record->id,
+                                    'table_type' => $tableType,
+                                    'point' => $record->point,
+                                    'jurnal_nomi' => $this->getTable10JournalName($relatedData, $tableType),
+                                    'maqola_nomi' => $this->getTable10ArticleName($relatedData, $tableType),
+                                    'nashr_yili' => $this->getTable10PublishYear($relatedData, $tableType),
+                                    'created_at' => $record->created_at
+                                ];
+                            })->values()->toArray(),
+                            'fixed_records' => collect($matches['fixed'])->unique('id')->map(function($record) {
+                                $tableType = $this->getRecordTableType($record);
+                                $relatedData = $this->getRelatedData($record, $tableType);
+                                return [
+                                    'id' => $record->id,
+                                    'table_type' => $tableType,
+                                    'point' => $record->point,
+                                    'jurnal_nomi' => $this->getTable10JournalName($relatedData, $tableType),
+                                    'maqola_nomi' => $this->getTable10ArticleName($relatedData, $tableType),
+                                    'nashr_yili' => $this->getTable10PublishYear($relatedData, $tableType),
+                                    'created_at' => $record->created_at
+                                ];
+                            })->values()->toArray(),
+                            'total_active_points' => collect($matches['active'])->unique('id')->sum('point'),
+                            'fixed_at' => collect($matches['fixed'])->max('updated_at')
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $fixedDuplicates;
+    }
+
+    /**
+     * Table 14 тузатилган дубликатларини топиш
+     */
+    private function findTable14FixedDuplicates()
+    {
+        $fixedDuplicates = [];
+        
+        // Барча Table 14 турларидаги маълумотларни олиш (ҳам point > 0, ҳам point = 0)
+        $allTable14Records = PointUserDeportament::where(function ($query) {
+            $query->whereNotNull('table_14_1_id')
+                  ->orWhereNotNull('table_14_2_id');
+        })
+        ->where('status', 1)
+        ->with(['employee'])
+        ->get();
+
+        // Фойдаланувчи ва йил бўйича гуруҳлаш
+        $groupedByUserYear = $allTable14Records->groupBy(function($record) {
+            return $record->user_id . '_' . $record->year;
+        });
+
+        foreach ($groupedByUserYear as $key => $records) {
+            $activeRecords = $records->where('point', '>', 0);
+            $fixedRecords = $records->where('point', '=', 0);
+
+            // Агар гуруҳда point = 0 бўлган ёзувлар бор ва улар ўхшаш бўлса
+            if ($fixedRecords->count() > 0 && $activeRecords->count() >= 1) {
+                
+                // 70% ўхшашлик алгоритми билан мос келишни текшириш
+                $similarityMatches = [];
+                
+                foreach ($activeRecords as $activeRecord) {
+                    $activeTableType = $this->getRecordTableType($activeRecord);
+                    $activeData = $this->getRelatedData($activeRecord, $activeTableType);
+                    
+                    if (!$activeData) continue;
+                    
+                    foreach ($fixedRecords as $fixedRecord) {
+                        $fixedTableType = $this->getRecordTableType($fixedRecord);
+                        $fixedData = $this->getRelatedData($fixedRecord, $fixedTableType);
+                        
+                        if (!$fixedData) continue;
+                        if ($activeTableType === $fixedTableType) continue;
+                        
+                        // 70% ўхшашлик баллини ҳисоблаш
+                        $similarityScore = $this->calculateTable14Similarity($activeData, $fixedData);
+                        
+                        // Агар 70% дан кўп ўхшаш бўлса
+                        if ($similarityScore >= 0.7) {
+                            $matchKey = $activeData->tezis_nomi ?? 'Unknown';
+                            
+                            if (!isset($similarityMatches[$matchKey])) {
+                                $similarityMatches[$matchKey] = [
+                                    'active' => [],
+                                    'fixed' => [],
+                                    'similarity_score' => $similarityScore
+                                ];
+                            }
+                            
+                            $similarityMatches[$matchKey]['active'][] = $activeRecord;
+                            $similarityMatches[$matchKey]['fixed'][] = $fixedRecord;
+                            $similarityMatches[$matchKey]['similarity_score'] = max($similarityMatches[$matchKey]['similarity_score'], $similarityScore);
+                        }
+                    }
+                }
+
+                // Агар ўхшашлик топилган бўлса
+                if (!empty($similarityMatches)) {
+                    $userYearParts = explode('_', $key);
+                    $userId = $userYearParts[0];
+                    $year = $userYearParts[1];
+                    
+                    $firstRecord = $records->first();
+                    
+                    foreach ($similarityMatches as $title => $matches) {
+                        $fixedDuplicates[] = [
+                            'user_id' => $userId,
+                            'employee_id_number' => $firstRecord->employee->employee_id_number ?? $firstRecord->user_id,
+                            'employee_name' => $firstRecord->employee->FullName ?? 'Номаълум',
+                            'year' => $year,
+                            'article_title' => $title,
+                            'active_records' => collect($matches['active'])->unique('id')->map(function($record) {
+                                $tableType = $this->getRecordTableType($record);
+                                $relatedData = $this->getRelatedData($record, $tableType);
+                                return [
+                                    'id' => $record->id,
+                                    'table_type' => $tableType,
+                                    'point' => $record->point,
+                                    'davlat_otm_nomi' => $relatedData->davlat_otm_nomi ?? '',
+                                    'tezis_nomi' => $relatedData->tezis_nomi ?? '',
+                                    'konf_seminar_nomi' => $relatedData->konf_seminar_nomi ?? '',
+                                    'created_at' => $record->created_at
+                                ];
+                            })->values()->toArray(),
+                            'fixed_records' => collect($matches['fixed'])->unique('id')->map(function($record) {
+                                $tableType = $this->getRecordTableType($record);
+                                $relatedData = $this->getRelatedData($record, $tableType);
+                                return [
+                                    'id' => $record->id,
+                                    'table_type' => $tableType,
+                                    'point' => $record->point,
+                                    'davlat_otm_nomi' => $relatedData->davlat_otm_nomi ?? '',
+                                    'tezis_nomi' => $relatedData->tezis_nomi ?? '',
+                                    'konf_seminar_nomi' => $relatedData->konf_seminar_nomi ?? '',
                                     'created_at' => $record->created_at
                                 ];
                             })->values()->toArray(),

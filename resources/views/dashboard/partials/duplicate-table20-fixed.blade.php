@@ -42,6 +42,11 @@
                         <div class="text-xs text-gray-500 mt-1">
                             {{ \Carbon\Carbon::parse($fixedDuplicate['fixed_at'])->format('d.m.Y H:i') }}
                         </div>
+                        <a href="{{ route('dashboard.employeeShow', ['id_employee' => $fixedDuplicate['employee_id_number']]) }}" 
+                           target="_blank" 
+                           class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs transition-all duration-200 mt-2 inline-block">
+                            <i class="fas fa-external-link-alt mr-1"></i>Ko'rish
+                        </a>
                     </div>
                 </div>
             </div>
@@ -76,6 +81,13 @@
                                 <i class="fas fa-clock mr-1"></i>
                                 Qo'shilgan: {{ \Carbon\Carbon::parse($record['created_at'])->format('d.m.Y H:i') }}
                             </p>
+                            <div class="mt-2">
+                                <a href="{{ route('murojatlar.show', ['id' => $record['id']]) }}" 
+                                   target="_blank" 
+                                   class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs transition-all duration-200">
+                                    <i class="fas fa-external-link-alt mr-1"></i>Ko'rish
+                                </a>
+                            </div>
                         </div>
                     </div>
                     @endforeach
@@ -110,6 +122,13 @@
                                 <i class="fas fa-clock mr-1"></i>
                                 Qo'shilgan: {{ \Carbon\Carbon::parse($record['created_at'])->format('d.m.Y H:i') }}
                             </p>
+                            <div class="mt-2">
+                                <a href="{{ route('murojatlar.show', ['id' => $record['id']]) }}" 
+                                   target="_blank" 
+                                   class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs transition-all duration-200">
+                                    <i class="fas fa-external-link-alt mr-1"></i>Ko'rish
+                                </a>
+                            </div>
                         </div>
                     </div>
                     @endforeach

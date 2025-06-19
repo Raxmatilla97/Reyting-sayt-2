@@ -19,7 +19,7 @@
                             <i class="fas fa-exclamation-triangle mr-2"></i>
                             Aktiv dublikatlar 
                             <span class="ml-1 bg-red-100 text-red-800 text-xs px-2 py-1 rounded-full">
-                                {{ count($table11Duplicates) + count($table20Duplicates) }}
+                                {{ count($table11Duplicates) + count($table20Duplicates) + count($table10Duplicates) + count($table14Duplicates) }}
                             </span>
                         </button>
                         <button onclick="showTab('fixed')" id="fixed-tab" 
@@ -27,7 +27,7 @@
                             <i class="fas fa-check-circle mr-2"></i>
                             Tuzatilgan dublikatlar 
                             <span class="ml-1 bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">
-                                {{ count($table11FixedDuplicates) + count($table20FixedDuplicates) }}
+                                {{ count($table11FixedDuplicates) + count($table20FixedDuplicates) + count($table10FixedDuplicates) + count($table14FixedDuplicates) }}
                             </span>
                         </button>
                         <button onclick="showTab('logs')" id="logs-tab" 
@@ -46,12 +46,63 @@
                             Harakatga kiritish kerak bo'lgan dublikatlar
                         </h3>
                         
-                        @if(count($table11Duplicates) > 0 || count($table20Duplicates) > 0)
+                        @if(count($table11Duplicates) > 0 || count($table20Duplicates) > 0 || count($table10Duplicates) > 0 || count($table14Duplicates) > 0)
+                            <!-- Sub tablar -->
+                            <div class="border-b border-gray-200 mb-4">
+                                <nav class="-mb-px flex space-x-4" aria-label="Sub Tabs">
+                                    @if(count($table11Duplicates) > 0)
+                                    <button onclick="scrollToSection('table11-active')" 
+                                            class="sub-tab-button bg-red-100 text-red-800 border border-red-300 hover:bg-red-200 py-2 px-4 text-sm font-medium rounded-lg transition-all duration-200">
+                                        <i class="fas fa-table mr-1"></i>
+                                        Table 11 <span class="bg-red-200 text-red-900 text-xs px-2 py-1 rounded-full ml-1">{{ count($table11Duplicates) }}</span>
+                                    </button>
+                                    @endif
+                                    
+                                    @if(count($table20Duplicates) > 0)
+                                    <button onclick="scrollToSection('table20-active')" 
+                                            class="sub-tab-button bg-orange-100 text-orange-800 border border-orange-300 hover:bg-orange-200 py-2 px-4 text-sm font-medium rounded-lg transition-all duration-200">
+                                        <i class="fas fa-table mr-1"></i>
+                                        Table 20 <span class="bg-orange-200 text-orange-900 text-xs px-2 py-1 rounded-full ml-1">{{ count($table20Duplicates) }}</span>
+                                    </button>
+                                    @endif
+                                    
+                                    @if(count($table10Duplicates) > 0)
+                                    <button onclick="scrollToSection('table10-active')" 
+                                            class="sub-tab-button bg-blue-100 text-blue-800 border border-blue-300 hover:bg-blue-200 py-2 px-4 text-sm font-medium rounded-lg transition-all duration-200">
+                                        <i class="fas fa-table mr-1"></i>
+                                        Table 10 <span class="bg-blue-200 text-blue-900 text-xs px-2 py-1 rounded-full ml-1">{{ count($table10Duplicates) }}</span>
+                                    </button>
+                                    @endif
+                                    
+                                    @if(count($table14Duplicates) > 0)
+                                    <button onclick="scrollToSection('table14-active')" 
+                                            class="sub-tab-button bg-purple-100 text-purple-800 border border-purple-300 hover:bg-purple-200 py-2 px-4 text-sm font-medium rounded-lg transition-all duration-200">
+                                        <i class="fas fa-table mr-1"></i>
+                                        Table 14 <span class="bg-purple-200 text-purple-900 text-xs px-2 py-1 rounded-full ml-1">{{ count($table14Duplicates) }}</span>
+                                    </button>
+                                    @endif
+                                </nav>
+                            </div>
+
                             <!-- Table 11 aktiv dublikatlar -->
-                            @include('dashboard.partials.duplicate-table11')
+                            <div id="table11-active">
+                                @include('dashboard.partials.duplicate-table11')
+                            </div>
                             
                             <!-- Table 20 aktiv dublikatlar -->
-                            @include('dashboard.partials.duplicate-table20')
+                            <div id="table20-active">
+                                @include('dashboard.partials.duplicate-table20')
+                            </div>
+                            
+                            <!-- Table 10 aktiv dublikatlar -->
+                            <div id="table10-active">
+                                @include('dashboard.partials.duplicate-table10')
+                            </div>
+                            
+                            <!-- Table 14 aktiv dublikatlar -->
+                            <div id="table14-active">
+                                @include('dashboard.partials.duplicate-table14')
+                            </div>
                         @else
                             <div class="bg-green-50 border border-green-200 rounded-lg p-4">
                                 <div class="flex items-center">
@@ -71,12 +122,63 @@
                             Tuzatilgan dublikatlar tarixi
                         </h3>
                         
-                        @if(count($table11FixedDuplicates) > 0 || count($table20FixedDuplicates) > 0)
+                        @if(count($table11FixedDuplicates) > 0 || count($table20FixedDuplicates) > 0 || count($table10FixedDuplicates) > 0 || count($table14FixedDuplicates) > 0)
+                            <!-- Sub tablar -->
+                            <div class="border-b border-gray-200 mb-4">
+                                <nav class="-mb-px flex space-x-4" aria-label="Fixed Sub Tabs">
+                                    @if(count($table11FixedDuplicates) > 0)
+                                    <button onclick="scrollToSection('table11-fixed')" 
+                                            class="sub-tab-button bg-green-100 text-green-800 border border-green-300 hover:bg-green-200 py-2 px-4 text-sm font-medium rounded-lg transition-all duration-200">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Table 11 <span class="bg-green-200 text-green-900 text-xs px-2 py-1 rounded-full ml-1">{{ count($table11FixedDuplicates) }}</span>
+                                    </button>
+                                    @endif
+                                    
+                                    @if(count($table20FixedDuplicates) > 0)
+                                    <button onclick="scrollToSection('table20-fixed')" 
+                                            class="sub-tab-button bg-green-100 text-green-800 border border-green-300 hover:bg-green-200 py-2 px-4 text-sm font-medium rounded-lg transition-all duration-200">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Table 20 <span class="bg-green-200 text-green-900 text-xs px-2 py-1 rounded-full ml-1">{{ count($table20FixedDuplicates) }}</span>
+                                    </button>
+                                    @endif
+                                    
+                                    @if(count($table10FixedDuplicates) > 0)
+                                    <button onclick="scrollToSection('table10-fixed')" 
+                                            class="sub-tab-button bg-green-100 text-green-800 border border-green-300 hover:bg-green-200 py-2 px-4 text-sm font-medium rounded-lg transition-all duration-200">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Table 10 <span class="bg-green-200 text-green-900 text-xs px-2 py-1 rounded-full ml-1">{{ count($table10FixedDuplicates) }}</span>
+                                    </button>
+                                    @endif
+                                    
+                                    @if(count($table14FixedDuplicates) > 0)
+                                    <button onclick="scrollToSection('table14-fixed')" 
+                                            class="sub-tab-button bg-green-100 text-green-800 border border-green-300 hover:bg-green-200 py-2 px-4 text-sm font-medium rounded-lg transition-all duration-200">
+                                        <i class="fas fa-check-circle mr-1"></i>
+                                        Table 14 <span class="bg-green-200 text-green-900 text-xs px-2 py-1 rounded-full ml-1">{{ count($table14FixedDuplicates) }}</span>
+                                    </button>
+                                    @endif
+                                </nav>
+                            </div>
+
                             <!-- Table 11 tuzatilgan dublikatlar -->
-                            @include('dashboard.partials.duplicate-table11-fixed')
+                            <div id="table11-fixed">
+                                @include('dashboard.partials.duplicate-table11-fixed')
+                            </div>
                             
                             <!-- Table 20 tuzatilgan dublikatlar -->
-                            @include('dashboard.partials.duplicate-table20-fixed')
+                            <div id="table20-fixed">
+                                @include('dashboard.partials.duplicate-table20-fixed')
+                            </div>
+                            
+                            <!-- Table 10 tuzatilgan dublikatlar -->
+                            <div id="table10-fixed">
+                                @include('dashboard.partials.duplicate-table10-fixed')
+                            </div>
+                            
+                            <!-- Table 14 tuzatilgan dublikatlar -->
+                            <div id="table14-fixed">
+                                @include('dashboard.partials.duplicate-table14-fixed')
+                            </div>
                         @else
                             <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
                                 <div class="flex items-center">
@@ -142,6 +244,29 @@
                 alert.style.display = 'none';
             });
         }, 5000);
+
+        // Seksiyaga scrolllash funksiyasi
+        function scrollToSection(sectionId) {
+            const element = document.getElementById(sectionId);
+            if (element) {
+                // Smooth scroll animatsiyasi bilan
+                element.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'start',
+                    inline: 'nearest'
+                });
+                
+                // Seksiyani visual ravishda ajratib ko'rsatish
+                element.style.transition = 'all 0.3s ease';
+                element.style.boxShadow = '0 0 20px rgba(59, 130, 246, 0.5)';
+                element.style.borderRadius = '8px';
+                
+                // 2 soniyadan so'ng highlight ni olib tashlash
+                setTimeout(() => {
+                    element.style.boxShadow = 'none';
+                }, 2000);
+            }
+        }
     </script>
 
     <style>
