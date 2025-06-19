@@ -43,7 +43,7 @@
                             <input type="hidden" name="user_id" value="{{ $duplicate['user_id'] }}">
                             <input type="hidden" name="year" value="{{ $duplicate['year'] }}">
                             <input type="hidden" name="record_ids" value="{{ implode(',', array_column($duplicate['records'], 'id')) }}">
-                            <button type="submit" class="bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold py-2 px-3 rounded-lg shadow transition-all duration-200">
+                            <button type="submit" class="text-white text-xs font-bold py-2 px-3 rounded-lg shadow transition-all duration-200" style="background-color: #ea580c;">
                                 <i class="fas fa-wrench mr-1"></i>
                                 Tuzatish
                             </button>
