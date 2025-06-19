@@ -251,7 +251,166 @@ class PointUserDeportamentController extends Controller
         $hasSimilarData = $similarData->isNotEmpty();
         $similarDataId = $hasSimilarData ? $similarData->first()->id : null;
 
-        return view('dashboard.show_request', compact('information', 'default_image', 'totalPoints', 'relatedData', 'year', 'userPointInfo', 'hasSimilarData', 'similarDataId'));
+        // Table_11_1, table_11_2, table_11_3 uchun o'xshash ma'lumotlarni tekshirish
+        $table11SimilarData = [];
+        $hasTable11SimilarData = false;
+        
+        // Joriy ma'lumot qaysi table_11_* ga tegishligi aniqlaymiz
+        $currentTable11Type = null;
+        if (!is_null($information->table_11_1_id)) {
+            $currentTable11Type = 'table_11_1';
+        } elseif (!is_null($information->table_11_2_id)) {
+            $currentTable11Type = 'table_11_2';
+        } elseif (!is_null($information->table_11_3_id)) {
+            $currentTable11Type = 'table_11_3';
+        }
+
+        if ($currentTable11Type) {
+            // Joriy ma'lumotning asosiy maydonlarini olamiz
+            $currentRelatedData = null;
+            foreach ($relatedData as $table => $data) {
+                if ($table === $currentTable11Type && $data) {
+                    $currentRelatedData = $data;
+                    break;
+                }
+            }
+
+            if ($currentRelatedData) {
+                // Foydalanuvchining barcha table_11_* ma'lumotlarini olamiz
+                $table11UserData = PointUserDeportament::where('user_id', $information->user_id)
+                    ->where('id', '!=', $id)
+                    ->where('year', $information->year)
+                    ->where(function ($query) {
+                        $query->whereNotNull('table_11_1_id')
+                              ->orWhereNotNull('table_11_2_id')
+                              ->orWhereNotNull('table_11_3_id');
+                    })
+                    ->get();
+
+                if ($table11UserData->isNotEmpty()) {
+                    foreach ($table11UserData as $userData) {
+                        $userTableType = null;
+                        $userRelatedData = null;
+                        
+                        if (!is_null($userData->table_11_1_id)) {
+                            $userTableType = 'table_11_1';
+                            $userRelatedData = $this->getModelClassForRelation('table_11_1')::find($userData->table_11_1_id);
+                        } elseif (!is_null($userData->table_11_2_id)) {
+                            $userTableType = 'table_11_2';
+                            $userRelatedData = $this->getModelClassForRelation('table_11_2')::find($userData->table_11_2_id);
+                        } elseif (!is_null($userData->table_11_3_id)) {
+                            $userTableType = 'table_11_3';
+                            $userRelatedData = $this->getModelClassForRelation('table_11_3')::find($userData->table_11_3_id);
+                        }
+
+                        if ($userTableType && $userTableType !== $currentTable11Type && $userRelatedData) {
+                            // Ma'lumotlarni taqqoslash
+                            $isSimilar = $this->compareTable11Data($currentRelatedData, $userRelatedData);
+                            
+                            // Faqat tasdiqlangan (status = 1) ma'lumotlarni ko'rsatish
+                            if ($isSimilar && $userData->status == 1) {
+                                $similarity = $this->getTable11Similarity($currentRelatedData, $userRelatedData);
+                                
+                                $table11SimilarData[] = [
+                                    'id' => $userData->id,
+                                    'table_type' => $userTableType,
+                                    'point' => $userData->point,
+                                    'status' => $userData->status,
+                                    'created_at' => $userData->created_at->format('d-m-Y H:i'),
+                                    'jurnal_nomi' => $userRelatedData->jurnal_nomi ?? '',
+                                    'maqola_nomi' => $userRelatedData->maqola_nomi ?? '',
+                                    'nashr_yili' => $userRelatedData->nashr_yili ?? '',
+                                    'similarity' => $similarity,
+                                    'has_points' => $userData->point > 0 // Ball mavjudligini aniqlash
+                                ];
+                                $hasTable11SimilarData = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Table_20_1, table_20_2, table_20_3 uchun o'xshash ma'lumotlarni tekshirish
+        $table20SimilarData = [];
+        $hasTable20SimilarData = false;
+        
+        // Joriy ma'lumot qaysi table_20_* ga tegishligi aniqlaymiz
+        $currentTable20Type = null;
+        if (!is_null($information->table_20_1_id)) {
+            $currentTable20Type = 'table_20_1';
+        } elseif (!is_null($information->table_20_2_id)) {
+            $currentTable20Type = 'table_20_2';
+        } elseif (!is_null($information->table_20_3_id)) {
+            $currentTable20Type = 'table_20_3';
+        }
+
+        if ($currentTable20Type) {
+            // Joriy ma'lumotning asosiy maydonlarini olamiz
+            $currentTable20RelatedData = null;
+            foreach ($relatedData as $table => $data) {
+                if ($table === $currentTable20Type && $data) {
+                    $currentTable20RelatedData = $data;
+                    break;
+                }
+            }
+
+            if ($currentTable20RelatedData) {
+                // Foydalanuvchining barcha table_20_* ma'lumotlarini olamiz
+                $table20UserData = PointUserDeportament::where('user_id', $information->user_id)
+                    ->where('id', '!=', $id)
+                    ->where('year', $information->year)
+                    ->where(function ($query) {
+                        $query->whereNotNull('table_20_1_id')
+                              ->orWhereNotNull('table_20_2_id')
+                              ->orWhereNotNull('table_20_3_id');
+                    })
+                    ->get();
+
+                if ($table20UserData->isNotEmpty()) {
+                    foreach ($table20UserData as $userData) {
+                        $userTableType = null;
+                        $userRelatedData = null;
+                        
+                        if (!is_null($userData->table_20_1_id)) {
+                            $userTableType = 'table_20_1';
+                            $userRelatedData = $this->getModelClassForRelation('table_20_1')::find($userData->table_20_1_id);
+                        } elseif (!is_null($userData->table_20_2_id)) {
+                            $userTableType = 'table_20_2';
+                            $userRelatedData = $this->getModelClassForRelation('table_20_2')::find($userData->table_20_2_id);
+                        } elseif (!is_null($userData->table_20_3_id)) {
+                            $userTableType = 'table_20_3';
+                            $userRelatedData = $this->getModelClassForRelation('table_20_3')::find($userData->table_20_3_id);
+                        }
+
+                        if ($userTableType && $userTableType !== $currentTable20Type && $userRelatedData) {
+                            // Ma'lumotlarni taqqoslash
+                            $isSimilar = $this->compareTable20Data($currentTable20RelatedData, $userRelatedData);
+                            
+                            // Faqat tasdiqlangan (status = 1) ma'lumotlarni ko'rsatish
+                            if ($isSimilar && $userData->status == 1) {
+                                $similarity = $this->getTable20Similarity($currentTable20RelatedData, $userRelatedData);
+                                
+                                $table20SimilarData[] = [
+                                    'id' => $userData->id,
+                                    'table_type' => $userTableType,
+                                    'point' => $userData->point,
+                                    'status' => $userData->status,
+                                    'created_at' => $userData->created_at->format('d-m-Y H:i'),
+                                    'jurnal_nomi' => $userRelatedData->jurnal_nomi ?? '',
+                                    'mualliflar_soni' => $userRelatedData->mualliflar_soni ?? '',
+                                    'similarity' => $similarity,
+                                    'has_points' => $userData->point > 0 // Ball mavjudligini aniqlash
+                                ];
+                                $hasTable20SimilarData = true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return view('dashboard.show_request', compact('information', 'default_image', 'totalPoints', 'relatedData', 'year', 'userPointInfo', 'hasSimilarData', 'similarDataId', 'hasTable11SimilarData', 'table11SimilarData', 'currentTable11Type', 'hasTable20SimilarData', 'table20SimilarData', 'currentTable20Type'));
     }
 
 
@@ -309,6 +468,68 @@ class PointUserDeportamentController extends Controller
             if ($request->murojaat_holati == '1') { // "Maqullandi" holati
                 $model->point = $inputPoint;
 
+                // Table_11_* uchun maxsus logika: agar joriy ma'lumot table_11_* tipida bo'lsa
+                $currentTable11Type = null;
+                if (!is_null($model->table_11_1_id)) {
+                    $currentTable11Type = 'table_11_1';
+                } elseif (!is_null($model->table_11_2_id)) {
+                    $currentTable11Type = 'table_11_2';
+                } elseif (!is_null($model->table_11_3_id)) {
+                    $currentTable11Type = 'table_11_3';
+                }
+
+                if ($currentTable11Type) {
+                    // Foydalanuvchining boshqa table_11_* ma'lumotlarining ballarini 0 ga o'tkazish
+                    $otherTable11Records = PointUserDeportament::where('user_id', $model->user_id)
+                        ->where('id', '!=', $model->id)
+                        ->where('year', $model->year)
+                        ->where(function ($query) {
+                            $query->whereNotNull('table_11_1_id')
+                                  ->orWhereNotNull('table_11_2_id')
+                                  ->orWhereNotNull('table_11_3_id');
+                        })
+                        ->get();
+
+                    foreach ($otherTable11Records as $record) {
+                        $record->point = 0.00;
+                        $record->save();
+                        
+                        // Kafedra ballarini ham o'chirish
+                        DepartPoints::where('point_user_deport_id', $record->id)->delete();
+                    }
+                }
+
+                // Table_20_* uchun maxsus logika: agar joriy ma'lumot table_20_* tipida bo'lsa
+                $currentTable20Type = null;
+                if (!is_null($model->table_20_1_id)) {
+                    $currentTable20Type = 'table_20_1';
+                } elseif (!is_null($model->table_20_2_id)) {
+                    $currentTable20Type = 'table_20_2';
+                } elseif (!is_null($model->table_20_3_id)) {
+                    $currentTable20Type = 'table_20_3';
+                }
+
+                if ($currentTable20Type) {
+                    // Foydalanuvchining boshqa table_20_* ma'lumotlarining ballarini 0 ga o'tkazish
+                    $otherTable20Records = PointUserDeportament::where('user_id', $model->user_id)
+                        ->where('id', '!=', $model->id)
+                        ->where('year', $model->year)
+                        ->where(function ($query) {
+                            $query->whereNotNull('table_20_1_id')
+                                  ->orWhereNotNull('table_20_2_id')
+                                  ->orWhereNotNull('table_20_3_id');
+                        })
+                        ->get();
+
+                    foreach ($otherTable20Records as $record) {
+                        $record->point = 0.00;
+                        $record->save();
+                        
+                        // Kafedra ballarini ham o'chirish
+                        DepartPoints::where('point_user_deport_id', $record->id)->delete();
+                    }
+                }
+
                 // Kafedra balini tekshirish
                 if ($request->has('kafedra_uchun')) {
                     if ($inputForDepart > 0) {
@@ -357,5 +578,141 @@ class PointUserDeportamentController extends Controller
         $file->delete();
 
         return redirect()->route('murojatlar.list')->with('toaster', ['success', "Ma'lumot o'chirildi!"]);
+    }
+
+    /**
+     * Table_11_* ma'lumotlarini taqqoslash
+     */
+    private function compareTable11Data($data1, $data2)
+    {
+        // Asosiy maydonlarni normallashtirish va taqqoslash
+        $journal1 = $this->normalizeText($data1->jurnal_nomi ?? '');
+        $journal2 = $this->normalizeText($data2->jurnal_nomi ?? '');
+        
+        $article1 = $this->normalizeText($data1->maqola_nomi ?? '');
+        $article2 = $this->normalizeText($data2->maqola_nomi ?? '');
+        
+        $year1 = $this->normalizeYear($data1->nashr_yili ?? '');
+        $year2 = $this->normalizeYear($data2->nashr_yili ?? '');
+
+        // O'xshashlik foizini hisoblash
+        $journalSimilarity = $this->calculateSimilarity($journal1, $journal2);
+        $articleSimilarity = $this->calculateSimilarity($article1, $article2);
+        $yearMatch = ($year1 === $year2 && !empty($year1)) ? 1.0 : 0.0;
+
+        // Agar jurnal va maqola nomi 70% dan ko'p o'xshash bo'lsa va yil bir xil bo'lsa
+        return ($journalSimilarity >= 0.7 && $articleSimilarity >= 0.7 && $yearMatch > 0);
+    }
+
+    /**
+     * Matnni normallash
+     */
+    private function normalizeText($text)
+    {
+        // Kichik harfga o'tkazish
+        $text = mb_strtolower($text, 'UTF-8');
+        
+        // Ortiqcha bo'sh joylarni olib tashlash
+        $text = preg_replace('/\s+/', ' ', $text);
+        $text = trim($text);
+        
+        // Tinish belgilarini olib tashlash
+        $text = preg_replace('/[.,;:!?"`\'"«»„"]/', '', $text);
+        
+        return $text;
+    }
+
+    /**
+     * Yilni normallash
+     */
+    private function normalizeYear($yearText)
+    {
+        // 4 xonali raqamni qidirish
+        preg_match('/\b(20\d{2}|19\d{2})\b/', $yearText, $matches);
+        return $matches[0] ?? '';
+    }
+
+    /**
+     * Matnlar o'rtasidagi o'xshashlik foizini hisoblash (Levenshtein distance)
+     */
+    private function calculateSimilarity($str1, $str2)
+    {
+        if (empty($str1) || empty($str2)) {
+            return 0.0;
+        }
+
+        $len1 = mb_strlen($str1, 'UTF-8');
+        $len2 = mb_strlen($str2, 'UTF-8');
+        $maxLen = max($len1, $len2);
+        
+        if ($maxLen == 0) {
+            return 1.0;
+        }
+
+        // Levenshtein masofasini hisoblash
+        $distance = levenshtein($str1, $str2);
+        
+        // O'xshashlik foizini qaytarish
+        return max(0, 1 - ($distance / $maxLen));
+    }
+
+    /**
+     * Table_11_* ma'lumotlari o'xshashligi haqida batafsil ma'lumot
+     */
+    private function getTable11Similarity($data1, $data2)
+    {
+        $journal1 = $this->normalizeText($data1->jurnal_nomi ?? '');
+        $journal2 = $this->normalizeText($data2->jurnal_nomi ?? '');
+        
+        $article1 = $this->normalizeText($data1->maqola_nomi ?? '');
+        $article2 = $this->normalizeText($data2->maqola_nomi ?? '');
+        
+        $year1 = $this->normalizeYear($data1->nashr_yili ?? '');
+        $year2 = $this->normalizeYear($data2->nashr_yili ?? '');
+
+        return [
+            'journal_similarity' => round($this->calculateSimilarity($journal1, $journal2) * 100, 1),
+            'article_similarity' => round($this->calculateSimilarity($article1, $article2) * 100, 1),
+            'year_match' => ($year1 === $year2 && !empty($year1)),
+            'year1' => $year1,
+            'year2' => $year2
+        ];
+    }
+
+    /**
+     * Table_20_* ma'lumotlarini taqqoslash
+     */
+    private function compareTable20Data($data1, $data2)
+    {
+        // Asosiy maydonlarni normallashtirish va taqqoslash
+        $journal1 = $this->normalizeText($data1->jurnal_nomi ?? '');
+        $journal2 = $this->normalizeText($data2->jurnal_nomi ?? '');
+        
+        $authors1 = $this->normalizeText($data1->mualliflar_soni ?? '');
+        $authors2 = $this->normalizeText($data2->mualliflar_soni ?? '');
+
+        // O'xshashlik foizini hisoblash
+        $journalSimilarity = $this->calculateSimilarity($journal1, $journal2);
+        $authorsSimilarity = $this->calculateSimilarity($authors1, $authors2);
+
+        // Agar jurnal nomi va mualliflar soni 70% dan ko'p o'xshash bo'lsa
+        return ($journalSimilarity >= 0.7 && $authorsSimilarity >= 0.7);
+    }
+
+    /**
+     * Table_20_* ma'lumotlari o'xshashligi haqida batafsil ma'lumot
+     */
+    private function getTable20Similarity($data1, $data2)
+    {
+        $journal1 = $this->normalizeText($data1->jurnal_nomi ?? '');
+        $journal2 = $this->normalizeText($data2->jurnal_nomi ?? '');
+        
+        $authors1 = $this->normalizeText($data1->mualliflar_soni ?? '');
+        $authors2 = $this->normalizeText($data2->mualliflar_soni ?? '');
+
+        return [
+            'journal_similarity' => round($this->calculateSimilarity($journal1, $journal2) * 100, 1),
+            'authors_similarity' => round($this->calculateSimilarity($authors1, $authors2) * 100, 1)
+        ];
     }
 }

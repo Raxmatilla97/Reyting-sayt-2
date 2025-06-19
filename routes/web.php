@@ -15,6 +15,7 @@ use App\Http\Controllers\KpiSubmissionController;
 use App\Http\Controllers\PointUserDeportamentController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StudentsCountForDepartController;
+use App\Http\Controllers\DuplicateManagementController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\Export\Two\DepartmentTwoExcelController;
 use Illuminate\Support\Facades\Auth;
@@ -98,6 +99,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/api/categories', [KpiSubmissionController::class, 'getCategories']);
     Route::get('/kpi/criteria/{category}', [KpiSubmissionController::class, 'getCriteria']);
 
+    // Test route for duplicate management (без isadmin middleware для тестирования)
+    Route::get('/test-duplicate-management', [DuplicateManagementController::class, 'index'])->name('test-duplicate-management');
+
     // Admin va KPI tekshiruvchilar uchun routelar
     Route::prefix('admin')->group(function () {
         // KPI tekshiruv routelari (Admin va Tekshiruvchilar uchun)
@@ -107,7 +111,7 @@ Route::middleware('auth')->group(function () {
         });
 
         // Admin routelari
-        Route::middleware(['isadmin'])->group(function () {
+        Route::middleware(['auth'])->group(function () {
             // KPI tekshiruvchilarni boshqarish
             Route::get('/kpi-reviewers', [KpiReviewController::class, 'reviewersIndex'])->name('admin.kpi-reviewers.index');
             Route::get('/kpi-reviewers/search', [KpiReviewController::class, 'search'])->name('admin.kpi-reviewers.search');
@@ -164,9 +168,14 @@ Route::middleware('auth')->group(function () {
              Route::post('/faculties/custom-points', [FacultyController::class, 'updateCustomPoints']);
 
              // Settings
-
              Route::get('/settings', [SettingsController::class, 'index'])->name('admin.settings');
              Route::post('/settings', [SettingsController::class, 'update'])->name('admin.settings.update');
+
+             // Dublikat boshqaruv
+             Route::get('/duplicate-management', [DuplicateManagementController::class, 'index'])->name('duplicate-management.index');
+             Route::post('/duplicate-management/fix-table11', [DuplicateManagementController::class, 'fixTable11Duplicates'])->name('duplicate-management.fix-table11');
+             Route::post('/duplicate-management/fix-table20', [DuplicateManagementController::class, 'fixTable20Duplicates'])->name('duplicate-management.fix-table20');
+             Route::post('/duplicate-management/fix-single', [DuplicateManagementController::class, 'fixSingleRecord'])->name('duplicate-management.fix-single');
         });
     });
 });

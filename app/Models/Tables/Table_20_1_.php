@@ -9,5 +9,10 @@ class Table_20_1_ extends Model
 {
     use HasFactory;
 
-
+    protected $fillable = [
+        'mualliflar_soni',
+        'jurnal_nomi',
+        'asos_url',
+        'asos_file'
+    ];
 }

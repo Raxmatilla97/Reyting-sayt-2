@@ -154,6 +154,11 @@
                                         {{ __('Eksport va Yangilash') }}
                                     </a>
 
+                                    
+                    <x-responsive-nav-link :href="route('duplicate-management.index')" :active="request()->routeIs('duplicate-management.index')">
+                        {{ __('Dublikatlar') }}
+                    </x-responsive-nav-link>
+
                                     <!-- KPI Mezonlari -->
                                     <a href="{{ route('admin.criteria.index') }}"
                                         class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 {{ request()->routeIs('admin.criteria.*') ? 'bg-gray-100' : '' }}">
@@ -288,6 +293,10 @@
 
                     <x-responsive-nav-link :href="route('export')" :active="request()->routeIs('export')">
                         {{ __('Eksport va Yangilash') }}
+                    </x-responsive-nav-link>
+
+                    <x-responsive-nav-link :href="route('duplicate-management.index')" :active="request()->routeIs('duplicate-management.index')">
+                        {{ __('Dublikatlar') }}
                     </x-responsive-nav-link>
 
                     <x-responsive-nav-link :href="route('admin.criteria.index')" :active="request()->routeIs('admin.criteria.*')">
