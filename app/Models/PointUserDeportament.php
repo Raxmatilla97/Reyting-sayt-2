@@ -128,58 +128,94 @@ class PointUserDeportament extends Model
         static::updated(function ($pointUserDeportament) {
             // Faqat ball o'zgarganda ishlaydi
             if ($pointUserDeportament->isDirty('point') && $pointUserDeportament->point > 0) {
+                
+                // Agar ma'lumotga point berilgan bo'lsa va oldin kafedra bali mavjud bo'lsa, uni o'chirish
+                \App\Models\DepartPoints::where('point_user_deport_id', $pointUserDeportament->id)->delete();
+                
+                Log::info('Kafedra bali o\'chirildi (o\'qituvchi bali berilganligi sababli - model event)', [
+                    'point_user_deport_id' => $pointUserDeportament->id,
+                    'user_id' => $pointUserDeportament->user_id,
+                    'teacher_point_given' => $pointUserDeportament->point
+                ]);
+
                 // Agar Table 11 turlaridan biri bo'lsa
                 $isTable11 = $pointUserDeportament->table_11_1_id || 
                            $pointUserDeportament->table_11_2_id || 
                            $pointUserDeportament->table_11_3_id;
                 
                 if ($isTable11) {
-                    // Shu foydalanuvchining shu yildagi boshqa Table 11 yozuvlarini topish
-                    $otherTable11Records = self::where('user_id', $pointUserDeportament->user_id)
-                        ->where('year', $pointUserDeportament->year)
-                        ->where('id', '!=', $pointUserDeportament->id)
-                        ->where('point', '>', 0)
-                        ->where(function ($query) {
-                            $query->whereNotNull('table_11_1_id')
-                                  ->orWhereNotNull('table_11_2_id')
-                                  ->orWhereNotNull('table_11_3_id');
-                        })
-                        ->get();
-
-                    // Priority tartibini aniqlash
+                    // Current record ma'lumotlarini olish
                     $currentTableType = null;
-                    if ($pointUserDeportament->table_11_1_id) $currentTableType = 'Table_11_1';
-                    elseif ($pointUserDeportament->table_11_2_id) $currentTableType = 'Table_11_2';
-                    elseif ($pointUserDeportament->table_11_3_id) $currentTableType = 'Table_11_3';
+                    if ($pointUserDeportament->table_11_1_id) $currentTableType = 'table_11_1';
+                    elseif ($pointUserDeportament->table_11_2_id) $currentTableType = 'table_11_2';
+                    elseif ($pointUserDeportament->table_11_3_id) $currentTableType = 'table_11_3';
 
-                    $priorityOrder = ['Table_11_1' => 1, 'Table_11_2' => 2, 'Table_11_3' => 3];
-                    $currentPriority = $priorityOrder[$currentTableType] ?? 999;
+                    $currentRelatedData = self::getRelatedDataForModel($pointUserDeportament, $currentTableType);
 
-                    // Boshqa Table 11 yozuvlarning ballarini 0 ga o'tkazish
-                    foreach ($otherTable11Records as $otherRecord) {
-                        $otherTableType = null;
-                        if ($otherRecord->table_11_1_id) $otherTableType = 'Table_11_1';
-                        elseif ($otherRecord->table_11_2_id) $otherTableType = 'Table_11_2';
-                        elseif ($otherRecord->table_11_3_id) $otherTableType = 'Table_11_3';
+                    if ($currentRelatedData) {
+                        // Shu foydalanuvchining shu yildagi boshqa Table 11 yozuvlarini topish
+                        $otherTable11Records = self::where('user_id', $pointUserDeportament->user_id)
+                            ->where('year', $pointUserDeportament->year)
+                            ->where('id', '!=', $pointUserDeportament->id)
+                            ->where('point', '>', 0)
+                            ->where(function ($query) {
+                                $query->whereNotNull('table_11_1_id')
+                                      ->orWhereNotNull('table_11_2_id')
+                                      ->orWhereNotNull('table_11_3_id');
+                            })
+                            ->get();
 
-                        $otherPriority = $priorityOrder[$otherTableType] ?? 999;
+                        foreach ($otherTable11Records as $otherRecord) {
+                            $otherTableType = null;
+                            if ($otherRecord->table_11_1_id) $otherTableType = 'table_11_1';
+                            elseif ($otherRecord->table_11_2_id) $otherTableType = 'table_11_2';
+                            elseif ($otherRecord->table_11_3_id) $otherTableType = 'table_11_3';
 
-                        // Faqat pastroq priority bo'lgan yozuvlarni 0 ga o'tkazish
-                        if ($otherPriority > $currentPriority || 
-                            ($otherPriority == $currentPriority && $otherRecord->created_at < $pointUserDeportament->created_at)) {
-                            
-                            $otherRecord->update(['point' => 0]);
-                            
-                            // Log yozish
-                            Log::info('Table 11 dublikat avtomatik tuzatildi', [
-                                'zeroed_record_id' => $otherRecord->id,
-                                'active_record_id' => $pointUserDeportament->id,
-                                'user_id' => $pointUserDeportament->user_id,
-                                'year' => $pointUserDeportament->year,
-                                'new_point' => $pointUserDeportament->point,
-                                'current_table_type' => $currentTableType,
-                                'zeroed_table_type' => $otherTableType
-                            ]);
+                            if ($currentTableType === $otherTableType) continue; // Bir xil tip bo'lsa o'tish
+
+                            // Prioritet tartibini tekshirish
+                            $priorityOrder = ['table_11_1' => 1, 'table_11_2' => 2, 'table_11_3' => 3];
+                            $currentPriority = $priorityOrder[$currentTableType] ?? 999;
+                            $otherPriority = $priorityOrder[$otherTableType] ?? 999;
+
+                            // Faqat yuqori prioritetli tablelar past prioritetli tablelarga ta'sir qiladi
+                            // (kichik raqam = yuqori prioritet, katta raqam = past prioritet)
+                            if ($currentPriority > $otherPriority) continue;
+
+                            $otherRelatedData = self::getRelatedDataForModel($otherRecord, $otherTableType);
+
+                            if ($otherRelatedData) {
+                                // O'xshashlik darajasini hisoblash
+                                $similarityScore = self::calculateTable11SimilarityForModel($currentRelatedData, $otherRelatedData);
+                                
+                                // Agar 70% dan ko'p o'xshash bo'lsa, dublikat sifatida qayta ishlash
+                                if ($similarityScore >= 0.7) {
+                                    // O'qituvchi balini 0 ga o'tkazish
+                                    $otherRecord->update(['point' => 0]);
+                                    
+                                    // Dublikat uchun avtomatik kafedra bali (0.10) yaratish
+                                    \App\Models\DepartPoints::updateOrCreate(
+                                        ['point_user_deport_id' => $otherRecord->id],
+                                        [
+                                            'point' => 0.10,
+                                            'status' => 1
+                                        ]
+                                    );
+                                    
+                                    Log::info('Table 11 dublikat avtomatik tuzatildi (kafedra bali qo\'shildi)', [
+                                        'zeroed_record_id' => $otherRecord->id,
+                                        'active_record_id' => $pointUserDeportament->id,
+                                        'user_id' => $pointUserDeportament->user_id,
+                                        'year' => $pointUserDeportament->year,
+                                        'similarity_score' => $similarityScore,
+                                        'current_table_type' => $currentTableType,
+                                        'zeroed_table_type' => $otherTableType,
+                                        'current_priority' => $currentPriority,
+                                        'other_priority' => $otherPriority,
+                                        'department_points_added' => 0.10
+                                    ]);
+                                }
+                            }
                         }
                     }
                 }
@@ -196,52 +232,78 @@ class PointUserDeportament extends Model
                            $pointUserDeportament->table_20_3_id;
                 
                 if ($isTable20) {
-                    // Shu foydalanuvchining shu yildagi boshqa Table 20 yozuvlarini topish
-                    $otherTable20Records = self::where('user_id', $pointUserDeportament->user_id)
-                        ->where('year', $pointUserDeportament->year)
-                        ->where('id', '!=', $pointUserDeportament->id)
-                        ->where('point', '>', 0)
-                        ->where(function ($query) {
-                            $query->whereNotNull('table_20_1_id')
-                                  ->orWhereNotNull('table_20_2_id')
-                                  ->orWhereNotNull('table_20_3_id');
-                        })
-                        ->get();
-
-                    // Priority tartibini aniqlash
+                    // Current record ma'lumotlarini olish
                     $currentTableType = null;
-                    if ($pointUserDeportament->table_20_1_id) $currentTableType = 'Table_20_1';
-                    elseif ($pointUserDeportament->table_20_2_id) $currentTableType = 'Table_20_2';
-                    elseif ($pointUserDeportament->table_20_3_id) $currentTableType = 'Table_20_3';
+                    if ($pointUserDeportament->table_20_1_id) $currentTableType = 'table_20_1';
+                    elseif ($pointUserDeportament->table_20_2_id) $currentTableType = 'table_20_2';
+                    elseif ($pointUserDeportament->table_20_3_id) $currentTableType = 'table_20_3';
 
-                    $priorityOrder = ['Table_20_1' => 1, 'Table_20_2' => 2, 'Table_20_3' => 3];
-                    $currentPriority = $priorityOrder[$currentTableType] ?? 999;
+                    $currentRelatedData = self::getRelatedDataForModel($pointUserDeportament, $currentTableType);
 
-                    // Boshqa Table 20 yozuvlarning ballarini 0 ga o'tkazish
-                    foreach ($otherTable20Records as $otherRecord) {
-                        $otherTableType = null;
-                        if ($otherRecord->table_20_1_id) $otherTableType = 'Table_20_1';
-                        elseif ($otherRecord->table_20_2_id) $otherTableType = 'Table_20_2';
-                        elseif ($otherRecord->table_20_3_id) $otherTableType = 'Table_20_3';
+                    if ($currentRelatedData) {
+                        // Shu foydalanuvchining shu yildagi boshqa Table 20 yozuvlarini topish
+                        $otherTable20Records = self::where('user_id', $pointUserDeportament->user_id)
+                            ->where('year', $pointUserDeportament->year)
+                            ->where('id', '!=', $pointUserDeportament->id)
+                            ->where('point', '>', 0)
+                            ->where(function ($query) {
+                                $query->whereNotNull('table_20_1_id')
+                                      ->orWhereNotNull('table_20_2_id')
+                                      ->orWhereNotNull('table_20_3_id');
+                            })
+                            ->get();
 
-                        $otherPriority = $priorityOrder[$otherTableType] ?? 999;
+                        foreach ($otherTable20Records as $otherRecord) {
+                            $otherTableType = null;
+                            if ($otherRecord->table_20_1_id) $otherTableType = 'table_20_1';
+                            elseif ($otherRecord->table_20_2_id) $otherTableType = 'table_20_2';
+                            elseif ($otherRecord->table_20_3_id) $otherTableType = 'table_20_3';
 
-                        // Faqat pastroq priority bo'lgan yozuvlarni 0 ga o'tkazish
-                        if ($otherPriority > $currentPriority || 
-                            ($otherPriority == $currentPriority && $otherRecord->created_at < $pointUserDeportament->created_at)) {
-                            
-                            $otherRecord->update(['point' => 0]);
-                            
-                            // Log yozish
-                            Log::info('Table 20 dublikat avtomatik tuzatildi', [
-                                'zeroed_record_id' => $otherRecord->id,
-                                'active_record_id' => $pointUserDeportament->id,
-                                'user_id' => $pointUserDeportament->user_id,
-                                'year' => $pointUserDeportament->year,
-                                'new_point' => $pointUserDeportament->point,
-                                'current_table_type' => $currentTableType,
-                                'zeroed_table_type' => $otherTableType
-                            ]);
+                            if ($currentTableType === $otherTableType) continue; // Bir xil tip bo'lsa o'tish
+
+                            // Prioritet tartibini tekshirish
+                            $priorityOrder = ['table_20_1' => 1, 'table_20_2' => 2, 'table_20_3' => 3];
+                            $currentPriority = $priorityOrder[$currentTableType] ?? 999;
+                            $otherPriority = $priorityOrder[$otherTableType] ?? 999;
+
+                            // Faqat yuqori prioritetli tablelar past prioritetli tablelarga ta'sir qiladi
+                            // (kichik raqam = yuqori prioritet, katta raqam = past prioritet)
+                            if ($currentPriority > $otherPriority) continue;
+
+                            $otherRelatedData = self::getRelatedDataForModel($otherRecord, $otherTableType);
+
+                            if ($otherRelatedData) {
+                                // O'xshashlik darajasini hisoblash
+                                $similarityScore = self::calculateTable20SimilarityForModel($currentRelatedData, $otherRelatedData);
+                                
+                                // Agar 70% dan ko'p o'xshash bo'lsa, dublikat sifatida qayta ishlash
+                                if ($similarityScore >= 0.7) {
+                                    // O'qituvchi balini 0 ga o'tkazish
+                                    $otherRecord->update(['point' => 0]);
+                                    
+                                    // Dublikat uchun avtomatik kafedra bali (0.10) yaratish
+                                    \App\Models\DepartPoints::updateOrCreate(
+                                        ['point_user_deport_id' => $otherRecord->id],
+                                        [
+                                            'point' => 0.10,
+                                            'status' => 1
+                                        ]
+                                    );
+                                    
+                                    Log::info('Table 20 dublikat avtomatik tuzatildi (kafedra bali qo\'shildi)', [
+                                        'zeroed_record_id' => $otherRecord->id,
+                                        'active_record_id' => $pointUserDeportament->id,
+                                        'user_id' => $pointUserDeportament->user_id,
+                                        'year' => $pointUserDeportament->year,
+                                        'similarity_score' => $similarityScore,
+                                        'current_table_type' => $currentTableType,
+                                        'zeroed_table_type' => $otherTableType,
+                                        'current_priority' => $currentPriority,
+                                        'other_priority' => $otherPriority,
+                                        'department_points_added' => 0.10
+                                    ]);
+                                }
+                            }
                         }
                     }
                 }
@@ -467,5 +529,126 @@ class PointUserDeportament extends Model
     public function table_24()
     {
         return $this->hasOne(\App\Models\Tables\Table_24_::class, 'id', 'table_24_id');
+    }
+
+    /**
+     * Static method: Ma'lumotlarni olish (relation orqali)
+     */
+    public static function getRelatedDataForModel($record, $tableType)
+    {
+        try {
+            switch ($tableType) {
+                case 'table_11_1':
+                    return $record->table_11_1;
+                case 'table_11_2':
+                    return $record->table_11_2;
+                case 'table_11_3':
+                    return $record->table_11_3;
+                case 'table_20_1':
+                    return $record->table_20_1;
+                case 'table_20_2':
+                    return $record->table_20_2;
+                case 'table_20_3':
+                    return $record->table_20_3;
+                default:
+                    return null;
+            }
+        } catch (\Exception $e) {
+            Log::warning('Error getting related data', [
+                'record_id' => $record->id,
+                'table_type' => $tableType,
+                'error' => $e->getMessage()
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Static method: Table 11 o'xshashlik hisoblash
+     */
+    public static function calculateTable11SimilarityForModel($data1, $data2)
+    {
+        $journalSimilarity = self::calculateSimilarityForModel(
+            self::normalizeTextForModel($data1->jurnal_nomi ?? ''),
+            self::normalizeTextForModel($data2->jurnal_nomi ?? '')
+        );
+        
+        $articleSimilarity = self::calculateSimilarityForModel(
+            self::normalizeTextForModel($data1->maqola_nomi ?? ''),
+            self::normalizeTextForModel($data2->maqola_nomi ?? '')
+        );
+        
+        $year1 = self::normalizeYearForModel($data1->nashr_yili ?? '');
+        $year2 = self::normalizeYearForModel($data2->nashr_yili ?? '');
+        $yearSimilarity = ($year1 === $year2 && !empty($year1)) ? 1.0 : 0.0;
+
+        // Weighted average: jurnal 33%, maqola 33%, yil 34%
+        return ($journalSimilarity * 0.33) + ($articleSimilarity * 0.33) + ($yearSimilarity * 0.34);
+    }
+
+    /**
+     * Static method: Table 20 o'xshashlik hisoblash
+     */
+    public static function calculateTable20SimilarityForModel($data1, $data2)
+    {
+        $journalSimilarity = self::calculateSimilarityForModel(
+            self::normalizeTextForModel($data1->jurnal_nomi ?? ''),
+            self::normalizeTextForModel($data2->jurnal_nomi ?? '')
+        );
+        
+        $authorsSimilarity = 0.0;
+        if (isset($data1->mualliflar_soni) && isset($data2->mualliflar_soni)) {
+            $authors1 = intval($data1->mualliflar_soni);
+            $authors2 = intval($data2->mualliflar_soni);
+            $authorsSimilarity = ($authors1 === $authors2) ? 1.0 : 0.0;
+        }
+
+        // Weighted average: jurnal 80%, mualliflar soni 20%
+        return ($journalSimilarity * 0.8) + ($authorsSimilarity * 0.2);
+    }
+
+    /**
+     * Static method: Matnni normallash
+     */
+    public static function normalizeTextForModel($text)
+    {
+        if (empty($text)) return '';
+        
+        $text = mb_strtolower($text, 'UTF-8');
+        $text = preg_replace('/\s+/', ' ', $text);
+        $text = trim($text);
+        $text = preg_replace('/[.,;:!?"`\'"«»„"]/', '', $text);
+        
+        return $text;
+    }
+
+    /**
+     * Static method: Yilni normallash
+     */
+    public static function normalizeYearForModel($yearText)
+    {
+        preg_match('/\b(20\d{2}|19\d{2})\b/', $yearText, $matches);
+        return $matches[0] ?? '';
+    }
+
+    /**
+     * Static method: O'xshashlik hisoblash (Levenshtein)
+     */
+    public static function calculateSimilarityForModel($str1, $str2)
+    {
+        if (empty($str1) || empty($str2)) {
+            return 0.0;
+        }
+
+        $len1 = mb_strlen($str1, 'UTF-8');
+        $len2 = mb_strlen($str2, 'UTF-8');
+        $maxLen = max($len1, $len2);
+        
+        if ($maxLen == 0) {
+            return 1.0;
+        }
+
+        $distance = levenshtein($str1, $str2);
+        return max(0, 1 - ($distance / $maxLen));
     }
 }

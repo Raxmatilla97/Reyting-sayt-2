@@ -249,7 +249,7 @@ class DuplicateManagementController extends Controller
     }
 
     /**
-     * Table 11 dublikatlarini avtomatik tuzatish - eng yuqori Table turini saqlab qolish
+     * Table 11 dublikatlarini avtomatik tuzatish - eng katta ballni saqlab qolish
      */
     public function fixTable11Duplicates(Request $request)
     {
@@ -262,35 +262,56 @@ class DuplicateManagementController extends Controller
 
             foreach ($duplicates as $duplicate) {
                 if (count($duplicate['records']) >= 2) {
-                    // Priority tartibida saralash: Table_11_1 > Table_11_2 > Table_11_3
-                    $sortedRecords = collect($duplicate['records'])->sort(function($a, $b) {
-                        $priorityOrder = ['Table_11_1' => 1, 'Table_11_2' => 2, 'Table_11_3' => 3];
-                        $priorityA = $priorityOrder[$a['table_type']] ?? 999;
-                        $priorityB = $priorityOrder[$b['table_type']] ?? 999;
-                        
-                        if ($priorityA != $priorityB) {
-                            return $priorityA - $priorityB; // Kichik raqam = yuqori priority
-                        }
-                        
-                        // Agar bir xil priority bo'lsa, eng yangi sana bo'yicha
-                        return strtotime($b['created_at']) - strtotime($a['created_at']);
-                    })->values();
-
-                    // Birinchi (eng yuqori priority) ni saqlab qolish
-                    $keepRecord = $sortedRecords->first();
+                    // Eng katta ballga ega yozuvni topish
+                    $sortedRecords = collect($duplicate['records'])->sortByDesc('point');
+                    $maxPoint = $sortedRecords->first()['point'];
                     
-                    foreach ($sortedRecords as $index => $record) {
-                        if ($index === 0) continue; // Birinchisini o'tkazib yuborish
+                    // Eng katta ball bilan barcha yozuvlarni saqlab qolish
+                    $recordsToKeep = $sortedRecords->where('point', $maxPoint);
+                    $recordsToFix = $sortedRecords->where('point', '<', $maxPoint);
 
+                    // Agar bir nechta eng katta ball bo'lsa, eng yuqori prioritetli turni saqlab qolish
+                    if ($recordsToKeep->count() > 1) {
+                        $priorityOrder = ['Table_11_1' => 1, 'Table_11_2' => 2, 'Table_11_3' => 3];
+                        
+                        $recordsToKeepSorted = $recordsToKeep->sort(function($a, $b) use ($priorityOrder) {
+                            $priorityA = $priorityOrder[$a['table_type']] ?? 999;
+                            $priorityB = $priorityOrder[$b['table_type']] ?? 999;
+                            
+                            if ($priorityA != $priorityB) {
+                                return $priorityA - $priorityB;
+                            }
+                            
+                            return strtotime($b['created_at']) - strtotime($a['created_at']);
+                        });
+                        
+                        // Birinchisidan boshqa barcha yozuvlarni tuzatish ro'yxatiga qo'shish
+                        $recordsToFix = $recordsToFix->merge($recordsToKeepSorted->skip(1));
+                    }
+
+                    // Tuzatish jarayoni
+                    foreach ($recordsToFix as $record) {
                         $pointRecord = PointUserDeportament::find($record['id']);
                         if ($pointRecord && $pointRecord->point > 0) {
                             $pointRecord->update(['point' => 0]);
+                            
+                            // Kafedra balini yaratish (0.10)
+                            DepartPoints::updateOrCreate(
+                                ['point_user_deport_id' => $record['id']],
+                                [
+                                    'point' => 0.10,
+                                    'status' => 1
+                                ]
+                            );
+                            
                             $fixedCount++;
                             
                             $fixedRecords[] = [
                                 'id' => $record['id'],
                                 'table_type' => $record['table_type'],
                                 'old_point' => $record['point'],
+                                'new_point' => 0,
+                                'department_point_added' => 0.10,
                                 'user_id' => $duplicate['user_id'],
                                 'year' => $duplicate['year']
                             ];
@@ -300,7 +321,7 @@ class DuplicateManagementController extends Controller
             }
 
             // Log yozish
-            $this->writeLog('Table 11 avtomatik tuzatish', [
+            $this->writeLog('Table 11 avtomatik tuzatish (eng katta ball saqlanadi)', [
                 'fixed_count' => $fixedCount,
                 'fixed_records' => $fixedRecords,
                 'timestamp' => now()->toDateTimeString()
@@ -309,7 +330,7 @@ class DuplicateManagementController extends Controller
             DB::commit();
 
             return redirect()->back()->with('success', 
-                "Table 11 dublikatlari muvaffaqiyatli tuzatildi! {$fixedCount} ta yozuv 0 ballga o'tkazildi."
+                "Table 11 dublikatlari muvaffaqiyatli tuzatildi! {$fixedCount} ta yozuv 0 ballga o'tkazildi va har biriga 0.10 kafedra bali berildi."
             );
 
         } catch (\Exception $e) {
@@ -321,7 +342,7 @@ class DuplicateManagementController extends Controller
     }
 
     /**
-     * Table 20 dublikatlarini avtomatik tuzatish - eng yuqori Table turini saqlab qolish
+     * Table 20 dublikatlarini avtomatik tuzatish - eng katta ballni saqlab qolish
      */
     public function fixTable20Duplicates(Request $request)
     {
@@ -334,35 +355,56 @@ class DuplicateManagementController extends Controller
 
             foreach ($duplicates as $duplicate) {
                 if (count($duplicate['records']) >= 2) {
-                    // Priority tartibida saralash: Table_20_1 > Table_20_2 > Table_20_3
-                    $sortedRecords = collect($duplicate['records'])->sort(function($a, $b) {
-                        $priorityOrder = ['Table_20_1' => 1, 'Table_20_2' => 2, 'Table_20_3' => 3];
-                        $priorityA = $priorityOrder[$a['table_type']] ?? 999;
-                        $priorityB = $priorityOrder[$b['table_type']] ?? 999;
-                        
-                        if ($priorityA != $priorityB) {
-                            return $priorityA - $priorityB; // Kichik raqam = yuqori priority
-                        }
-                        
-                        // Agar bir xil priority bo'lsa, eng yangi sana bo'yicha
-                        return strtotime($b['created_at']) - strtotime($a['created_at']);
-                    })->values();
-
-                    // Birinchi (eng yuqori priority) ni saqlab qolish
-                    $keepRecord = $sortedRecords->first();
+                    // Eng katta ballga ega yozuvni topish
+                    $sortedRecords = collect($duplicate['records'])->sortByDesc('point');
+                    $maxPoint = $sortedRecords->first()['point'];
                     
-                    foreach ($sortedRecords as $index => $record) {
-                        if ($index === 0) continue; // Birinchisini o'tkazib yuborish
+                    // Eng katta ball bilan barcha yozuvlarni saqlab qolish
+                    $recordsToKeep = $sortedRecords->where('point', $maxPoint);
+                    $recordsToFix = $sortedRecords->where('point', '<', $maxPoint);
 
+                    // Agar bir nechta eng katta ball bo'lsa, eng yuqori prioritetli turni saqlab qolish
+                    if ($recordsToKeep->count() > 1) {
+                        $priorityOrder = ['Table_20_1' => 1, 'Table_20_2' => 2, 'Table_20_3' => 3];
+                        
+                        $recordsToKeepSorted = $recordsToKeep->sort(function($a, $b) use ($priorityOrder) {
+                            $priorityA = $priorityOrder[$a['table_type']] ?? 999;
+                            $priorityB = $priorityOrder[$b['table_type']] ?? 999;
+                            
+                            if ($priorityA != $priorityB) {
+                                return $priorityA - $priorityB;
+                            }
+                            
+                            return strtotime($b['created_at']) - strtotime($a['created_at']);
+                        });
+                        
+                        // Birinchisidan boshqa barcha yozuvlarni tuzatish ro'yxatiga qo'shish
+                        $recordsToFix = $recordsToFix->merge($recordsToKeepSorted->skip(1));
+                    }
+
+                    // Tuzatish jarayoni
+                    foreach ($recordsToFix as $record) {
                         $pointRecord = PointUserDeportament::find($record['id']);
                         if ($pointRecord && $pointRecord->point > 0) {
                             $pointRecord->update(['point' => 0]);
+                            
+                            // Kafedra balini yaratish (0.10)
+                            DepartPoints::updateOrCreate(
+                                ['point_user_deport_id' => $record['id']],
+                                [
+                                    'point' => 0.10,
+                                    'status' => 1
+                                ]
+                            );
+                            
                             $fixedCount++;
                             
                             $fixedRecords[] = [
                                 'id' => $record['id'],
                                 'table_type' => $record['table_type'],
                                 'old_point' => $record['point'],
+                                'new_point' => 0,
+                                'department_point_added' => 0.10,
                                 'user_id' => $duplicate['user_id'],
                                 'year' => $duplicate['year']
                             ];
@@ -372,7 +414,7 @@ class DuplicateManagementController extends Controller
             }
 
             // Log yozish
-            $this->writeLog('Table 20 avtomatik tuzatish', [
+            $this->writeLog('Table 20 avtomatik tuzatish (eng katta ball saqlanadi)', [
                 'fixed_count' => $fixedCount,
                 'fixed_records' => $fixedRecords,
                 'timestamp' => now()->toDateTimeString()
@@ -381,7 +423,7 @@ class DuplicateManagementController extends Controller
             DB::commit();
 
             return redirect()->back()->with('success', 
-                "Table 20 dublikatlari muvaffaqiyatli tuzatildi! {$fixedCount} ta yozuv 0 ballga o'tkazildi."
+                "Table 20 dublikatlari muvaffaqiyatli tuzatildi! {$fixedCount} ta yozuv 0 ballga o'tkazildi va har biriga 0.10 kafedra bali berildi."
             );
 
         } catch (\Exception $e) {
@@ -397,32 +439,74 @@ class DuplicateManagementController extends Controller
      */
     public function fixSingleRecord(Request $request)
     {
-        $recordId = $request->record_id;
-        $action = $request->action;
-
         try {
             DB::beginTransaction();
 
-            $record = PointUserDeportament::findOrFail($recordId);
+            // Parametrlarni olish
+            $userId = $request->user_id;
+            $year = $request->year;
+            $recordIds = $request->record_ids;
 
-            if ($action === 'zero') {
-                $record->point = 0.00;
-                $record->save();
-                DepartPoints::where('point_user_deport_id', $record->id)->delete();
-
-                $this->writeLog('fix_single_record', [
-                    'record_id' => $recordId,
-                    'action' => 'zeroed',
-                    'user_id' => $record->user_id
-                ]);
-
-                $message = 'Ёзув балли 0 га ўтказилди';
-            } else {
-                $message = 'Ёзув сақланди';
+            if (!$userId || !$year || !$recordIds) {
+                throw new \Exception('Kerakli parametrlar kiritilmagan');
             }
+
+            // Record ID larni massivga aylantirish
+            $recordIdArray = explode(',', $recordIds);
+            
+            if (empty($recordIdArray)) {
+                throw new \Exception('Hech qanday yozuv ID si topilmadi');
+            }
+
+            $fixedCount = 0;
+            $maxPoint = 0;
+            $maxPointRecord = null;
+
+            // Barcha yozuvlarni olish va eng katta ballini topish
+            $records = PointUserDeportament::whereIn('id', $recordIdArray)->get();
+            
+            if ($records->isEmpty()) {
+                throw new \Exception('Belgilangan yozuvlar topilmadi');
+            }
+
+            foreach ($records as $record) {
+                if ($record->point > $maxPoint) {
+                    $maxPoint = $record->point;
+                    $maxPointRecord = $record;
+                }
+            }
+
+            // Eng katta ballli yozuvdan boshqa barchasini 0 ga o'tkazish
+            foreach ($records as $record) {
+                if ($record->id !== $maxPointRecord->id) {
+                    $record->point = 0.00;
+                    $record->save();
+                    
+                    // Kafedra bali yaratish
+                    DepartPoints::updateOrCreate(
+                        ['point_user_deport_id' => $record->id],
+                        [
+                            'point' => 0.10,
+                            'status' => 1
+                        ]
+                    );
+                    
+                    $fixedCount++;
+                }
+            }
+
+            $this->writeLog('fix_single_record', [
+                'user_id' => $userId,
+                'year' => $year,
+                'record_ids' => $recordIds,
+                'fixed_count' => $fixedCount,
+                'max_point_record_id' => $maxPointRecord->id,
+                'max_point' => $maxPoint
+            ]);
 
             DB::commit();
 
+            $message = "Muvaffaqiyatli tuzatildi! {$fixedCount} ta yozuv 0 ballga o'tkazildi, eng katta ballli yozuv ({$maxPoint} ball) saqlandi.";
             return redirect()->back()->with('success', $message);
 
         } catch (\Exception $e) {
@@ -463,13 +547,13 @@ class DuplicateManagementController extends Controller
     }
 
     /**
-     * Сўнгги логларни олиш
+     * Сўнгги логларни олиш (сўнги ўзгаришлар биринчи)
      */
     private function getRecentLogs($limit = 10)
     {
         $logs = [];
         
-        // Бугунги ва кечаги логларни текшириш
+        // Бугунги ва кечаги логларни текшириш (сўнгисидан бошлаб)
         for ($i = 0; $i < 7; $i++) {
             $date = Carbon::now()->subDays($i)->format('Y-m-d');
             $logFileName = 'logs/duplicate_management_' . $date . '.log';
@@ -478,18 +562,26 @@ class DuplicateManagementController extends Controller
                 $logContent = Storage::disk('local')->get($logFileName);
                 $logLines = array_filter(explode("\n", $logContent));
                 
+                // Логларни тескари тартибда (сўнгиси биринчи) олиш
                 foreach (array_reverse($logLines) as $line) {
                     if (count($logs) >= $limit) break 2;
                     
                     $logEntry = json_decode($line, true);
                     if ($logEntry) {
+                        // Timestamp бўйича сорт қилиш учун таймстампни қўшамиз
+                        $logEntry['sort_timestamp'] = $logEntry['timestamp'] ?? '';
                         $logs[] = $logEntry;
                     }
                 }
             }
         }
         
-        return $logs;
+        // Логларни timestamp бўйича тескари тартибда сорт қиламиз (сўнгиси биринчи)
+        usort($logs, function($a, $b) {
+            return strcmp($b['sort_timestamp'], $a['sort_timestamp']);
+        });
+        
+        return array_slice($logs, 0, $limit);
     }
 
     /**
@@ -708,50 +800,53 @@ class DuplicateManagementController extends Controller
             // Агар гуруҳда point = 0 бўлган ёзувлар бор ва улар ўхшаш бўлса
             if ($fixedRecords->count() > 0 && $activeRecords->count() >= 1) {
                 
-                // Мақола номлари бўйича аниқ мос келишни текшириш
-                $articleMatches = [];
+                // 70% ўхшашлик алгоритми билан мос келишни текшириш
+                $similarityMatches = [];
                 
                 foreach ($activeRecords as $activeRecord) {
                     $activeTableType = $this->getRecordTableType($activeRecord);
                     $activeData = $this->getRelatedData($activeRecord, $activeTableType);
                     
-                    if (!$activeData || empty($activeData->maqola_nomi)) continue;
-                    
-                    $activeTitle = strtolower(trim(preg_replace('/\s+/', ' ', $activeData->maqola_nomi)));
+                    if (!$activeData) continue;
                     
                     foreach ($fixedRecords as $fixedRecord) {
                         $fixedTableType = $this->getRecordTableType($fixedRecord);
                         $fixedData = $this->getRelatedData($fixedRecord, $fixedTableType);
                         
-                        if (!$fixedData || empty($fixedData->maqola_nomi)) continue;
+                        if (!$fixedData) continue;
                         if ($activeTableType === $fixedTableType) continue;
                         
-                        $fixedTitle = strtolower(trim(preg_replace('/\s+/', ' ', $fixedData->maqola_nomi)));
+                        // 70% ўхшашлик баллини ҳисоблаш
+                        $similarityScore = $this->calculateTable11Similarity($activeData, $fixedData);
                         
-                        // Аниқ мос келиш
-                        if ($activeTitle === $fixedTitle) {
-                            if (!isset($articleMatches[$activeTitle])) {
-                                $articleMatches[$activeTitle] = [
+                        // Агар 70% дан кўп ўхшаш бўлса
+                        if ($similarityScore >= 0.7) {
+                            $matchKey = $activeData->maqola_nomi ?? 'Unknown';
+                            
+                            if (!isset($similarityMatches[$matchKey])) {
+                                $similarityMatches[$matchKey] = [
                                     'active' => [],
-                                    'fixed' => []
+                                    'fixed' => [],
+                                    'similarity_score' => $similarityScore
                                 ];
                             }
                             
-                            $articleMatches[$activeTitle]['active'][] = $activeRecord;
-                            $articleMatches[$activeTitle]['fixed'][] = $fixedRecord;
+                            $similarityMatches[$matchKey]['active'][] = $activeRecord;
+                            $similarityMatches[$matchKey]['fixed'][] = $fixedRecord;
+                            $similarityMatches[$matchKey]['similarity_score'] = max($similarityMatches[$matchKey]['similarity_score'], $similarityScore);
                         }
                     }
                 }
 
-                // Агар аниқ мос келиши топилган бўлса
-                if (!empty($articleMatches)) {
+                // Агар ўхшашлик топилган бўлса
+                if (!empty($similarityMatches)) {
                     $userYearParts = explode('_', $key);
                     $userId = $userYearParts[0];
                     $year = $userYearParts[1];
                     
                     $firstRecord = $records->first();
                     
-                    foreach ($articleMatches as $title => $matches) {
+                    foreach ($similarityMatches as $title => $matches) {
                         $fixedDuplicates[] = [
                             'user_id' => $userId,
                             'employee_name' => $firstRecord->employee->FullName ?? 'Номаълум',
@@ -823,50 +918,53 @@ class DuplicateManagementController extends Controller
             // Агар гуруҳда point = 0 бўлган ёзувлар бор ва улар ўхшаш бўлса
             if ($fixedRecords->count() > 0 && $activeRecords->count() >= 1) {
                 
-                // Журнал номлари бўйича аниқ мос келишни текшириш
-                $journalMatches = [];
+                // 70% ўхшашлик алгоритми билан мос келишни текшириш
+                $similarityMatches = [];
                 
                 foreach ($activeRecords as $activeRecord) {
                     $activeTableType = $this->getRecordTableType($activeRecord);
                     $activeData = $this->getRelatedData($activeRecord, $activeTableType);
                     
-                    if (!$activeData || empty($activeData->jurnal_nomi)) continue;
-                    
-                    $activeJournal = strtolower(trim(preg_replace('/\s+/', ' ', $activeData->jurnal_nomi)));
+                    if (!$activeData) continue;
                     
                     foreach ($fixedRecords as $fixedRecord) {
                         $fixedTableType = $this->getRecordTableType($fixedRecord);
                         $fixedData = $this->getRelatedData($fixedRecord, $fixedTableType);
                         
-                        if (!$fixedData || empty($fixedData->jurnal_nomi)) continue;
+                        if (!$fixedData) continue;
                         if ($activeTableType === $fixedTableType) continue;
                         
-                        $fixedJournal = strtolower(trim(preg_replace('/\s+/', ' ', $fixedData->jurnal_nomi)));
+                        // 70% ўхшашлик баллини ҳисоблаш
+                        $similarityScore = $this->calculateTable20Similarity($activeData, $fixedData);
                         
-                        // Аниқ мос келиш
-                        if ($activeJournal === $fixedJournal) {
-                            if (!isset($journalMatches[$activeJournal])) {
-                                $journalMatches[$activeJournal] = [
+                        // Агар 70% дан кўп ўхшаш бўлса
+                        if ($similarityScore >= 0.7) {
+                            $matchKey = $activeData->jurnal_nomi ?? 'Unknown';
+                            
+                            if (!isset($similarityMatches[$matchKey])) {
+                                $similarityMatches[$matchKey] = [
                                     'active' => [],
-                                    'fixed' => []
+                                    'fixed' => [],
+                                    'similarity_score' => $similarityScore
                                 ];
                             }
                             
-                            $journalMatches[$activeJournal]['active'][] = $activeRecord;
-                            $journalMatches[$activeJournal]['fixed'][] = $fixedRecord;
+                            $similarityMatches[$matchKey]['active'][] = $activeRecord;
+                            $similarityMatches[$matchKey]['fixed'][] = $fixedRecord;
+                            $similarityMatches[$matchKey]['similarity_score'] = max($similarityMatches[$matchKey]['similarity_score'], $similarityScore);
                         }
                     }
                 }
 
-                // Агар аниқ мос келиши топилган бўлса
-                if (!empty($journalMatches)) {
+                // Агар ўхшашлик топилган бўлса
+                if (!empty($similarityMatches)) {
                     $userYearParts = explode('_', $key);
                     $userId = $userYearParts[0];
                     $year = $userYearParts[1];
                     
                     $firstRecord = $records->first();
                     
-                    foreach ($journalMatches as $journal => $matches) {
+                    foreach ($similarityMatches as $journal => $matches) {
                         $fixedDuplicates[] = [
                             'user_id' => $userId,
                             'employee_name' => $firstRecord->employee->FullName ?? 'Номаълум',

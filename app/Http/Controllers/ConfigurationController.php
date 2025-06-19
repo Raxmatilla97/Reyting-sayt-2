@@ -684,13 +684,29 @@ class ConfigurationController extends Controller
                 ->whereNotNull('employee_id_number')
                 ->get();
 
+            Log::info('Topilgan status 0 bo\'lgan foydalanuvchilar soni: ' . $inactiveUsers->count());
+
             $updatedCount = 0;
+            $keptInactiveCount = 0; // Bo'shagan bo'lgani uchun faollashtirmagan
 
-            foreach ($inactiveUsers as $user) {
-                try {
-                    $employeeData = $this->getEmployeeDataFromHemis($user->employee_id_number);
+                    foreach ($inactiveUsers as $user) {
+            try {
+                $employeeData = $this->getEmployeeDataFromHemis($user->employee_id_number);
 
-                    if (!empty($employeeData) && !empty($employeeData['departments'])) {
+                if (!empty($employeeData)) {
+                    // EmployeeStatus tekshirish - agar "14" (Bo'shagan) bo'lsa, faollashtirmaslik
+                    if (isset($employeeData['employeeStatus']) && $employeeData['employeeStatus']['code'] === '14') {
+                        Log::info("Status 0 bo'lgan foydalanuvchi bo'shagan, faollashtirmaylik", [
+                            'user_id' => $user->id,
+                            'name' => $user->name,
+                            'employeeStatus' => $employeeData['employeeStatus']
+                        ]);
+                        $keptInactiveCount++;
+                        continue; // Bo'shagan bo'lsa, o'tkazib yuborish
+                    }
+
+                    // Agar employeeStatus normal bo'lsa va departments mavjud bo'lsa, faollashtirish
+                    if (!empty($employeeData['departments'])) {
                         $newDepartmentId = $this->getDepartmentId($employeeData['departments']);
 
                         if ($newDepartmentId) {
@@ -708,20 +724,22 @@ class ConfigurationController extends Controller
                             $updatedCount++;
                         }
                     }
-                } catch (\Exception $e) {
-                    if ($e->getMessage() !== "HEMIS_EMPLOYEE_NOT_FOUND") {
-                        Log::error("Status 0 tekshirishda xatolik", [
-                            'user_id' => $user->id,
-                            'error' => $e->getMessage()
-                        ]);
-                    }
-                    continue;
                 }
+            } catch (\Exception $e) {
+                if ($e->getMessage() !== "HEMIS_EMPLOYEE_NOT_FOUND") {
+                    Log::error("Status 0 tekshirishda xatolik", [
+                        'user_id' => $user->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+                continue;
             }
+        }
 
             Log::info("Status 0 bo'lgan foydalanuvchilarni tekshirish yakunlandi", [
                 'total_checked' => $inactiveUsers->count(),
-                'updated_count' => $updatedCount
+                'reactivated_count' => $updatedCount,
+                'kept_inactive_count' => $keptInactiveCount
             ]);
 
             return $updatedCount;
@@ -822,6 +840,7 @@ class ConfigurationController extends Controller
             $successCount = 0;
             $errorCount = 0;
             $skippedCount = 0;
+            $firedCount = 0; // Bo'shagan o'qituvchilar soni
 
             foreach ($users as $user) {
                 try {
@@ -880,6 +899,109 @@ class ConfigurationController extends Controller
                         $this->sendUpdate("Foydalanuvchi {$user->name} uchun HEMIS dan ma'lumot olinmadi, status 0 ga o'zgartirildi", round($progress));
                         $skippedCount++;
                         continue;
+                    }
+
+                    // EmployeeStatus tekshirish va logga yozish
+                    Log::info("HEMIS dan olingan ma'lumotlar", [
+                        'employee_id' => $user->employee_id_number,
+                        'employeeStatus' => $employeeData['employeeStatus'] ?? 'mavjud emas',
+                        'current_user_status' => $user->status
+                    ]);
+
+                    // EmployeeStatus tekshirish - agar kod "14" (Bo'shagan) bo'lsa, status 0 ga o'zgartirish
+                    if (isset($employeeData['employeeStatus']) && $employeeData['employeeStatus']['code'] === '14') {
+                        Log::info("Bo'shagan xodim topildi, status o'zgartirilmoqda", [
+                            'user_id' => $user->id,
+                            'employee_id' => $user->employee_id_number,
+                            'current_status' => $user->status,
+                            'employeeStatus' => $employeeData['employeeStatus']
+                        ]);
+
+                        try {
+                            $oldStatus = $user->status;
+                            
+                            // Birinchi usul: Transaction bilan
+                            DB::transaction(function () use ($user) {
+                                $user->status = 0;
+                                $user->save();
+                            });
+
+                            // Tekshirish - o'zgarganmi
+                            $user->refresh();
+                            
+                            // Agar transaction ishlamagan bo'lsa, to'g'ridan-to'g'ri o'zgartirish
+                            if ($user->status != 0) {
+                                Log::warning("Transaction orqali o'zgarmadi, to'g'ridan-to'g'ri saqlash");
+                                $user->status = 0;
+                                $saved = $user->save();
+                                $user->refresh();
+                                
+                                Log::info("To'g'ridan-to'g'ri saqlash natijasi", [
+                                    'user_id' => $user->id,
+                                    'save_result' => $saved,
+                                    'final_status' => $user->status
+                                ]);
+                            }
+
+                            // Oxirgi tekshirish
+                            if ($user->status == 0) {
+                                Log::info("Status muvaffaqiyatli o'zgartirildi", [
+                                    'user_id' => $user->id,
+                                    'old_status' => $oldStatus,
+                                    'new_status' => $user->status
+                                ]);
+
+                                Log::warning("Foydalanuvchi {$user->name} bo'shagan deb belgilandi (employeeStatus: 14)", [
+                                    'employee_id' => $user->employee_id_number,
+                                    'employeeStatus' => $employeeData['employeeStatus'],
+                                    'final_status' => $user->status
+                                ]);
+
+                                $this->sendUpdate("Foydalanuvchi {$user->name} bo'shagan deb belgilandi, status 0 ga o'zgartirildi", round($progress));
+                                $firedCount++;
+                                continue;
+                            } else {
+                                // Oxirgi imkoniyat: raw SQL bilan
+                                Log::warning("Oxirgi imkoniyat: raw SQL bilan saqlash");
+                                try {
+                                    DB::statement('UPDATE users SET status = 0 WHERE id = ?', [$user->id]);
+                                    $user->refresh();
+                                    
+                                    if ($user->status == 0) {
+                                        Log::info("Raw SQL orqali muvaffaqiyatli o'zgartirildi", [
+                                            'user_id' => $user->id,
+                                            'status' => $user->status
+                                        ]);
+
+                                        Log::warning("Foydalanuvchi {$user->name} bo'shagan deb belgilandi (employeeStatus: 14)", [
+                                            'employee_id' => $user->employee_id_number,
+                                            'employeeStatus' => $employeeData['employeeStatus'],
+                                            'final_status' => $user->status
+                                        ]);
+
+                                        $this->sendUpdate("Foydalanuvchi {$user->name} bo'shagan deb belgilandi, status 0 ga o'zgartirildi", round($progress));
+                                        $firedCount++;
+                                        continue;
+                                    } else {
+                                        Log::error("Raw SQL ham ishlamadi", [
+                                            'user_id' => $user->id,
+                                            'current_status' => $user->status
+                                        ]);
+                                    }
+                                } catch (\Exception $sqlError) {
+                                    Log::error("Raw SQL xatoligi", [
+                                        'user_id' => $user->id,
+                                        'error' => $sqlError->getMessage()
+                                    ]);
+                                }
+                            }
+                        } catch (\Exception $e) {
+                            Log::error("Status o'zgartirishda xatolik", [
+                                'user_id' => $user->id,
+                                'error' => $e->getMessage(),
+                                'trace' => $e->getTraceAsString()
+                            ]);
+                        }
                     }
 
                     // Departments massivini tekshirish
@@ -986,12 +1108,13 @@ class ConfigurationController extends Controller
                 'success' => $successCount,
                 'errors' => $errorCount,
                 'skipped' => $skippedCount,
+                'fired' => $firedCount,
                 'reactivated_users' => $updatedInactiveCount
             ];
 
             Log::info('Jarayon yakunlandi', $summary);
 
-            $this->sendUpdate("Jarayon yakunlandi. Jami: {$totalUsers}, Yangilandi: {$successCount}, Xatoliklar: {$errorCount}, O'tkazib yuborildi: {$skippedCount}, Faollashtirildi: {$updatedInactiveCount}", 100);
+            $this->sendUpdate("Jarayon yakunlandi. Jami: {$totalUsers}, Yangilandi: {$successCount}, Xatoliklar: {$errorCount}, O'tkazib yuborildi: {$skippedCount}, Bo'shagan: {$firedCount}, Faollashtirildi: {$updatedInactiveCount}", 100);
             die();
         } catch (\Exception $e) {
             Log::error('Umumiy xatolik yuz berdi', [
