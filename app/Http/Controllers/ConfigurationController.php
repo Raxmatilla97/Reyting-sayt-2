@@ -684,13 +684,29 @@ class ConfigurationController extends Controller
                 ->whereNotNull('employee_id_number')
                 ->get();
 
+            Log::info('Topilgan status 0 bo\'lgan foydalanuvchilar soni: ' . $inactiveUsers->count());
+
             $updatedCount = 0;
+            $keptInactiveCount = 0; // Bo'shagan bo'lgani uchun faollashtirmagan
 
-            foreach ($inactiveUsers as $user) {
-                try {
-                    $employeeData = $this->getEmployeeDataFromHemis($user->employee_id_number);
+                    foreach ($inactiveUsers as $user) {
+            try {
+                $employeeData = $this->getEmployeeDataFromHemis($user->employee_id_number);
 
-                    if (!empty($employeeData) && !empty($employeeData['departments'])) {
+                if (!empty($employeeData)) {
+                    // EmployeeStatus tekshirish - agar "14" (Bo'shagan) bo'lsa, faollashtirmaslik
+                    if (isset($employeeData['employeeStatus']) && $employeeData['employeeStatus']['code'] === '14') {
+                        Log::info("Status 0 bo'lgan foydalanuvchi bo'shagan, faollashtirmaylik", [
+                            'user_id' => $user->id,
+                            'name' => $user->name,
+                            'employeeStatus' => $employeeData['employeeStatus']
+                        ]);
+                        $keptInactiveCount++;
+                        continue; // Bo'shagan bo'lsa, o'tkazib yuborish
+                    }
+
+                    // Agar employeeStatus normal bo'lsa va departments mavjud bo'lsa, faollashtirish
+                    if (!empty($employeeData['departments'])) {
                         $newDepartmentId = $this->getDepartmentId($employeeData['departments']);
 
                         if ($newDepartmentId) {
@@ -708,20 +724,22 @@ class ConfigurationController extends Controller
                             $updatedCount++;
                         }
                     }
-                } catch (\Exception $e) {
-                    if ($e->getMessage() !== "HEMIS_EMPLOYEE_NOT_FOUND") {
-                        Log::error("Status 0 tekshirishda xatolik", [
-                            'user_id' => $user->id,
-                            'error' => $e->getMessage()
-                        ]);
-                    }
-                    continue;
                 }
+            } catch (\Exception $e) {
+                if ($e->getMessage() !== "HEMIS_EMPLOYEE_NOT_FOUND") {
+                    Log::error("Status 0 tekshirishda xatolik", [
+                        'user_id' => $user->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+                continue;
             }
+        }
 
             Log::info("Status 0 bo'lgan foydalanuvchilarni tekshirish yakunlandi", [
                 'total_checked' => $inactiveUsers->count(),
-                'updated_count' => $updatedCount
+                'reactivated_count' => $updatedCount,
+                'kept_inactive_count' => $keptInactiveCount
             ]);
 
             return $updatedCount;
