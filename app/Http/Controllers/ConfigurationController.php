@@ -720,10 +720,10 @@ class ConfigurationController extends Controller
      * O'qituvchining haqiqiy holatini aniqlash
      * 
      * Bu funksiya quyidagi tartibda ishlaydi:
-     * 1. Maksimal stavka (employmentStaff.code = "11") ni topish
-     * 2. Agar maksimal stavka topilsa, uning employeeStatus ini tekshirish
-     * 3. Agar maksimal stavka yo'q bo'lsa, prioritet bo'yicha [11, 15, 12] tekshirish
-     * 4. [13, 14] kabi stavkalar ahamiyatsiz hisoblanadi
+     * 1. Prioritet bo'yicha [11, 15, 12] employmentForm kodlarini tekshirish
+     * 2. Har bir muhim employmentForm da employeeStatus = "11" (Ishlamoqda) ni qidirish
+     * 3. [13, 14] kabi employmentForm lar ahamiyatsiz hisoblanadi
+     * 4. Birinchi faol (ishlamoqda) lavozimni qaytarish
      * 
      * @param array $hemisResponse HEMIS dan olingan barcha ma'lumotlar
      * @return array ['is_active' => bool, 'department_id' => int|null, 'details' => array]
@@ -741,33 +741,7 @@ class ConfigurationController extends Controller
                 ];
             }
 
-            // Birinchi: Maksimal stavka (employmentStaff.code = "11") ni qidirish
-            $maxStaffItem = null;
-            foreach ($items as $item) {
-                if (isset($item['employmentStaff']['code']) && $item['employmentStaff']['code'] === '11') {
-                    $maxStaffItem = $item;
-                    break;
-                }
-            }
-
-            // Agar maksimal stavka topilsa
-            if ($maxStaffItem) {
-                $isWorking = isset($maxStaffItem['employeeStatus']['code']) && 
-                           $maxStaffItem['employeeStatus']['code'] === '11';
-                
-                return [
-                    'is_active' => $isWorking,
-                    'department_id' => $isWorking ? $maxStaffItem['department']['id'] : null,
-                    'details' => [
-                        'reason' => 'Max staff position found',
-                        'employment_staff' => $maxStaffItem['employmentStaff'],
-                        'employee_status' => $maxStaffItem['employeeStatus'],
-                        'department' => $maxStaffItem['department']['name']
-                    ]
-                ];
-            }
-
-            // Agar maksimal stavka yo'q bo'lsa, prioritet bo'yicha tekshirish
+            // Prioritet bo'yicha [11, 15, 12] employmentForm kodlarini tekshirish
             $priorityOrder = ['11', '15', '12']; // employmentForm codes
             
             foreach ($priorityOrder as $priorityCode) {
@@ -786,6 +760,7 @@ class ConfigurationController extends Controller
                                     'reason' => 'Found active employment by priority',
                                     'priority_code' => $priorityCode,
                                     'employment_form' => $item['employmentForm'],
+                                    'employment_staff' => $item['employmentStaff'] ?? null,
                                     'employee_status' => $item['employeeStatus'],
                                     'department' => $item['department']['name']
                                 ]
@@ -796,12 +771,24 @@ class ConfigurationController extends Controller
             }
 
             // Hech qanday aktiv ish joyi topilmadi
+            // Batafsil ma'lumot uchun barcha lavozimlarni logga yozish
+            $allPositions = [];
+            foreach ($items as $item) {
+                $allPositions[] = [
+                    'employment_form' => $item['employmentForm'] ?? null,
+                    'employment_staff' => $item['employmentStaff'] ?? null,
+                    'employee_status' => $item['employeeStatus'] ?? null,
+                    'department' => $item['department']['name'] ?? null
+                ];
+            }
+
             return [
                 'is_active' => false,
                 'department_id' => null,
                 'details' => [
                     'reason' => 'No active employment found in priority codes [11, 15, 12]',
-                    'total_positions' => count($items)
+                    'total_positions' => count($items),
+                    'all_positions' => $allPositions
                 ]
             ];
 

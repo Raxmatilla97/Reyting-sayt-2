@@ -241,6 +241,10 @@
                 </div>
             </div>
         </main>
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4 relative z-10 w-4/5 mx-auto" role="alert">
+            <p class="font-bold">DIQQAT!</p>
+            <p>Yakuniy hisob-kitobda fakultetlar va kafedralarning umumiy natijalari saytdagi natijalardan farq qilishi mumkin. Shuni inobatga olishingizni so'raymiz.</p>
+        </div>
 
         <!-- Footer -->
         <footer class="relative z-1 text-center text-white p-6 bg-gradient-to-r from-blue-600 to-indigo-600 mt-12">
