@@ -122,12 +122,12 @@ class FormsController extends Controller
             // asos_file uchun fayl yuklash logikasi
             if ($request->hasFile('asos_file')) {
                 $validatedData = $request->validate([
-                    'asos_file' => 'required|file|mimes:pdf|max:2048',
+                    'asos_file' => 'required|file|mimes:pdf,mp4,mp3,docx,doc|max:102400',
                 ], [
                     'asos_file.required' => 'Fayl yuklash majburiy.',
                     'asos_file.file' => 'Yuklangan fayl haqiqiy fayl bo\'lishi kerak.',
-                    'asos_file.mimes' => 'Faqat PDF formatidagi fayllar ruxsat etiladi.',
-                    'asos_file.max' => 'Fayl hajmi 2MB dan katta bo\'lmasligi kerak.',
+                    'asos_file.mimes' => 'Faqat PDF, MP4, MP3, DOCX, DOC formatidagi fayllar ruxsat etiladi.',
+                    'asos_file.max' => 'Fayl hajmi 100MB dan katta bo\'lmasligi kerak.',
                 ]);
 
                 $file = $request->file('asos_file');
@@ -138,12 +138,12 @@ class FormsController extends Controller
             // asos_file2 uchun fayl yuklash logikasi
             if ($request->hasFile('asos_file2')) {
                 $validatedData = $request->validate([
-                    'asos_file2' => 'required|file|mimes:pdf|max:2048',
+                    'asos_file2' => 'required|file|mimes:pdf,mp4,mp3,docx,doc|max:102400',
                 ], [
                     'asos_file2.required' => 'Fayl yuklash majburiy.',
                     'asos_file2.file' => 'Yuklangan fayl haqiqiy fayl bo\'lishi kerak.',
-                    'asos_file2.mimes' => 'Faqat PDF formatidagi fayllar ruxsat etiladi.',
-                    'asos_file2.max' => 'Fayl hajmi 2MB dan katta bo\'lmasligi kerak.',
+                    'asos_file2.mimes' => 'Faqat PDF, MP4, MP3, DOCX, DOC formatidagi fayllar ruxsat etiladi.',
+                    'asos_file2.max' => 'Fayl hajmi 100MB dan katta bo\'lmasligi kerak.',
                 ]);
 
                 $file2 = $request->file('asos_file2');
