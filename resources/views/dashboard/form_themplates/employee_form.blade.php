@@ -94,15 +94,13 @@
                                            id="{{ $field['name'] }}"
                                            name="{{ $field['name'] }}"
                                            value="{{ $oldData->{$field['name']} ?? old($field['name']) }}"
-                                           required
                                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm transition duration-150 ease-in-out"/>
                                 @elseif($field['type'] === 'file')
                                     <div class="flex flex-col space-y-2">
                                         <input type="file"
                                                id="{{ $field['name'] }}"
                                                name="{{ $field['name'] }}"
-                                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
-                                               {{ !isset($oldData) ? 'required' : '' }}/>
+                                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"/>
 
                                         @if(isset($oldData) && $oldData->{$field['name']})
                                             <div class="text-sm text-gray-500 bg-gray-50 p-2 rounded-md flex items-center">
