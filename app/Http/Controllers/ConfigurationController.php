@@ -744,6 +744,9 @@ class ConfigurationController extends Controller
             // Prioritet bo'yicha [11, 15, 12] employmentForm kodlarini tekshirish
             $priorityOrder = ['11', '15', '12']; // employmentForm codes
             
+            // StaffPosition tekshiruvi - agar code "12" (Assistent) bo'lsa, status false qilinadi
+            $allowedStaffPositions = ['11', '13', '14']; // Ruxsat etilgan staffPosition kodlari
+            
             foreach ($priorityOrder as $priorityCode) {
                 foreach ($items as $item) {
                     if (isset($item['employmentForm']['code']) && 
@@ -752,16 +755,35 @@ class ConfigurationController extends Controller
                         $isWorking = isset($item['employeeStatus']['code']) && 
                                    $item['employeeStatus']['code'] === '11';
                         
-                        if ($isWorking) {
+                        // StaffPosition tekshiruvi
+                        $staffPositionCode = $item['staffPosition']['code'] ?? null;
+                        $isValidStaffPosition = in_array($staffPositionCode, $allowedStaffPositions);
+                        
+                        if ($isWorking && $isValidStaffPosition) {
                             return [
                                 'is_active' => true,
                                 'department_id' => $item['department']['id'],
                                 'details' => [
-                                    'reason' => 'Found active employment by priority',
+                                    'reason' => 'Found active employment by priority with valid staff position',
                                     'priority_code' => $priorityCode,
                                     'employment_form' => $item['employmentForm'],
                                     'employment_staff' => $item['employmentStaff'] ?? null,
                                     'employee_status' => $item['employeeStatus'],
+                                    'staff_position' => $item['staffPosition'] ?? null,
+                                    'department' => $item['department']['name']
+                                ]
+                            ];
+                        } elseif ($isWorking && !$isValidStaffPosition) {
+                            // Agar employeeStatus aktiv lekin staffPosition "12" (Assistent) bo'lsa
+                            return [
+                                'is_active' => false,
+                                'department_id' => null,
+                                'details' => [
+                                    'reason' => 'Employee status is active but staff position is not allowed (Assistent - code 12)',
+                                    'priority_code' => $priorityCode,
+                                    'employment_form' => $item['employmentForm'],
+                                    'employee_status' => $item['employeeStatus'],
+                                    'staff_position' => $item['staffPosition'] ?? null,
                                     'department' => $item['department']['name']
                                 ]
                             ];
@@ -778,6 +800,7 @@ class ConfigurationController extends Controller
                     'employment_form' => $item['employmentForm'] ?? null,
                     'employment_staff' => $item['employmentStaff'] ?? null,
                     'employee_status' => $item['employeeStatus'] ?? null,
+                    'staff_position' => $item['staffPosition'] ?? null,
                     'department' => $item['department']['name'] ?? null
                 ];
             }

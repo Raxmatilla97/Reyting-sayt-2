@@ -542,19 +542,23 @@ class ExportInfosController extends Controller
     {
         return new StreamedResponse(function () {
             try {
-                // Xotira va vaqt limitlarini oshirish
-                ini_set('memory_limit', '16G');
+                // Xotira va vaqt limitlarini maksimal darajada oshirish
+                ini_set('memory_limit', '120G');
                 ini_set('max_execution_time', 0);
                 set_time_limit(0);
                 
                 // PHP konfiguratsiyalarini optimizatsiya qilish
-                ini_set('pcre.backtrack_limit', '5000000');
-                ini_set('pcre.recursion_limit', '5000000');
+                ini_set('pcre.backtrack_limit', '10000000');
+                ini_set('pcre.recursion_limit', '10000000');
                 
                 // Garbage Collection optimizatsiyasi
                 if (function_exists('gc_enable')) {
                     gc_enable();
                 }
+                
+                // Excel uchun qo'shimcha optimizatsiya
+                ini_set('max_input_vars', '10000');
+                ini_set('max_input_time', '0');
 
                 $this->sendUpdate('Boshlash', 0);
 
@@ -612,33 +616,46 @@ class ExportInfosController extends Controller
                         return $item->$table !== null;
                     });
 
-                    $this->sendUpdate($table . ' uchun ' . $tableData->count() . ' ta yozuv topildi', $currentProgress);
+                    $expectedRecords = $tableData->count();
+                    $this->sendUpdate($table . ' uchun ' . $expectedRecords . ' ta yozuv topildi', $currentProgress);
+                    Log::info("$table uchun $expectedRecords ta yozuv topildi");
 
                     $methodName = 'fill' . str_replace('_', '', ucfirst($table)) . 'Data';
                     if (method_exists($this, $methodName)) {
-                        // Chunk qilib ishlov berish
-                        $tableData->chunk(1000)->each(function ($chunk) use ($sheet, $methodName) {
-                            $this->$methodName($sheet, $chunk);
-                            
-                            // Xotirani tozalash har bir chunk dan keyin
-                            if (function_exists('gc_collect_cycles')) {
-                                gc_collect_cycles();
-                            }
-                        });
+                        // Barcha ma'lumotlarni bir vaqtda ishlov berish - chunk limitini olib tashlash
+                        Log::info("$table uchun $methodName metodi chaqirilmoqda");
+                        $this->$methodName($sheet, $tableData);
+                        
+                        // Xotirani tozalash
+                        if (function_exists('gc_collect_cycles')) {
+                            gc_collect_cycles();
+                        }
+                        Log::info("$table uchun ma'lumotlar muvaffaqiyatli yozildi");
+                        
+                        // Ma'lumotlar to'liq yozilganligini tekshirish
+                        $actualRows = $sheet->getHighestRow() - 4; // Header qatorlarini hisobga olmaslik
+                        if ($actualRows < $expectedRecords) {
+                            Log::warning("$table: Kutilgan $expectedRecords, lekin $actualRows ta qator yozildi");
+                            $this->sendUpdate("$table: Ma'lumotlar to'liq yozilmadi! ($actualRows/$expectedRecords)", $currentProgress);
+                        } else {
+                            Log::info("$table: Barcha $expectedRecords ta ma'lumot muvaffaqiyatli yozildi");
+                            $this->sendUpdate("$table: Barcha ma'lumotlar yozildi ($actualRows ta qator)", $currentProgress);
+                        }
                     } else {
-                        // Chunk qilib ishlov berish
-                        $tableData->chunk(1000)->each(function ($chunk) use ($sheet, $table) {
-                            $this->fillDefaultData($sheet, $chunk, $table);
-                            
-                            // Xotirani tozalash har bir chunk dan keyin
-                            if (function_exists('gc_collect_cycles')) {
-                                gc_collect_cycles();
-                            }
-                        });
+                        // Barcha ma'lumotlarni bir vaqtda ishlov berish - chunk limitini olib tashlash
+                        Log::info("$table uchun default metod ishlatilmoqda");
+                        $this->fillDefaultData($sheet, $tableData, $table);
+                        
+                        // Xotirani tozalash
+                        if (function_exists('gc_collect_cycles')) {
+                            gc_collect_cycles();
+                        }
+                        Log::info("$table uchun default ma'lumotlar yozildi");
                     }
 
                     $currentProgress += $progressPerTable;
                     $this->sendUpdate($table . ' ma\'lumotlari to\'ldirildi', $currentProgress);
+                    Log::info("$table jadval to'liq ishlab chiqildi");
                 }
 
                 // Yangi shablonni saqlash
@@ -912,16 +929,23 @@ class ExportInfosController extends Controller
     private function manageMemory($callback, $sheet, $pointUserDeportaments)
     {
         try {
-            // Xotirani oshirish
-            ini_set('memory_limit', '40G');
+            // Xotirani maksimal darajada oshirish
+            ini_set('memory_limit', '120G');
+            ini_set('max_execution_time', 0);
+            set_time_limit(0);
 
-            // Ma'lumotlarni qismlab olish
-            $chunkSize = 80000;
-            $totalChunks = ceil($pointUserDeportaments->count() / $chunkSize);
+            // Ma'lumotlarni kattaroq qismlab olish - limitni oshirish
+            $chunkSize = 500000; // 80,000 dan 500,000 ga oshirdik
+            $totalRecords = $pointUserDeportaments->count();
+            $totalChunks = ceil($totalRecords / $chunkSize);
             $currentChunk = 0;
+
+            Log::info("Jami ma'lumotlar soni: $totalRecords, Chunk hajmi: $chunkSize, Jami chunklar: $totalChunks");
 
             foreach ($pointUserDeportaments->chunk($chunkSize) as $chunk) {
                 $currentChunk++;
+                
+                Log::info("Chunk $currentChunk/$totalChunks ishlanmoqda, ma'lumotlar soni: " . $chunk->count());
 
                 $callback($sheet, $chunk);
 
@@ -930,11 +954,14 @@ class ExportInfosController extends Controller
 
                 // Progressni log qilish
                 $progress = round(($currentChunk / $totalChunks) * 100, 2);
+                Log::info("Progress: $progress% ($currentChunk/$totalChunks chunks completed)");
             }
 
             // Oxirida qo'shimcha xotirani tozalash
             $sheet->garbageCollect();
+            Log::info("Barcha ma'lumotlar muvaffaqiyatli ishlab chiqildi");
         } catch (\Exception $e) {
+            Log::error("ManageMemory xatolik: " . $e->getMessage());
             throw $e;
         } finally {
             // Xotirani tozalash
@@ -978,8 +1005,10 @@ class ExportInfosController extends Controller
 
     private function fillTable2Data($sheet, $pointUserDeportaments)
     {
-        $tableData = new Table_2_DataCode();
-        $tableData->exportTableData($sheet, $pointUserDeportaments);
+        $this->manageMemory(function ($sheet, $chunk) {
+            $tableData = new Table_2_DataCode();
+            $tableData->exportTableData($sheet, $chunk);
+        }, $sheet, $pointUserDeportaments);
     }
 
     private function fillTable3Data($sheet, $pointUserDeportaments)
