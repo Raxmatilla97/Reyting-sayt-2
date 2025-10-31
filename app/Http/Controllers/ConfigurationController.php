@@ -811,7 +811,7 @@ class ConfigurationController extends Controller
     public function getDepartmentId($departments)
     {
         try {
-            $priorityOrder = [11, 15, 12];
+            $priorityOrder = [11, 15];
             $departmentsByPriority = [];
 
             // Har bir department uchun employment code bo'yicha guruhlash
