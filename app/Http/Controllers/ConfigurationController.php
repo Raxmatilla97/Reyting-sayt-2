@@ -742,10 +742,10 @@ class ConfigurationController extends Controller
             }
 
             // Prioritet bo'yicha [11, 15, 12] employmentForm kodlarini tekshirish
-            $priorityOrder = ['11', '15', '12']; // employmentForm codes
+            $priorityOrder = ['11', '15']; // employmentForm codes
             
             // StaffPosition tekshiruvi - agar code "12" (Assistent) bo'lsa, status false qilinadi
-            $allowedStaffPositions = ['11', '13', '14']; // Ruxsat etilgan staffPosition kodlari
+            $allowedStaffPositions = ['11', '12', '13', '14']; // Ruxsat etilgan staffPosition kodlari
             
             foreach ($priorityOrder as $priorityCode) {
                 foreach ($items as $item) {
