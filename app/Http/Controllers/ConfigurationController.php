@@ -656,50 +656,50 @@ class ConfigurationController extends Controller
             $updatedCount = 0;
             $keptInactiveCount = 0; // Bo'shagan bo'lgani uchun faollashtirmagan
 
-                    foreach ($inactiveUsers as $user) {
-            try {
-                $hemisResponse = $this->getEmployeeDataFromHemis($user->employee_id_number);
-                $employeeAnalysis = $this->analyzeEmployeeStatus($hemisResponse);
+            foreach ($inactiveUsers as $user) {
+                try {
+                    $hemisResponse = $this->getEmployeeDataFromHemis($user->employee_id_number);
+                    $employeeAnalysis = $this->analyzeEmployeeStatus($hemisResponse);
 
-                Log::info("Status 0 bo'lgan foydalanuvchi tahlili", [
-                    'user_id' => $user->id,
-                    'name' => $user->name,
-                    'analysis' => $employeeAnalysis
-                ]);
-
-                // Agar xodim haqiqatan ham faol bo'lsa, faollashtirish
-                if ($employeeAnalysis['is_active'] && $employeeAnalysis['department_id']) {
-                    DB::transaction(function () use ($user, $employeeAnalysis) {
-                        $user->status = 1;
-                        $user->department_id = $employeeAnalysis['department_id'];
-                        $user->save();
-
-                        Log::info("Status 0 bo'lgan foydalanuvchi faollashtirildi", [
-                            'user_id' => $user->id,
-                            'name' => $user->name,
-                            'new_department' => $employeeAnalysis['department_id']
-                        ]);
-                    });
-                    $updatedCount++;
-                } else {
-                    // Agar haqiqatan ham nofaol bo'lsa, logga yozish
-                    Log::info("Status 0 bo'lgan foydalanuvchi nofaol, faollashtirmaylik", [
+                    Log::info("Status 0 bo'lgan foydalanuvchi tahlili", [
                         'user_id' => $user->id,
                         'name' => $user->name,
-                        'reason' => $employeeAnalysis['details']['reason']
+                        'analysis' => $employeeAnalysis
                     ]);
-                    $keptInactiveCount++;
+
+                    // Agar xodim haqiqatan ham faol bo'lsa, faollashtirish
+                    if ($employeeAnalysis['is_active'] && $employeeAnalysis['department_id']) {
+                        DB::transaction(function () use ($user, $employeeAnalysis) {
+                            $user->status = 1;
+                            $user->department_id = $employeeAnalysis['department_id'];
+                            $user->save();
+
+                            Log::info("Status 0 bo'lgan foydalanuvchi faollashtirildi", [
+                                'user_id' => $user->id,
+                                'name' => $user->name,
+                                'new_department' => $employeeAnalysis['department_id']
+                            ]);
+                        });
+                        $updatedCount++;
+                    } else {
+                        // Agar haqiqatan ham nofaol bo'lsa, logga yozish
+                        Log::info("Status 0 bo'lgan foydalanuvchi nofaol, faollashtirmaylik", [
+                            'user_id' => $user->id,
+                            'name' => $user->name,
+                            'reason' => $employeeAnalysis['details']['reason']
+                        ]);
+                        $keptInactiveCount++;
+                    }
+                } catch (\Exception $e) {
+                    if ($e->getMessage() !== "HEMIS_EMPLOYEE_NOT_FOUND") {
+                        Log::error("Status 0 tekshirishda xatolik", [
+                            'user_id' => $user->id,
+                            'error' => $e->getMessage()
+                        ]);
+                    }
+                    continue;
                 }
-            } catch (\Exception $e) {
-                if ($e->getMessage() !== "HEMIS_EMPLOYEE_NOT_FOUND") {
-                    Log::error("Status 0 tekshirishda xatolik", [
-                        'user_id' => $user->id,
-                        'error' => $e->getMessage()
-                    ]);
-                }
-                continue;
             }
-        }
 
             Log::info("Status 0 bo'lgan foydalanuvchilarni tekshirish yakunlandi", [
                 'total_checked' => $inactiveUsers->count(),
@@ -732,7 +732,7 @@ class ConfigurationController extends Controller
     {
         try {
             $items = $hemisResponse['data']['items'] ?? [];
-            
+
             if (empty($items)) {
                 return [
                     'is_active' => false,
@@ -743,47 +743,27 @@ class ConfigurationController extends Controller
 
             // Prioritet bo'yicha [11, 15, 12] employmentForm kodlarini tekshirish
             $priorityOrder = ['11', '15']; // employmentForm codes
-            
-            // StaffPosition tekshiruvi - agar code "12" (Assistent) bo'lsa, status false qilinadi
-            $allowedStaffPositions = ['11', '12', '13', '14']; // Ruxsat etilgan staffPosition kodlari
-            
+
             foreach ($priorityOrder as $priorityCode) {
                 foreach ($items as $item) {
-                    if (isset($item['employmentForm']['code']) && 
-                        $item['employmentForm']['code'] === $priorityCode) {
-                        
-                        $isWorking = isset($item['employeeStatus']['code']) && 
-                                   $item['employeeStatus']['code'] === '11';
-                        
-                        // StaffPosition tekshiruvi
-                        $staffPositionCode = $item['staffPosition']['code'] ?? null;
-                        $isValidStaffPosition = in_array($staffPositionCode, $allowedStaffPositions);
-                        
-                        if ($isWorking && $isValidStaffPosition) {
+                    if (
+                        isset($item['employmentForm']['code']) &&
+                        $item['employmentForm']['code'] === $priorityCode
+                    ) {
+
+                        $isWorking = isset($item['employeeStatus']['code']) &&
+                            $item['employeeStatus']['code'] === '11';
+
+                        if ($isWorking) {
                             return [
                                 'is_active' => true,
                                 'department_id' => $item['department']['id'],
                                 'details' => [
-                                    'reason' => 'Found active employment by priority with valid staff position',
+                                    'reason' => 'Found active employment by priority',
                                     'priority_code' => $priorityCode,
                                     'employment_form' => $item['employmentForm'],
                                     'employment_staff' => $item['employmentStaff'] ?? null,
                                     'employee_status' => $item['employeeStatus'],
-                                    'staff_position' => $item['staffPosition'] ?? null,
-                                    'department' => $item['department']['name']
-                                ]
-                            ];
-                        } elseif ($isWorking && !$isValidStaffPosition) {
-                            // Agar employeeStatus aktiv lekin staffPosition "12" (Assistent) bo'lsa
-                            return [
-                                'is_active' => false,
-                                'department_id' => null,
-                                'details' => [
-                                    'reason' => 'Employee status is active but staff position is not allowed (Assistent - code 12)',
-                                    'priority_code' => $priorityCode,
-                                    'employment_form' => $item['employmentForm'],
-                                    'employee_status' => $item['employeeStatus'],
-                                    'staff_position' => $item['staffPosition'] ?? null,
                                     'department' => $item['department']['name']
                                 ]
                             ];
@@ -800,7 +780,6 @@ class ConfigurationController extends Controller
                     'employment_form' => $item['employmentForm'] ?? null,
                     'employment_staff' => $item['employmentStaff'] ?? null,
                     'employee_status' => $item['employeeStatus'] ?? null,
-                    'staff_position' => $item['staffPosition'] ?? null,
                     'department' => $item['department']['name'] ?? null
                 ];
             }
@@ -814,13 +793,12 @@ class ConfigurationController extends Controller
                     'all_positions' => $allPositions
                 ]
             ];
-
         } catch (\Exception $e) {
             Log::error("Employee status analysis error", [
                 'error' => $e->getMessage(),
                 'hemisResponse' => $hemisResponse
             ]);
-            
+
             return [
                 'is_active' => false,
                 'department_id' => null,
@@ -828,6 +806,7 @@ class ConfigurationController extends Controller
             ];
         }
     }
+
 
     public function getDepartmentId($departments)
     {
@@ -964,7 +943,7 @@ class ConfigurationController extends Controller
 
                     // Yangi analiz funksiyasidan foydalanish
                     $employeeAnalysis = $this->analyzeEmployeeStatus($hemisResponse);
-                    
+
                     Log::info("Xodim holatini tahlil qilish natijasi", [
                         'employee_id' => $user->employee_id_number,
                         'user_name' => $user->name,
